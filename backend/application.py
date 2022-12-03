@@ -15,7 +15,7 @@ instructions = '''
     someone specific.</p>\n'''
 home_link = '<p><a href="/">Back</a></p>\n'
 footer_text = '</body>\n</html>'
-sso_link = '<p><a href="/login?next=/verified">Log in using SSO</a></p>'
+sso_link = '<p><a href="/login">Log in using SSO</a></p>'
 
 # EB looks for an 'application' callable by default.
 application = Flask(__name__)
@@ -38,50 +38,55 @@ application.add_url_rule('/<username>', 'hello', (lambda username:
     header_text + say_hello(username) + home_link + footer_text))
 
 
-@application.route('/verified')
-def profile():
-    return("You have been logged in!")
-
-
 @application.route('/profile')
 def profile(method=['GET']):
     if 'username' in session:
         return 'Logged in as %s. <a href="/logout">Logout</a>' % session['username']
     return 'Login required. <a href="/login">Login</a>', 403
 
-
 @application.route('/login')
 def login():
     print("In login")
+    print("New code!")
+    print("session: ", session)
+
     if 'username' in session:
         # Already logged in
-        return redirect(url_for('verified')) #used to be profile
+        print("you are already logged in")
+        return redirect(url_for('profile')) #used to be profile
 
     next = request.args.get('next')
+    print("this is your next when username is not in session: ", next)
     ticket = request.args.get('ticket')
+    print("this is your ticket when username is not in session: ", ticket)
     if not ticket:
         # No ticket, the request come from end user, send to CAS login
         cas_login_url = cas_client.get_login_url()
         application.logger.debug('CAS login URL: %s', cas_login_url)
+        # basically the step where you got redirected to cc's screen and prompted for login
+        print('CAS login URL: ', cas_login_url)
         return redirect(cas_login_url)
 
     # There is a ticket, the request come from CAS as callback.
     # need call `verify_ticket()` to validate ticket and get user profile.
     application.logger.debug('ticket: %s', ticket)
+    print("you do have a ticket - ticket: ", ticket)
     application.logger.debug('next: %s', next)
+    print("you do have a ticket and this is your next: ", next)
 
     user, attributes, pgtiou = cas_client.verify_ticket(ticket)
+    print("logging")
 
-    print("logging,")
     application.logger.debug(
         'CAS verify ticket response: user: %s, attributes: %s, pgtiou: %s', user, attributes, pgtiou)
-
+    print('CAS verify ticket response: user: %s, attributes: %s, pgtiou: %s', user, attributes, pgtiou)
+    
     if not user:
         return 'Failed to verify ticket. <a href="/login">Login</a>'
     else:  # Login successfully, redirect according `next` query parameter.
+        print("you logged in successfully and will be redirected to next - next is: ", next)
         session['username'] = user
         return redirect(next)
-
 
 @application.route('/logout')
 def logout():
