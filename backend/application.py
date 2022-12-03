@@ -47,13 +47,16 @@ def profile(method=['GET']):
 
 @application.route('/login')
 def login():
-    print("In login")
+    print("session: ", session)
+
     if 'username' in session:
         # Already logged in
         return redirect(url_for('profile'))
 
     next = request.args.get('next')
     ticket = request.args.get('ticket')
+    print("ticket: ", ticket)
+
     if not ticket:
         # No ticket, the request come from end user, send to CAS login
         cas_login_url = cas_client.get_login_url()
