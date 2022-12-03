@@ -1,4 +1,3 @@
-
 from flask import Flask, request, session, redirect, url_for
 from cas import CASClient
 
@@ -15,7 +14,7 @@ instructions = '''
     someone specific.</p>\n'''
 home_link = '<p><a href="/">Back</a></p>\n'
 footer_text = '</body>\n</html>'
-sso_link = '<p><a href="/login?next=/verified">Log in using SSO</a></p>'
+sso_link = '<p><a href="/login">Log in using SSO</a></p>'
 
 # EB looks for an 'application' callable by default.
 application = Flask(__name__)
@@ -27,17 +26,18 @@ cas_client = CASClient(
     server_url='https://cas.coloradocollege.edu/cas/'
 )
 
-
 # add a rule for the index page.
-application.add_url_rule('/', 'index', (lambda: header_text +
-    say_hello() + instructions + footer_text + sso_link))
+# application.add_url_rule('/', 'index', (lambda: header_text +
+#     say_hello() + instructions + footer_text + sso_link))
+
+@application.route('/')
+def index():
+    return redirect(url_for('login'))
 
 # add a rule when the page is accessed with a name appended to the site
 # URL.
-application.add_url_rule('/<username>', 'hello', (lambda username:
-    header_text + say_hello(username) + home_link + footer_text))
-
-
+# application.add_url_rule('/<username>', 'hello', (lambda username:
+#     header_text + say_hello(username) + home_link + footer_text))
 
 @application.route('/profile')
 def profile(method=['GET']):
@@ -45,13 +45,12 @@ def profile(method=['GET']):
         return 'Logged in as %s. <a href="/logout">Logout</a>' % session['username']
     return 'Login required. <a href="/login">Login</a>', 403
 
-
 @application.route('/login')
 def login():
     print("In login")
     if 'username' in session:
         # Already logged in
-        return redirect(url_for('verified')) #used to be profile
+        return redirect(url_for('profile'))
 
     next = request.args.get('next')
     ticket = request.args.get('ticket')
