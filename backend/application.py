@@ -38,10 +38,6 @@ application.add_url_rule('/<username>', 'hello', (lambda username:
     header_text + say_hello(username) + home_link + footer_text))
 
 
-@application.route('/verified')
-def profile():
-    return("You have been logged in!")
-
 
 @application.route('/profile')
 def profile(method=['GET']):
