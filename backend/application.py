@@ -52,9 +52,10 @@ def profile(method=['GET']):
 
 @application.route('/login')
 def login():
+    print("In login")
     if 'username' in session:
         # Already logged in
-        return redirect(url_for('profile'))
+        return redirect(url_for('verified')) #used to be profile
 
     next = request.args.get('next')
     ticket = request.args.get('ticket')
@@ -71,6 +72,7 @@ def login():
 
     user, attributes, pgtiou = cas_client.verify_ticket(ticket)
 
+    print("logging,")
     application.logger.debug(
         'CAS verify ticket response: user: %s, attributes: %s, pgtiou: %s', user, attributes, pgtiou)
 
