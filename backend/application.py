@@ -15,7 +15,7 @@ instructions = '''
     someone specific.</p>\n'''
 home_link = '<p><a href="/">Back</a></p>\n'
 footer_text = '</body>\n</html>'
-sso_link = '<p><a href="/login">Log in using SSO</a></p>'
+sso_link = '<p><a href="/login?next=/verified">Log in using SSO</a></p>'
 
 # EB looks for an 'application' callable by default.
 application = Flask(__name__)
@@ -36,6 +36,11 @@ application.add_url_rule('/', 'index', (lambda: header_text +
 # URL.
 application.add_url_rule('/<username>', 'hello', (lambda username:
     header_text + say_hello(username) + home_link + footer_text))
+
+
+@application.route('/verified')
+def profile():
+    return("You have been logged in!")
 
 
 @application.route('/profile')
