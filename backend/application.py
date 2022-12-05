@@ -1,6 +1,11 @@
-from flask import Flask, request, session, redirect, url_for, jsonify
+from flask import Flask, request, session, redirect, url_for, url_for
+import os
+from werkzeug.utils import secure_filename
 from cas import CASClient
 from .models import Tutor
+
+UPLOAD_FOLDER = '.'
+ALLOWED_EXTENSIONS = {'xls', 'xlsx', 'xlsm', 'xlsb', 'odf', 'ods', 'odt'}
 
 # print a nice greeting.
 def say_hello(username="Team"):
@@ -17,12 +22,17 @@ sso_link = '<p><a href="/login">Log in using SSO</a></p>'
 # EB looks for an 'application' callable by default.
 application = Flask(__name__)
 application.secret_key = 'V7nlCN90LPHOTA9PGGyf'
+application.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 cas_client = CASClient(
     version=3,
     service_url='http://35.88.95.206:8080/',
     server_url='https://cas.coloradocollege.edu/cas/'
 )
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 # add a rule for the index page
 @application.route('/')
