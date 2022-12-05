@@ -28,7 +28,7 @@ cas_client = CASClient(
 def index():
     if 'username' in session:
         # Already logged in
-        return 'You are logged in. Here you are going to see your schedule. <a href="/logout">Logout</a>'
+        return 'You are logged in. Here you are going to see your schedule. <a href="/exit">Logout</a>'
 
     next = request.args.get('next')
     ticket = request.args.get('ticket')
@@ -56,7 +56,7 @@ def index():
 def profile(method=['GET']):
     application.logger.debug('session when you hit profile: %s', session)
     if 'username' in session:
-        return 'Logged in as {}. Your email address is {}. <a href="/logout">Logout</a>'.format(session['username'], session['email'])
+        return 'Logged in as {}. Your email address is {}. <a href="/logout">Exit</a>'.format(session['username'], session['email'])
     return 'Login required. <a href="/login">Login</a>', 403
 
 @application.route('/login')
@@ -76,22 +76,19 @@ def login():
         application.logger.debug('CAS login URL: %s', cas_login_url)
         return redirect(cas_login_url) # the return of this is /ticket?=...
 
-@application.route('/logout')
+@application.route('/cas_logout')
 def logout():
     redirect_url = url_for('logout_callback', _external=True)
     application.logger.debug('Redirect logout URL %s', redirect_url)
     cas_logout_url = cas_client.get_logout_url(redirect_url)
     application.logger.debug('CAS logout URL: %s', cas_logout_url)
 
-    # session.clear() # because logout_callback doesn't work, clear session here
-    # return redirect(cas_logout_url, 302)
-    return redirect(url_for('logout_callback'))
+    return redirect(cas_logout_url)
 
-@application.route('/logout_callback')
+@application.route('/logout')
 def logout_callback():
-    # redirect from CAS logout request after CAS logout successfully
     session.clear()
-    return 'Logged out from CAS. <a href="/login">Login</a>'
+    return 'Exited CAS. <a href="/login">Login</a>'
 
 # run the app.
 if __name__ == "__main__":
