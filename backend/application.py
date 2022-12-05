@@ -2,7 +2,7 @@ from flask import Flask, request, session, redirect, url_for
 from cas import CASClient
 
 # print a nice greeting.
-def say_hello(username = "Team"):
+def say_hello(username = "Programmer"):
     return '<p>Hello %s!</p>\n' % username
 
 # some bits of text for the page.
