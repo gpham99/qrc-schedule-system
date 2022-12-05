@@ -7,7 +7,7 @@ class Tutor:
     def __repr__(self):
         return self.email + self.firstname + self.lastname
 
-    def dict(self):
+    def asdict(self):
         return {
             'Email': self.email,
             "Firstname": self.firstname,
