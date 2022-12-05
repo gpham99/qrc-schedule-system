@@ -28,7 +28,7 @@ cas_client = CASClient(
 def index():
     if 'username' in session:
         # Already logged in
-        return 'You are logged in. Here you are going to see your schedule. <a href="/exit">Logout</a>'
+        return 'You are logged in. Here you are going to see your schedule. <a href="/logout">Exit</a>'
 
     next = request.args.get('next')
     ticket = request.args.get('ticket')
