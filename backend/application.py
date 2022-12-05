@@ -48,7 +48,7 @@ def index():
         session['username'] = user
         application.logger.debug('next: %s', next)
         if not next:
-            return redirect(redirect(url_for('profile')))
+            return redirect(url_for('profile'))
         return redirect(next)
 
 @application.route('/profile')
