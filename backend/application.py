@@ -79,14 +79,14 @@ def logout():
     cas_logout_url = cas_client.get_logout_url(redirect_url)
     application.logger.debug('CAS logout URL: %s', cas_logout_url)
 
-    session.pop('username', None) # this eliminates logout_callback
+    session.pop('username', None) # because logout_callback doesn't work, I have to add this line
     return redirect(cas_logout_url)
 
-# @application.route('/logout_callback')
-# def logout_callback():
-#     # redirect from CAS logout request after CAS logout successfully
-#     session.pop('username', None)
-#     return 'Logged out from CAS. <a href="/login">Login</a>'
+@application.route('/logout_callback')
+def logout_callback():
+    # redirect from CAS logout request after CAS logout successfully
+    session.pop('username', None)
+    return 'Logged out from CAS. <a href="/login">Login</a>'
 
 # run the app.
 if __name__ == "__main__":
