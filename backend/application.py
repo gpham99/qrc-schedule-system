@@ -14,6 +14,7 @@ sso_link = '<p><a href="/login">Log in using SSO</a></p>'
 
 # EB looks for an 'application' callable by default.
 application = Flask(__name__)
+
 application.secret_key = 'V7nlCN90LPHOTA9PGGyf'
 
 cas_client = CASClient(
@@ -21,7 +22,10 @@ cas_client = CASClient(
     service_url='http://35.88.95.206:8080/',
     server_url='https://cas.coloradocollege.edu/cas/'
 )
-session.permanent = False
+
+@application.before_request
+def make_session_permanent():
+    session.permanent = False # after you close the browser, session doesn't persist
 
 # add a rule for the index page
 @application.route('/')
