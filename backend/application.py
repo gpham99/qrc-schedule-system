@@ -21,6 +21,7 @@ cas_client = CASClient(
     service_url='http://35.88.95.206:8080/',
     server_url='https://cas.coloradocollege.edu/cas/'
 )
+session.permanent = False
 
 # add a rule for the index page
 @application.route('/')
