@@ -1,7 +1,6 @@
 from flask import Flask, request, session, redirect, url_for, jsonify
 from cas import CASClient
-from models import Tutor
-
+from .models import Tutor
 
 # print a nice greeting.
 def say_hello(username="Team"):
