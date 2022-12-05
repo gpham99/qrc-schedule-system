@@ -1,4 +1,4 @@
-class Tutor():
+class Tutor:
     def __init__(self, email, firstname, lastname):
         self.email = email
         self.firstname = firstname
