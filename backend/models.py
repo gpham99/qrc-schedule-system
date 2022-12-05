@@ -5,6 +5,9 @@ class Tutor:
         self.lastname = lastname
 
     def __repr__(self):
+        return self.email + self.firstname + self.lastname
+
+    def dict(self):
         return {
             'Email': self.email,
             "Firstname": self.firstname,

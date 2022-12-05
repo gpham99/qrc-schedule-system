@@ -127,7 +127,7 @@ sample_tutor = Tutor('j_hannebert@coloradocollege.edu', 'Jessica', 'Hannebert')
 def get_tutor():
     # Returning an api for showing in reactjs
 
-    return jsonify(repr(sample_tutor))
+    return dict(sample_tutor)
 
 
 # run the app.
