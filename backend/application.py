@@ -89,6 +89,10 @@ def logout():
 def logout_callback():
     session.clear()
     return 'Exited CAS. <a href="/login">Login</a>'
+    
+@application.route('/api')
+def api():
+    return { "tutorial": "whatever"}
 
 # run the app.
 if __name__ == "__main__":
