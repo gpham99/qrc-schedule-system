@@ -1,4 +1,4 @@
-from flask import Flask, request, session, redirect, url_for
+from flask import Flask, request, session, redirect, url_for, jsonify
 from cas import CASClient
 from models import Tutor
 
@@ -127,7 +127,8 @@ sample_tutor = Tutor('j_hannebert@coloradocollege.edu', 'Jessica', 'Hannebert')
 @application.route('/data')
 def get_tutor():
     # Returning an api for showing in reactjs
-    return repr(sample_tutor)
+
+    return jsonify(repr(sample_tutor))
 
 
 # run the app.
