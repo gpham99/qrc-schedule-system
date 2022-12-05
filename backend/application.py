@@ -53,13 +53,13 @@ def login():
         session['username'] = user
         return redirect(url_for('profile')) # used to be return redirect(next)
 
-
 @application.route('/logout')
 def logout():
     redirect_url = url_for('logout_callback', _external=True)
     cas_logout_url = cas_client.get_logout_url(redirect_url)
     application.logger.debug('CAS logout URL: %s', cas_logout_url)
 
+    session.pop('username', None)
     return redirect(cas_logout_url)
 
 
