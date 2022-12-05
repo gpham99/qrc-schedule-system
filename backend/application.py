@@ -104,7 +104,7 @@ def logout():
     application.logger.debug('CAS logout URL: %s', cas_logout_url)
 
     session.pop('username', None) # this eliminates logout_callback
-    redirect(cas_logout_url)
+    return redirect(cas_logout_url)
 
 @application.route('/logout_callback')
 def logout_callback():
