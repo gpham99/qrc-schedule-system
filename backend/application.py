@@ -60,6 +60,8 @@ def profile(method=['GET']):
 
 @application.route('/login')
 def login():
+    application.logger.debug('session info: %s', session)
+
     if 'username' in session:
         # Already logged in
         return redirect(url_for('profile'))
@@ -72,6 +74,8 @@ def login():
         cas_login_url = cas_client.get_login_url()
         application.logger.debug('CAS login URL: %s', cas_login_url)
         return redirect(cas_login_url) # the return of this is /ticket?=...
+    else:
+        return 'Just so you know you have a ticket going'
 
 @application.route('/logout')
 def logout():
