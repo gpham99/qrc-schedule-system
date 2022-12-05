@@ -2,16 +2,12 @@ from flask import Flask, request, session, redirect, url_for
 from cas import CASClient
 
 # print a nice greeting.
-def say_hello(username = "Programmer"):
+def say_hello(username = "QRC tutors and administrators!"):
     return '<p>Hello %s!</p>\n' % username
 
 # some bits of text for the page.
 header_text = '''
     <html>\n<head> <title>EB Flask Test</title> </head>\n<body>'''
-instructions = '''
-    <p><em>Hint</em>: This is a RESTful web service! Append a username
-    to the URL (for example: <code>/Thelonious</code>) to say hello to
-    someone specific.</p>\n'''
 home_link = '<p><a href="/">Back</a></p>\n'
 footer_text = '</body>\n</html>'
 sso_link = '<p><a href="/login">Log in using SSO</a></p>'
@@ -26,23 +22,18 @@ cas_client = CASClient(
     server_url='https://cas.coloradocollege.edu/cas/'
 )
 
-# add a rule when the page is accessed with a name appended to the site
-# URL.
-@application.route('/<username>')
-def hello(username):
-    return header_text + say_hello(username) + home_link + footer_text
-
 # add a rule for the index page
 @application.route('/')
 def index():
     if 'username' in session:
+        # Already logged in
         return redirect(url_for('profile'))
 
     next = request.args.get('next')
     ticket = request.args.get('ticket')
 
     if not ticket:
-        return header_text + say_hello() + instructions + footer_text + sso_link
+        return header_text + say_hello() + footer_text + sso_link
     
     application.logger.debug('ticket: %s', ticket)
     application.logger.debug('next: %s', next)
@@ -55,7 +46,7 @@ def index():
         return 'Failed to verify ticket. <a href="/login">Login</a>'
     else:  # Login successfully, redirect according `next` query parameter.
         session['username'] = user
-        return redirect(url_for('profile')) # used to be redirect(next)
+        return redirect(next) # before change: redirect(url_for('profile'))
 
 @application.route('/profile')
 def profile(method=['GET']):
@@ -104,11 +95,11 @@ def logout():
     session.pop('username', None) # this eliminates logout_callback
     return redirect(cas_logout_url)
 
-@application.route('/logout_callback')
-def logout_callback():
-    # redirect from CAS logout request after CAS logout successfully
-    session.pop('username', None)
-    return 'Logged out from CAS. <a href="/login">Login</a>'
+# @application.route('/logout_callback')
+# def logout_callback():
+#     # redirect from CAS logout request after CAS logout successfully
+#     session.pop('username', None)
+#     return 'Logged out from CAS. <a href="/login">Login</a>'
 
 # run the app.
 if __name__ == "__main__":
