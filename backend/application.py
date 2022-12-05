@@ -99,7 +99,7 @@ sample_tutor = Tutor('j_hannebert@coloradocollege.edu', 'Jessica', 'Hannebert')
 @application.route('/data')
 def get_tutor():
     # Returning an api for showing in reactjs
-    return asdict(sample_tutor)
+    return Tutor.asdict(sample_tutor)
 
 
 # run the app.
