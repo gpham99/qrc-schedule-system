@@ -60,6 +60,8 @@ def profile(method=['GET']):
 
 @application.route('/login')
 def login():
+    application.logger.debug('session: %s', session)
+
     if 'username' in session:
         # Already logged in
         return redirect(url_for('profile'))
