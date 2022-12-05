@@ -97,15 +97,14 @@ def login():
 
 @application.route('/logout')
 def logout():
-    redirect_url = url_for('logout_callback', _external=True)
+    # redirect_url = url_for('logout_callback', _external=True)
+    redirect_url = url_for('/')
     application.logger.debug('Redirect logout URL %s', redirect_url)
     cas_logout_url = cas_client.get_logout_url(redirect_url)
     application.logger.debug('CAS logout URL: %s', cas_logout_url)
 
-    session.pop('username', None) # this eliminates of logout_callback
-    return redirect(cas_logout_url)
-
-    return redirect(url_for('logout_cas', next=redirect_url))
+    session.pop('username', None) # this eliminates logout_callback
+    redirect(cas_logout_url)
 
 @application.route('/logout_callback')
 def logout_callback():
