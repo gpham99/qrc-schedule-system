@@ -29,7 +29,6 @@ def index():
         # Already logged in
         return 'You are logged in. Here you are going to see your schedule. <a href="/logout">Logout</a>'
 
-
     next = request.args.get('next')
     ticket = request.args.get('ticket')
 
@@ -47,6 +46,7 @@ def index():
         return 'Failed to verify ticket. <a href="/login">Login</a>'
     else:  # Login successfully, redirect according `next` query parameter.
         session['username'] = user
+        application.logger.debug('next: %s', next)
         if not next:
             return redirect(redirect(url_for('profile')))
         return redirect(next)
