@@ -23,10 +23,6 @@ cas_client = CASClient(
     server_url='https://cas.coloradocollege.edu/cas/'
 )
 
-@application.before_request
-def make_session_permanent():
-    session.permanent = False # after you close the browser, session doesn't persist
-
 # add a rule for the index page
 @application.route('/')
 def index():
@@ -52,7 +48,6 @@ def index():
     else:  # Login successfully, redirect according `next` query parameter.
         session['username'] = user
         session['email'] = attributes['email']
-        application.logger.debug('next: %s', next)
         if not next:
             return redirect(url_for('profile'))
         return redirect(next)
@@ -98,6 +93,7 @@ def logout():
 def logout_callback():
     # redirect from CAS logout request after CAS logout successfully
     session.clear()
+    session.permanent = False
     application.logger.debug('session after being cleared: %s', session)
     return 'Logged out from CAS. <a href="/login">Login</a>'
 
