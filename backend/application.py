@@ -55,10 +55,7 @@ def index():
 @application.route('/profile')
 def profile(method=['GET']):
     if 'username' in session:
-        return '''Logged in as %s. 
-        Your email address is %s.
-        <a href="/logout">Logout</a>
-        ''' % session['username'] % session['email']
+        return 'Logged in as {}. Your email address is {}. <a href="/logout">Logout</a>'.format(session['username'], session['email'])
     return 'Login required. <a href="/login">Login</a>', 403
 
 @application.route('/login')
