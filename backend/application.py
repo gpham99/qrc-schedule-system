@@ -46,6 +46,7 @@ def index():
         return 'Failed to verify ticket. <a href="/login">Login</a>'
     else:  # Login successfully, redirect according `next` query parameter.
         session['username'] = user
+        session['email'] = attributes['email']
         application.logger.debug('next: %s', next)
         if not next:
             return redirect(url_for('profile'))
@@ -54,7 +55,10 @@ def index():
 @application.route('/profile')
 def profile(method=['GET']):
     if 'username' in session:
-        return 'Logged in as %s. <a href="/logout">Logout</a>' % session['username']
+        return '''Logged in as %s. 
+        Your email address is %s.
+        <a href="/logout">Logout</a>
+        ''' % session['username'] % session['email']
     return 'Login required. <a href="/login">Login</a>', 403
 
 @application.route('/login')
@@ -79,13 +83,15 @@ def logout():
     cas_logout_url = cas_client.get_logout_url(redirect_url)
     application.logger.debug('CAS logout URL: %s', cas_logout_url)
 
-    session.pop('username', None) # because logout_callback doesn't work, I have to add this line
+    session.pop('username', None) # because logout_callback doesn't work, I have to add this line and the next
+    session.pop('email', None)
     return redirect(cas_logout_url)
 
 @application.route('/logout_callback')
 def logout_callback():
     # redirect from CAS logout request after CAS logout successfully
     session.pop('username', None)
+    session.pop('email', None)
     return 'Logged out from CAS. <a href="/login">Login</a>'
 
 # run the app.
