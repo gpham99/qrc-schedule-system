@@ -83,11 +83,9 @@ def logout():
     cas_logout_url = cas_client.get_logout_url(redirect_url)
     application.logger.debug('CAS logout URL: %s', cas_logout_url)
 
-    session.clear() # because logout_callback doesn't work, clear session here
+    # session.clear() # because logout_callback doesn't work, clear session here
     logout_return_object = redirect(cas_logout_url)
     application.logger.debug('Logout return object %s', logout_return_object)
-
-    a = redirect(cas_logout_url)
     return redirect(url_for('logout_callback'))
 
 @application.route('/logout_callback')
