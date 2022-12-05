@@ -61,7 +61,7 @@ def profile(method=['GET']):
 
 @application.route('/login')
 def login():
-    application.logger.debug('session: %s', session)
+    application.logger.debug('session when you hit login: %s', session)
 
     if 'username' in session:
         # Already logged in
