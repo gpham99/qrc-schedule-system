@@ -54,6 +54,7 @@ def index():
 
 @application.route('/profile')
 def profile(method=['GET']):
+    application.logger.debug('session when you hit profile: %s', session)
     if 'username' in session:
         return 'Logged in as {}. Your email address is {}. <a href="/logout">Logout</a>'.format(session['username'], session['email'])
     return 'Login required. <a href="/login">Login</a>', 403
@@ -74,6 +75,8 @@ def login():
         cas_login_url = cas_client.get_login_url()
         application.logger.debug('CAS login URL: %s', cas_login_url)
         return redirect(cas_login_url) # the return of this is /ticket?=...
+    else:
+        "You don't have an username in session but you have a ticket that's still available"
 
 @application.route('/logout')
 def logout():
