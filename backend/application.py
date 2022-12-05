@@ -75,8 +75,6 @@ def login():
         cas_login_url = cas_client.get_login_url()
         application.logger.debug('CAS login URL: %s', cas_login_url)
         return redirect(cas_login_url) # the return of this is /ticket?=...
-    else:
-        "You don't have an username in session but you have a ticket that's still available"
 
 @application.route('/logout')
 def logout():
@@ -95,8 +93,6 @@ def logout():
 def logout_callback():
     # redirect from CAS logout request after CAS logout successfully
     session.clear()
-    session.pop('username', None)
-    session.pop('email', None)
     application.logger.debug('session after being cleared: %s', session)
     return 'Logged out from CAS. <a href="/login">Login</a>'
 
