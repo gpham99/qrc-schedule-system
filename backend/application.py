@@ -1,5 +1,6 @@
 from flask import Flask, request, session, redirect, url_for
 from cas import CASClient
+from models import Tutor
 
 # print a nice greeting.
 def say_hello(username = "Team"):
@@ -111,6 +112,16 @@ def logout_callback():
     # redirect from CAS logout request after CAS logout successfully
     session.pop('username', None)
     return 'Logged out from CAS. <a href="/login">Login</a>'
+
+
+sample_tutor = Tutor('j_hannebert@coloradocollege.edu', 'Jessica', 'Hannebert')
+
+
+#Page for connecting to React
+@application.route('/data')
+def get_tutor():
+    # Returning an api for showing in reactjs
+    return repr(sample_tutor)
 
 
 # run the app.
