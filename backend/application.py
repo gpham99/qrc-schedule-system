@@ -1,4 +1,4 @@
-from flask import Flask, request, session, redirect, url_for, jsonify
+from flask import Flask, request, session, redirect, url_for
 from cas import CASClient
 
 # print a nice greeting.
@@ -85,7 +85,7 @@ def logout():
 
     session.clear() # because logout_callback doesn't work, clear session here
     logout_return_object = redirect(cas_logout_url)
-    application.logger.debug('Logout return object %s', jsonify(logout_return_object))
+    application.logger.debug('Logout return object %s', logout_return_object)
 
     return redirect(cas_logout_url) + redirect(url_for('logout_callback'))
 
