@@ -97,14 +97,14 @@ def login():
 
 @application.route('/logout')
 def logout():
-    # redirect_url = url_for('logout_callback', _external=True)
-    redirect_url = url_for('index')
+    redirect_url = url_for('logout_callback', _external=True)
+    # redirect_url = url_for('index')
     application.logger.debug('Redirect logout URL %s', redirect_url)
     cas_logout_url = cas_client.get_logout_url(redirect_url)
     application.logger.debug('CAS logout URL: %s', cas_logout_url)
 
     session.pop('username', None) # this eliminates logout_callback
-    return redirect(cas_logout_url)
+    return redirect("https://cas.coloradocollege.edu/cas/logout?service=http%3A%2F%2F35.88.95.206%3A8080%2F")
 
 @application.route('/logout_callback')
 def logout_callback():
