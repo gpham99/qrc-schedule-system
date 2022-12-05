@@ -98,6 +98,9 @@ def login():
 @application.route('/logout')
 def logout():
     redirect_url = url_for('logout_callback', _external=True)
+    
+    application.logger.debug('Redirect logout URL %s', redirect_url)
+
     cas_logout_url = cas_client.get_logout_url(redirect_url)
     application.logger.debug('CAS logout URL: %s', cas_logout_url)
 
