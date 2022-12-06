@@ -2,7 +2,7 @@ from flask import Flask, request, session, redirect, url_for, send_from_director
 import os
 from werkzeug.utils import secure_filename
 from cas import CASClient
-from .models import Tutor
+from .models import Tutor, read_roster
 
 UPLOAD_FOLDER = '.'
 ALLOWED_EXTENSIONS = {'xls', 'xlsx', 'xlsm', 'xlsb', 'odf', 'ods', 'odt'}
@@ -54,6 +54,10 @@ def index():
             if file and allowed_file(file.filename):
                 filename = secure_filename(file.filename)
                 file.save(os.path.join(application.config['UPLOAD_FOLDER'], filename))
+                if application.config['ROSTER']:
+                    os.remove(application.config['ROSTER']
+                application.config['ROSTER'] = filename
+                read_roster(filename)
                 return redirect(url_for('download_file', name=filename))
         return '''
         <!doctype html>
