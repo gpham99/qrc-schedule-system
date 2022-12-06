@@ -1,21 +1,45 @@
 import sqlite3
-
-from flask import current_app, g
+# from flask import current_app, g
 from flask import Flask
 import sqlite3 as sql
 
 app = Flask(__name__)
 
-
 # the database file has:
-# 1. the creation of tables ->Complete
+    # 1. the creation of tables ->Complete
+    # create_master_schedule()
+    # add_new_discipline_table()
+    # create_discipline_tables()
+    # create_tables()
 # 2. The insertion of new rows into the tables->Complete
+    # add_tutor()
+    # add_superuser()
+    # add_admin()
+    # add_disciplines()
+    # add_shifts()
+    # add_to_master_schedule()
 # 3. The updating of rows into tables ->Incomplete
+    # update_tutor_status()     X
+    # update_shift_capacity()   X
+    # update_this_block_LA()    X
+    # update_next_block_LA()    X
+    # update_indiv_tutor()      X
 # 4. The updating of tables should new information be added ex. more disciplines ->Complete
-# 5. The deletion of rows from tables ->Incomplete
+    # create_new_master_schedule()
+# 5. The deletion of rows from tables -> Complete
+    # delete_tutors()
+    # delete_admins()
+    # delete_superusers()
+    # clear_table()
 # 6. The deletion of tables should we need to make new tables -> Complete
+    # delete_table()
 # 7. The retrieval of data from the tables->Incomplete
+    # get_single_tutor_info()
+    # get_discipline_shift()    X
+    # get_master_schedule_info()
 # 8. The ability to check if a user exits in the database -> Complete
+    # check_user()
+
 
 # function to create the master_schedule
 def create_master_schedule(all_disciplines):
@@ -264,6 +288,7 @@ def delete_superusers( email):
         con.close()
     print(msg)
 
+
 # clears every row in the master schedule
 def clear_table(table):
     try:
@@ -298,6 +323,46 @@ def get_single_tutor_info(user):
             # get the row whose email matches
             sql_search_query = 'SELECT * FROM tutors WHERE email = ?'
             cur.execute(sql_search_query, (user,))
+            record = cur.fetchone()
+            print(record)
+    except:
+        con.rollback()
+        print("Error reading data from MySQL table")
+    finally:
+        con.close()
+
+
+# Function to retrieve the people who are available for a particular shift
+def get_discipline_shift(discipline, shift_number):
+    try:
+        # code to fetch data from the database
+        with sql.connect("database.db") as con:
+            cur = con.cursor()
+            # get the row whose email matches
+            sql_search_query = 'SELECT * FROM '
+            sql_search_query = sql_search_query + discipline
+            sql_search_query = sql_search_query + ' WHERE shift_number = ?'
+            print(sql_search_query)
+            cur.execute(sql_search_query, (shift_number,))
+            record = cur.fetchone()
+            print(record)
+    except:
+        con.rollback()
+        print("Error reading data from MySQL table")
+    finally:
+        con.close()
+
+
+# Function to retrieve the assignments for a particular shift
+def get_master_schedule_info(shift_number):
+    try:
+        # code to fetch data from the database
+        with sql.connect("database.db") as con:
+            cur = con.cursor()
+            # get the row whose email matches
+            sql_search_query = 'SELECT * FROM master_schedule WHERE shift_number = ?'
+            print(sql_search_query)
+            cur.execute(sql_search_query, (shift_number,))
             record = cur.fetchone()
             print(record)
     except:
@@ -370,20 +435,6 @@ def update_status(user):
     print(msg)
 
 
-
-# function to ensure the master schedule has all of its columns
-def test_master():
-    with sql.connect("database.db") as con:
-        cur = con.cursor()
-        data = cur.execute("SELECT * FROM master_schedule")
-        print('\n')
-        print('Columns')
-        print('--------------------')
-        for column in data.description:
-            print(column[0])
-        print('--------------------\n')
-
-
 if __name__ == '__main__':
     discipline_list = ["CS", "Math", "Econ", "Physics", "CHBC"]
     assigned_list = discipline_list
@@ -401,10 +452,8 @@ if __name__ == '__main__':
 
     # check_user("Physics")
     clear_table("tutors")
-    # add_shifts("Math", 5, "All the tutors")
-    # add_to_master_schedule(0, discipline_list, assigned_list)
-
-
+    add_shifts("Math", 5, "All the tutors")
+    get_discipline_shift("Math", 5)
 # Some flask code
 # @app.route("/")
 # def hello_world():
