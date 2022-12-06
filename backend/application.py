@@ -54,7 +54,7 @@ def index():
             if file and allowed_file(file.filename):
                 filename = secure_filename(file.filename)
                 file.save(os.path.join(application.config['UPLOAD_FOLDER'], filename))
-                if application.config['ROSTER']:
+                if 'ROSTER' in application.config:
                     os.remove(application.config['ROSTER'])
                 application.config['ROSTER'] = filename
                 read_roster(filename)
