@@ -6,39 +6,41 @@ import sqlite3 as sql
 app = Flask(__name__)
 
 # the database file has:
-    # 1. the creation of tables ->Complete
+    # 1. the creation of tables -> Complete
     # create_master_schedule()
     # add_new_discipline_table()
     # create_discipline_tables()
     # create_tables()
-# 2. The insertion of new rows into the tables->Complete
+# 2. The insertion of new rows into the tables-> Complete
     # add_tutor()
     # add_superuser()
     # add_admin()
     # add_disciplines()
     # add_shifts()
     # add_to_master_schedule()
-# 3. The updating of rows into tables ->Incomplete
-    # update_tutor_status()     X
-    # update_shift_capacity()   X
-    # update_this_block_LA()    X
-    # update_next_block_LA()    X
-    # update_indiv_tutor()      X
-# 4. The updating of tables should new information be added ex. more disciplines ->Complete
+# 3. The updating of tables should new information be added ex. more disciplines -> Complete
     # create_new_master_schedule()
-# 5. The deletion of rows from tables -> Complete
+# 4. The deletion of rows from tables -> Complete
     # delete_tutors()
     # delete_admins()
     # delete_superusers()
     # clear_table()
-# 6. The deletion of tables should we need to make new tables -> Complete
+# 5. The deletion of tables should we need to make new tables -> Complete
     # delete_table()
-# 7. The retrieval of data from the tables->Incomplete
+# 6. The retrieval of data from the tables-> Complete
     # get_single_tutor_info()
-    # get_discipline_shift()    X
+    # get_discipline_shift()
     # get_master_schedule_info()
-# 8. The ability to check if a user exits in the database -> Complete
+# 7. The ability to check if a user exits in the database -> Complete
     # check_user()
+# 8. The updating of rows into tables ->Incomplete
+    # update_tutor_status()
+    # update_shift_capacity()       
+    # update_this_block_LA()        
+    # update_next_block_LA()        
+    # update_indiv_tutor()          
+    # update_discipline_shifts()    X
+    # update_master_schedule()      X
 
 
 # function to create the master_schedule
@@ -84,7 +86,7 @@ def create_tables(all_disciplines):
     conn.execute('CREATE TABLE IF NOT EXISTS superuser (email TEXT, name TEXT)')
     print("superuser Table created successfully")
 
-    conn.execute('CREATE TABLE IF NOT EXISTS tutors (email TEXT, name TEXT, status INTEGER,shift_cap '
+    conn.execute('CREATE TABLE IF NOT EXISTS tutors (email TEXT, name TEXT, status INTEGER,shift_capacity '
                  'INTEGER, thisblockLA INTEGER, nextblockLA INTEGER, indivtutor INTEGER, PRIMARY KEY (email))')
     print("Tutor Table created successfully")
 
@@ -112,7 +114,7 @@ def add_tutor(name, email):
         with sql.connect("database.db") as con:
             cur = con.cursor()
             cur.execute('INSERT INTO tutors (email, name, status, '
-                        'shift_cap, thisblockLA, nextblockLA, indivtutor) VALUES(?, ?, ?, ?, ?, ?, ?)'
+                        'shift_capacity, thisblockLA, nextblockLA, indivtutor) VALUES(?, ?, ?, ?, ?, ?, ?)'
                         '', (email, name, status, shift_cap, this_block_la, next_block_la, indivtutor))
             con.commit()
             msg = "Tutor successfully added"
@@ -273,7 +275,7 @@ def delete_admins(email):
 
 
 # function that will delete tutors
-def delete_superusers( email):
+def delete_superusers(email):
     try:
         with sql.connect("database.db") as con:
             cur = con.cursor()
@@ -418,14 +420,32 @@ def check_user(user):
 
 
 # Functions that will be used to update different aspects of the user
+# Tutor columns
+    # 0 = email
+    # 1 = name
+    # 2 = status
+    # 3 = shift_capacity
+    # 4 = thisblockLA
+    # 5 = nextblockLA
+    # 6 = indivtutor
 # Function that will update the user's status
 def update_status(user):
     try:
         with sql.connect("database.db") as con:
             cur = con.cursor()
-            sql_select_query = 'SELECT * FROM tutors WHERE email=email '
-            data = cur.execute(sql_select_query)
+            sql_select_query = 'SELECT * FROM tutors WHERE email=? '
+            cur.execute(sql_select_query, (user,))
+            data = cur.fetchone()
             print(data)
+            # if the status is active turn it off
+            if data[2] == 1:
+                # do stuff to update status to 0
+                update_query = 'UPDATE tutors SET status = 0 WHERE email = ?'
+            # else turn it on
+            else:
+                # do stuff to turn it on
+                update_query = 'UPDATE tutors SET status = 1 WHERE email = ?'
+            cur.execute(update_query, (user,))
             msg = "Tutor status successfully updated"
     except:
         con.rollback()
@@ -435,25 +455,132 @@ def update_status(user):
     print(msg)
 
 
+# Function to update the user's shift capacity
+def update_shift_capacity(user, new_capacity):
+    try:
+        with sql.connect("database.db") as con:
+            cur = con.cursor()
+            sql_select_query = 'SELECT * FROM tutors WHERE email=? '
+            cur.execute(sql_select_query, (user,))
+            data = cur.fetchone()
+            print(data)
+            # do stuff to update status to 0
+            update_query = 'UPDATE tutors SET shift_capacity =' + str(new_capacity)
+            update_query = update_query + ' WHERE email = ?'
+            cur.execute(update_query, (user,))
+            msg = "Tutor shift capacity successfully updated"
+    except:
+        con.rollback()
+        msg = "error in update operation"
+    finally:
+        con.close()
+    print(msg)
+
+
+# Function to update the user's LA status during the current block
+def update_this_block_la(user):
+    try:
+        with sql.connect("database.db") as con:
+            cur = con.cursor()
+            sql_select_query = 'SELECT * FROM tutors WHERE email=? '
+            cur.execute(sql_select_query, (user,))
+            data = cur.fetchone()
+            print(data)
+            # if the la status is active turn it off
+            if data[4] == 1:
+                # do stuff to update status to 0
+                update_query = 'UPDATE tutors SET thisblockLA = 0 WHERE email = ?'
+            # else turn it on
+            else:
+                # do stuff to turn it on
+                update_query = 'UPDATE tutors SET thisblockLA = 1 WHERE email = ?'
+            cur.execute(update_query, (user,))
+            msg = "Tutor thisblockLA successfully updated"
+    except:
+        con.rollback()
+        msg = "error in update operation"
+    finally:
+        con.close()
+    print(msg)
+
+
+# Function to update the user's LA status during the next block
+def update_next_block_la(user):
+    try:
+        with sql.connect("database.db") as con:
+            cur = con.cursor()
+            sql_select_query = 'SELECT * FROM tutors WHERE email=? '
+            cur.execute(sql_select_query, (user,))
+            data = cur.fetchone()
+            print(data)
+            # if the status is active turn it off
+            if data[5] == 1:
+                # do stuff to update status to 0
+                update_query = 'UPDATE tutors SET nextblockLA = 0 WHERE email = ?'
+            # else turn it on
+            else:
+                # do stuff to turn it on
+                update_query = 'UPDATE tutors SET nextblockLA = 1 WHERE email = ?'
+            cur.execute(update_query, (user,))
+            msg = "Tutor nextblockLA successfully updated"
+    except:
+        con.rollback()
+        msg = "error in update operation"
+    finally:
+        con.close()
+    print(msg)
+
+
+# Function to update whether the tutor is doing indiv tutoring or not
+def update_indiv_tutor(user):
+    try:
+        with sql.connect("database.db") as con:
+            cur = con.cursor()
+            sql_select_query = 'SELECT * FROM tutors WHERE email=? '
+            cur.execute(sql_select_query, (user,))
+            data = cur.fetchone()
+            print(data)
+            # if the status is active turn it off
+            if data[6] == 1:
+                # do stuff to update status to 0
+                update_query = 'UPDATE tutors SET indivtutor = 0 WHERE email = ?'
+            # else turn it on
+            else:
+                # do stuff to turn it on
+                update_query = 'UPDATE tutors SET indivtutor = 1 WHERE email = ?'
+            cur.execute(update_query, (user,))
+            msg = "Tutor indivtutor successfully updated"
+    except:
+        con.rollback()
+        msg = "error in update operation"
+    finally:
+        con.close()
+    print(msg)
+
+
+# Function to update the shifts of the disciplines
+def update_discipline_shifts():
+    pass
+
+
+# Function to update the master schedule
+def update_master_schedule():
+    pass
+
+
 if __name__ == '__main__':
     discipline_list = ["CS", "Math", "Econ", "Physics", "CHBC"]
     assigned_list = discipline_list
-    # create tables
     create_tables(discipline_list)
-    # test_master()
     for person in discipline_list:
         add_tutor(person, person)
-    # get the user's info
-    # get_single_tutor_info("Math")
-    # delete_tutors("tutors", "Math")
 
-    add_admin("Physics", "Physics")
-    delete_admins("Physics")
+    update_shift_capacity("Econ", 5)
+    get_single_tutor_info("Econ")
 
-    # check_user("Physics")
     clear_table("tutors")
-    add_shifts("Math", 5, "All the tutors")
-    get_discipline_shift("Math", 5)
+
+
 # Some flask code
 # @app.route("/")
 # def hello_world():
