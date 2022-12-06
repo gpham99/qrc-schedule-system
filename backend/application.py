@@ -1,4 +1,4 @@
-from flask import Flask, request, session, redirect, url_for, url_for
+from flask import Flask, request, session, redirect, url_for, send_from_directory
 import os
 from werkzeug.utils import secure_filename
 from cas import CASClient
@@ -35,12 +35,36 @@ def allowed_file(filename):
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 # add a rule for the index page
-@application.route('/')
+@application.route('/', methods=['GET', 'POST'])
 def index():
     if 'username' in session:
         # Already logged in
-        return 'You are logged in. Here you are going to see your schedule. <a href="/logout">Logout</a>'
-
+       # return 'You are logged in. Here you are going to see your schedule. <a href="/logout">Logout</a>'
+        if request.method == 'POST':
+        # check if the post request has the file part
+            if 'file' not in request.files:
+                flash('No file part')
+                return redirect(request.url)
+            file = request.files['file']
+            # If the user does not select a file, the browser submits an
+            # empty file without a filename.
+            if file.filename == '':
+                flash('No selected file')
+                return redirect(request.url)
+            if file and allowed_file(file.filename):
+                filename = secure_filename(file.filename)
+                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                return redirect(url_for('download_file', name=filename))
+        return '''
+        <!doctype html>
+        You are logged in. Here you are going to see your schedule. <a href="/logout">Logout</a
+        <title>Upload new File</title>
+        <h1>Upload new File</h1>
+        <form method=post enctype=multipart/form-data>
+          <input type=file name=file>
+          <input type=submit value=Upload>
+        </form>
+        '''
     next = request.args.get('next')
     ticket = request.args.get('ticket')
 
@@ -110,6 +134,11 @@ sample_tutor = Tutor('j_hannebert@coloradocollege.edu', 'Jessica', 'Hannebert')
 def get_tutor():
     # Returning an api for showing in reactjs
     return Tutor.asdict(sample_tutor)
+
+#page for routing post-upload
+@app.route('/uploads/<name>')
+def download_file(name):
+    return send_from_directory(app.config["UPLOAD_FOLDER"], name)
 
 
 # run the app.
