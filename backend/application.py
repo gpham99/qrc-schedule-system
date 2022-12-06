@@ -136,7 +136,7 @@ def get_tutor():
     return Tutor.asdict(sample_tutor)
 
 #page for routing post-upload
-@app.route('/uploads/<name>')
+@application.route('/uploads/<name>')
 def download_file(name):
     return send_from_directory(app.config["UPLOAD_FOLDER"], name)
 
