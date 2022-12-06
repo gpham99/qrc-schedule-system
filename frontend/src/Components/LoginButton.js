@@ -1,38 +1,37 @@
-import Button from "react-bootstrap/Button";
 import React from "react";
+import { Card, Image, Overlay } from "react-bootstrap";
 
-// function LoginButton() {
-//   return (
-//     <div className="LoginButton">
-//       <button
-//         onClick={() => {
-//           alert("clicked");
-//         }}
-//         className="button button-outline-success"
-//       >
-//         {" "}
-//         Login
-//       </button>
-//     </div>
-//   );
-// }
+const gradient = "linear-gradient(to right, purple, pink, lavender)";
 
 const LoginButton = () => {
-  const handleClick = () => {};
-
   return (
-    <button
-      style={{
-        backgroundColor: "transparent",
-        border: "2px solid gray",
-        position: "absolute",
-        top: "66.666666%",
-        left: "50%",
-        transform: "translate(-50%, -50%)",
-      }}
-    >
-      Click me!
-    </button>
+    <div>
+      <Image
+        style={{ height: "150px", margin: "30px auto" }}
+        src="/Images/CClogo.jpeg"
+        responsive
+      />
+      <button
+        style={{
+          backgroundColor: "gray",
+          border: "2px solid black",
+          position: "absolute",
+          top: "66.666666%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+        }}
+      >
+        Click me!
+      </button>
+      <Card
+        style={{
+          margintop: "230px",
+          height: "100vh",
+          background: gradient,
+        }}
+      ></Card>
+    </div>
   );
 };
+
 export default LoginButton;
