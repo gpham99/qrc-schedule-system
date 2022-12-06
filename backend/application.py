@@ -1,5 +1,6 @@
 from flask import Flask, request, session, redirect, url_for
 from cas import CASClient
+import time
 
 # print a nice greeting.
 def say_hello(username = "Team"):
@@ -22,6 +23,10 @@ cas_client = CASClient(
     service_url='http://35.88.95.206:8080/',
     server_url='https://cas.coloradocollege.edu/cas/'
 )
+
+@app.route('/time')
+def get_current_time():
+    return {'time': time.time()}
 
 # add a rule for the index page
 @application.route('/')
