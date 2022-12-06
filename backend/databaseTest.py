@@ -35,11 +35,11 @@ app = Flask(__name__)
     # check_user()
 # 8. The updating of rows into tables ->Incomplete
     # update_tutor_status()
-    # update_shift_capacity()       
-    # update_this_block_LA()        
-    # update_next_block_LA()        
-    # update_indiv_tutor()          
-    # update_discipline_shifts()    X
+    # update_shift_capacity()
+    # update_this_block_LA()
+    # update_next_block_LA()
+    # update_indiv_tutor()
+    # update_discipline_shifts()
     # update_master_schedule()      X
 
 
@@ -181,10 +181,8 @@ def add_shifts(discipline, shift_number, available_tutors):
     try:
         with sql.connect("database.db") as con:
             cur = con.cursor()
-            sql_query = 'INSERT INTO ' + discipline + '(shift_number, available_tutors) VALUES (?, ?)'
-
-            print(sql_query)
-            cur.execute(sql_query, (shift_number, available_tutors))
+            sql_query = 'INSERT INTO ' + discipline + ' (shift_number, available_tutors) VALUES (?, ?)'
+            cur.execute(sql_query, (shift_number, str(available_tutors)))
             con.commit()
             msg = "Discipline shifts successfully added"
     except:
@@ -192,7 +190,7 @@ def add_shifts(discipline, shift_number, available_tutors):
         msg = "error in insert operation"
     finally:
         con.close()
-    print(msg)
+        print(msg)
 
 
 # add rows to the master schedule
@@ -327,6 +325,7 @@ def get_single_tutor_info(user):
             cur.execute(sql_search_query, (user,))
             record = cur.fetchone()
             print(record)
+            return record
     except:
         con.rollback()
         print("Error reading data from MySQL table")
@@ -344,10 +343,10 @@ def get_discipline_shift(discipline, shift_number):
             sql_search_query = 'SELECT * FROM '
             sql_search_query = sql_search_query + discipline
             sql_search_query = sql_search_query + ' WHERE shift_number = ?'
-            print(sql_search_query)
             cur.execute(sql_search_query, (shift_number,))
             record = cur.fetchone()
             print(record)
+            return record
     except:
         con.rollback()
         print("Error reading data from MySQL table")
@@ -367,6 +366,7 @@ def get_master_schedule_info(shift_number):
             cur.execute(sql_search_query, (shift_number,))
             record = cur.fetchone()
             print(record)
+            return record
     except:
         con.rollback()
         print("Error reading data from MySQL table")
@@ -381,19 +381,15 @@ def check_user(user):
         # code to fetch data from the database
         with sql.connect("database.db") as con:
             con.row_factory = sql.Row
-
             cur = con.cursor()
-
             # Checks to see if the user is a superuser
             cur.execute("select * from superuser")
             rows = cur.fetchall()
             for row in rows:
                 if row[0] == user:
-
                     print("User is a Superuser")
                     con.close()
                     return True, "superuser"
-
             # Checks to see if the user is an admin
             cur.execute("select * from admins")
             rows = cur.fetchall()
@@ -410,7 +406,7 @@ def check_user(user):
                     con.close()
                     print("User is a Tutor")
                     return True, "tutors"
-
+            con.close()
             return False, "None"
     except:
         con.rollback()
@@ -559,34 +555,47 @@ def update_indiv_tutor(user):
 
 
 # Function to update the shifts of the disciplines
-def update_discipline_shifts():
-    pass
+def update_discipline_shifts(discipline, shift_number, new_available_tutors):
+    try:
+        with sql.connect("database.db") as con:
+            cur = con.cursor()
+
+            update_query = 'UPDATE ' + discipline + ' SET available_tutors = ? WHERE shift_number = ?'
+            cur.execute(update_query, (shift_number,new_available_tutors ))
+            print( "discipline shifts successfully updated" )
+    except:
+        con.rollback()
+        msg = "error in update operation"
+    finally:
+        con.close()
+    print(msg)
 
 
 # Function to update the master schedule
-def update_master_schedule():
-    pass
+def update_master_schedule(shift_number, new_assignments ):
+    try:
+        with sql.connect("database.db") as con:
+            cur = con.cursor()
+
+            update_query = 'UPDATE master_schedule SET available_tutors = ? WHERE shift_number = ?'
+            cur.execute(update_query, (shift_number,new_assignments ))
+            print( "discipline shifts successfully updated" )
+    except:
+        con.rollback()
+        msg = "error in update operation"
+    finally:
+        con.close()
+    print(msg)
+
+
 
 
 if __name__ == '__main__':
     discipline_list = ["CS", "Math", "Econ", "Physics", "CHBC"]
-    assigned_list = discipline_list
-    create_tables(discipline_list)
-    for person in discipline_list:
-        add_tutor(person, person)
+    assigned_list = '["CS", "Math", "Econ"]'
+    # create_tables(discipline_list)
+    # for person in discipline_list:
+    #     add_tutor(person, person)
+    # clear_table("tutors")
 
-    update_shift_capacity("Econ", 5)
-    get_single_tutor_info("Econ")
-
-    clear_table("tutors")
-
-
-# Some flask code
-# @app.route("/")
-# def hello_world():
-#     print('running server')
-#     return "<p>Hello, world!</p>"
-#
-
-# if __name__ == '__main__':
-#     app.run(debug=True)
+    add_to_master_schedule(4,)
