@@ -138,7 +138,7 @@ def get_tutor():
 #page for routing post-upload
 @application.route('/uploads/<name>')
 def download_file(name):
-    return send_from_directory(app.config["UPLOAD_FOLDER"], name)
+    return send_from_directory(application.config["UPLOAD_FOLDER"], name)
 
 
 # run the app.
