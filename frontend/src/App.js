@@ -3,19 +3,22 @@ import {useState, useEffect} from 'react';
 import './App.css';
 
 function App() {
-  const [state, setState] = useState({})
-   useEffect(() => {
-    fetch("http://35.88.95.206:8080/api").then(response => {
-      if (response.status == 200) {
-        return response.json()
-      }
-    }).then(data => console.log(data))
-    .then(err => console.log(err))
-   })
+  const [currentTime, setCurrentTime] = useState(0);
+
+  useEffect(() => {
+    fetch('http://127.0.0.1:5000/time')
+    .then(res => res.json())
+    .then(data => {setCurrentTime(data.time);});
+  }, []);
 
   return (
     <div className="App">
-      Hello
+      <header className="App-header">
+
+        ... no changes in this part ...
+
+        <p>The current time is {currentTime}.</p>
+      </header>
     </div>
   );
 }
