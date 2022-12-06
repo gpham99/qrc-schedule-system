@@ -53,11 +53,11 @@ def index():
                 return redirect(request.url)
             if file and allowed_file(file.filename):
                 filename = secure_filename(file.filename)
-                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                file.save(os.path.join(application.config['UPLOAD_FOLDER'], filename))
                 return redirect(url_for('download_file', name=filename))
         return '''
         <!doctype html>
-        You are logged in. Here you are going to see your schedule. <a href="/logout">Logout</a
+        You are logged in. Here you are going to see your schedule. <a href="/logout">Logout</a>
         <title>Upload new File</title>
         <h1>Upload new File</h1>
         <form method=post enctype=multipart/form-data>
