@@ -6,7 +6,7 @@ import sqlite3 as sql
 app = Flask(__name__)
 
 # the database file has:
-    # 1. the creation of tables -> Complete
+# 1. the creation of tables -> Complete
     # create_master_schedule()
     # add_new_discipline_table()
     # create_discipline_tables()
@@ -33,14 +33,14 @@ app = Flask(__name__)
     # get_master_schedule_info()
 # 7. The ability to check if a user exits in the database -> Complete
     # check_user()
-# 8. The updating of rows into tables ->Incomplete
+# 8. The updating of rows in tables -> Complete
     # update_tutor_status()
     # update_shift_capacity()
     # update_this_block_LA()
     # update_next_block_LA()
     # update_indiv_tutor()
     # update_discipline_shifts()
-    # update_master_schedule()      X
+    # update_master_schedule()
 
 
 # function to create the master_schedule
@@ -211,8 +211,6 @@ def add_to_master_schedule(shift_number, all_disciplines, assignments):
                     values = values + "?)"
                     sql_query = sql_query + all_disciplines[index] + ") "
             sql_query = sql_query + values
-            print(sql_query)
-            print(t_list)
             cur.execute(sql_query, t_list)
             con.commit()
             msg = "Master Schedule altered successfully added"
@@ -362,7 +360,6 @@ def get_master_schedule_info(shift_number):
             cur = con.cursor()
             # get the row whose email matches
             sql_search_query = 'SELECT * FROM master_schedule WHERE shift_number = ?'
-            print(sql_search_query)
             cur.execute(sql_search_query, (shift_number,))
             record = cur.fetchone()
             print(record)
@@ -572,14 +569,24 @@ def update_discipline_shifts(discipline, shift_number, new_available_tutors):
 
 
 # Function to update the master schedule
-def update_master_schedule(shift_number, new_assignments ):
+def update_master_schedule(shift_number, disciplines, new_assignments ):
     try:
         with sql.connect("database.db") as con:
             cur = con.cursor()
 
-            update_query = 'UPDATE master_schedule SET available_tutors = ? WHERE shift_number = ?'
-            cur.execute(update_query, (shift_number,new_assignments ))
-            print( "discipline shifts successfully updated" )
+            update_query = 'UPDATE master_schedule SET '
+            # loop through the disciplines to get every column
+            for item, discipline in enumerate(disciplines):
+                if item != len(disciplines) -1:
+                    update_query = update_query + discipline + " = " + new_assignments[item] + ', '
+                else:
+                    update_query = update_query + discipline + " = " + new_assignments[item] + ' '
+
+
+            update_query = update_query + ' WHERE shift_number = ?'
+            cur.execute(update_query, (shift_number,))
+            msg ="master shifts successfully updated"
+
     except:
         con.rollback()
         msg = "error in update operation"
@@ -593,9 +600,14 @@ def update_master_schedule(shift_number, new_assignments ):
 if __name__ == '__main__':
     discipline_list = ["CS", "Math", "Econ", "Physics", "CHBC"]
     assigned_list = '["CS", "Math", "Econ"]'
-    # create_tables(discipline_list)
+    new_assignments = ["Econ", "Physics", "CHBC", "CS", "Math"]
+    create_tables(discipline_list)
     # for person in discipline_list:
     #     add_tutor(person, person)
     # clear_table("tutors")
 
-    add_to_master_schedule(4,)
+    add_to_master_schedule(4,discipline_list, discipline_list)
+    get_master_schedule_info(4)
+
+    update_master_schedule(4, discipline_list, new_assignments)
+    get_master_schedule_info(4)
