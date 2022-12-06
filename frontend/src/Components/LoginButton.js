@@ -22,7 +22,6 @@ const LoginButton = () => {
 
   return (
     <button
-      onClick={handleClick}
       style={{
         backgroundColor: "transparent",
         border: "2px solid gray",
