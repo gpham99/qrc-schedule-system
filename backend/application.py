@@ -55,7 +55,7 @@ def index():
                 filename = secure_filename(file.filename)
                 file.save(os.path.join(application.config['UPLOAD_FOLDER'], filename))
                 if application.config['ROSTER']:
-                    os.remove(application.config['ROSTER']
+                    os.remove(application.config['ROSTER'])
                 application.config['ROSTER'] = filename
                 read_roster(filename)
                 return redirect(url_for('download_file', name=filename))
