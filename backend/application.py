@@ -93,7 +93,7 @@ cas_client = CASClient(
 #     session.clear()
 #     return 'Exited CAS. <a href="/login">Login</a>'
     
-@application.route('/time')
+@application.route('/api/time')
 def get_current_time():
     return {'time': time.time()}
 
