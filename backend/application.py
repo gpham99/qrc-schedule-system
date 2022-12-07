@@ -85,13 +85,14 @@ def logout():
     application.logger.debug('Redirect logout URL %s', redirect_url)
     cas_logout_url = cas_client.get_logout_url(redirect_url)
     application.logger.debug('CAS logout URL: %s', cas_logout_url)
+    session.clear()
 
     return redirect(cas_logout_url)
 
 @application.route('/logout')
 def logout_callback():
     session.clear()
-    return 'Exited CAS. <a href="/login">Login</a>'
+    return redirect("https://www.coloradocollege.edu/")
     
 @application.route('/api/time')
 def get_current_time():
