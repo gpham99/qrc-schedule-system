@@ -7,7 +7,7 @@ function App() {
   const [currentTime, setCurrentTime] = useState(0);
 
   useEffect(() => {
-    fetch('http://52.12.35.11:5000/api/time')
+    fetch('http://52.12.35.11:8080/api/time')
     .then(res => res.json())
     .then(data => {setCurrentTime(data.time);});
   }, []);

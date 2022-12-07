@@ -35,7 +35,7 @@ const LoginScreen = () => {
             Welcome to the QRC Scheduling System!
           </p>
           <div>
-            <a href='http://52.12.35.11:5000/login'>
+            <a href='http://52.12.35.11:8080/login'>
               <button
                 variant="outlined"
                 style={{
