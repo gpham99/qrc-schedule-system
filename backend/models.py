@@ -35,7 +35,7 @@ def read_roster(roster_file):
         print("Error reading file. Please ensure you submitted an Excel file.")
         traceback.print_exc()
     if len(output) > 0:
-        create_tables(['CH/MB','CS','E','M','P'])
+        create_tables(['CHMB','CS','E','M','P'])
         for tutor in output:
             add_tutor(tutor[0], tutor[1])
 
