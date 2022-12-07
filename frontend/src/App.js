@@ -1,5 +1,6 @@
 import logo from './logo.svg';
 import {useState, useEffect} from 'react';
+import LoginScreen from './Components/LoginScreen';
 import './App.css';
 
 function App() {
@@ -13,12 +14,14 @@ function App() {
 
   return (
     <div className="App">
-      <header className="App-header">
+      {/* <header className="App-header">
 
         ... some changes in this part ...
 
         <p>The current time is {currentTime}.</p>
-      </header>
+      </header> */}
+
+      <LoginScreen></LoginScreen>
     </div>
   );
 }
