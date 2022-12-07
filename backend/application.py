@@ -26,7 +26,7 @@ application.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 cas_client = CASClient(
     version=3,
-    service_url='http://35.88.95.206:8080/',
+    service_url='http://52.12.35.11:8080/',
     server_url='https://cas.coloradocollege.edu/cas/'
 )
 
