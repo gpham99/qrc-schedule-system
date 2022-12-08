@@ -4,24 +4,21 @@ import LoginScreen from './Components/LoginScreen';
 import './App.css';
 
 function App() {
-  const [currentTime, setCurrentTime] = useState(0);
-
+  const [loginStatus, setLoginStatus] = useState(false);
   useEffect(() => {
-    fetch('http://52.12.35.11:8080/api/time')
+    fetch('http://52.12.35.11:8080/api/login_status')
     .then(res => res.json())
-    .then(data => {setCurrentTime(data.time);});
-  }, []);
+    .then(data => {setLoginStatus(data.login_status)})
+  }, [])
 
   return (
     <div className="App">
-      {/* <header className="App-header">
-
-        ... some changes in this part ...
-
-        <p>The current time is {currentTime}.</p>
-      </header> */}
-
-      <LoginScreen></LoginScreen>
+      {
+        loginStatus == false
+        ? <LoginScreen></LoginScreen>
+        : <h2> You are logged in, so the home page now becomes this.</h2>
+      }
+      
     </div>
   );
 }
