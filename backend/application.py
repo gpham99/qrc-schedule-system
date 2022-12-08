@@ -96,7 +96,7 @@ def logout_callback():
     
 @application.route('/api/time')
 def get_current_time():
-    return {'time': time.ctime()}
+    return {'time': time.time()}
 
 @application.route('/api/login_status')
 def get_login_status():
