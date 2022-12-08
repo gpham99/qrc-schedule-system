@@ -4,6 +4,13 @@ import LoginScreen from './Components/LoginScreen';
 import './App.css';
 
 function App() {
+  const [currentTime, setCurrentTime] = useState(0);
+  useEffect(() => {
+    fetch('http://52.12.35.11:8080/api/time').then(res => res.json()).then(data => {
+      setCurrentTime(data.time);
+    });
+  }, []);
+
   const [loginStatus, setLoginStatus] = useState(false);
   useEffect(() => {
     fetch('http://52.12.35.11:8080/api/login_status')
@@ -13,6 +20,7 @@ function App() {
 
   return (
     <div className="App">
+      <p>The current time is {currentTime}.</p>
       {
         loginStatus == false
         ? <LoginScreen></LoginScreen>
