@@ -1,5 +1,5 @@
 import React from "react";
-import { Card, Image, Overlay, Button } from "react-bootstrap";
+import { Card, Image, Button } from "react-bootstrap";
 
 const gradient = "linear-gradient(to right, purple, pink, lavender)";
 
