@@ -1,16 +1,16 @@
 import sqlite3 as sql
 # The Database has:
 # 1. the creation of tables -> Complete
-    # create_master_schedule()
-    # add_new_discipline_table()
-    # create_discipline_tables()
-    # create_tables()
+    # create_master_schedule()      O
+    # add_new_discipline_table()    O
+    # create_discipline_tables()    O
+    # create_tables()               O
 # 2. The insertion of new rows into the tables-> Complete
-    # add_tutor()
-    # add_superuser()
-    # add_admin()
-    # add_disciplines()
-    # add_shifts()
+    # add_tutor()                   O
+    # add_superuser()               O
+    # add_admin()                   O
+    # add_disciplines()             O
+    # add_shifts()                  O
     # add_to_master_schedule()
 # 3. The updating of tables should new information be added ex. more disciplines -> Complete
     # create_new_master_schedule()
@@ -22,14 +22,17 @@ import sqlite3 as sql
 # 5. The deletion of tables should we need to make new tables -> Complete
     # delete_table()
 # 6. The retrieval of data from the tables-> Complete
-    # get_single_tutor_info()
-    # get_discipline_shift()
+    # get_single_tutor_info()       O
+    # get_admin_info                O
+    # get_super_user_info           O
+    # get_discipline_shift()        O
     # get_master_schedule_info()
 # 7. The ability to check if a user exits in the database -> Complete
     # check_user()
 # 8. The updating of rows in tables -> Complete
     # update_tutor_status()
     # update_shift_capacity()
+    # update_tutoring_disciplines
     # update_this_block_la()
     # update_next_block_la()
     # update_individual_tutor()
@@ -76,8 +79,8 @@ def create_tables(all_disciplines):
     conn.execute('CREATE TABLE IF NOT EXISTS superuser (email TEXT, name TEXT)')
     # create the tutors table
     conn.execute('CREATE TABLE IF NOT EXISTS tutors (email TEXT, name TEXT, status INTEGER,shift_capacity '
-                 'INTEGER, this_block_la INTEGER, next_block_la INTEGER, individual_tutor INTEGER, PRIMARY '
-                 'KEY (email))')
+                 'INTEGER, tutoring_disciplines TEXT, this_block_la INTEGER, next_block_la INTEGER, '
+                 'individual_tutor INTEGER, PRIMARY KEY (email))')
     # create the admins table
     conn.execute('CREATE TABLE IF NOT EXISTS admins (name TEXT, email TEXT)')
     # create the disciplines table
@@ -90,21 +93,37 @@ def create_tables(all_disciplines):
 
 
 # function that will add tutors to the tutorTable
+# if the tutor already exists than it will check if the name matches
+# if it doesn't then it will update the name to the new one
 def add_tutor(name, email):
-    name = name
-    email = email
     status = 0
     shift_cap = 0
     this_block_la = 0
     next_block_la = 0
     individual_tutor = 0
+    tutoring_disciplines = '[]'
     try:
         with sql.connect("database.db") as con:
             cur = con.cursor()
-            cur.execute('INSERT INTO tutors (email, name, status, '
-                        'shift_capacity, this_block_la, next_block_la, individual_tutor) VALUES(?, ?, ?, ?, ?, ?, ?)'
-                        '', (email, name, status, shift_cap, this_block_la, next_block_la, individual_tutor))
-            con.commit()
+            sql_select_query = 'SELECT * FROM tutors WHERE email=? '
+            cur.execute(sql_select_query, (email,))
+            data = cur.fetchone()
+            # If the user doesn't exist
+            if data is None:
+                cur.execute('INSERT OR IGNORE INTO tutors(email, name, status, shift_capacity, tutoring_disciplines, '
+                            'this_block_la, next_block_la, individual_tutor) VALUES(?, ?, ?, ?, ?, ?, ?, ?)',
+                            (email, name, status, shift_cap, tutoring_disciplines, this_block_la, next_block_la,
+                             individual_tutor))
+                con.commit()
+            # If the user is being put into the roster and the name are the same do nothing
+            if data[1] == name:
+                pass
+
+            # else update the name of the user
+            else:
+                # do stuff to turn it on
+                update_query = 'UPDATE tutors SET name = ? WHERE email = ?'
+            cur.execute(update_query, (name, email))
     except:
         con.rollback()
     finally:
@@ -112,11 +131,11 @@ def add_tutor(name, email):
 
 
 # Function to add superusers
-def add_superuser(email, name):
+def add_superuser(name, email):
     try:
         with sql.connect("database.db") as con:
             cur = con.cursor()
-            cur.execute('INSERT INTO superuser (email, name) VALUES(?, ?)', (email, name))
+            cur.execute('INSERT OR IGNORE INTO superuser (email, name) VALUES(?, ?)', (email, name))
             con.commit()
     except:
         con.rollback()
@@ -131,7 +150,7 @@ def add_admin(name, email):
     try:
         with sql.connect("database.db") as con:
             cur = con.cursor()
-            cur.execute('INSERT INTO admins (name, email) VALUES(?, ?)', (name, email))
+            cur.execute('INSERT OR IGNORE INTO admins (name, email) VALUES(?, ?)', (name, email))
             con.commit()
     except:
         con.rollback()
@@ -144,7 +163,7 @@ def add_disciplines(subject, shifts):
     try:
         with sql.connect("database.db") as con:
             cur = con.cursor()
-            cur.execute('INSERT INTO disciplines (name, available_shifts) VALUES(?, ?)', (subject, shifts))
+            cur.execute('INSERT OR IGNORE INTO disciplines (name, available_shifts) VALUES(?, ?)', (subject, shifts))
             con.commit()
     except:
         con.rollback()
@@ -157,7 +176,7 @@ def add_shifts(discipline, shift_number, available_tutors):
     try:
         with sql.connect("database.db") as con:
             cur = con.cursor()
-            sql_query = 'INSERT INTO ' + discipline + ' (shift_number, available_tutors) VALUES (?, ?)'
+            sql_query = 'INSERT OR IGNORE INTO ' + discipline + ' (shift_number, available_tutors) VALUES (?, ?)'
             cur.execute(sql_query, (shift_number, str(available_tutors)))
             con.commit()
     except:
@@ -174,7 +193,7 @@ def add_to_master_schedule(shift_number, all_disciplines, assignments):
             cur = con.cursor()
             t_list = (shift_number,)
             values = "VALUES(?, "
-            sql_query = 'INSERT INTO master_schedule(shift_number, '
+            sql_query = 'INSERT OR IGNORE INTO master_schedule(shift_number, '
             for index, tutor in enumerate(assignments):
                 t_list = t_list + (tutor,)
                 if index != len(assignments) - 1:
@@ -264,7 +283,7 @@ def delete_table(table):
     conn.close()
 
 
-# Function to get the information from a single user
+# Function to get the information from a single tutor user
 # Returns the information about the user requested
 def get_single_tutor_info(user):
     try:
@@ -273,6 +292,42 @@ def get_single_tutor_info(user):
             cur = con.cursor()
             # get the row whose email matches
             sql_search_query = 'SELECT * FROM tutors WHERE email = ?'
+            cur.execute(sql_search_query, (user,))
+            record = cur.fetchone()
+            return record
+    except:
+        con.rollback()
+    finally:
+        con.close()
+
+
+# Function to get the information from a single admin user
+# Returns the information about the user requested
+def get_admin_info(user):
+    try:
+        # code to fetch data from the database
+        with sql.connect("database.db") as con:
+            cur = con.cursor()
+            # get the row whose email matches
+            sql_search_query = 'SELECT * FROM admins WHERE email = ?'
+            cur.execute(sql_search_query, (user,))
+            record = cur.fetchone()
+            return record
+    except:
+        con.rollback()
+    finally:
+        con.close()
+
+
+# Function to get the information from a single superuser user
+# Returns the information about the user requested
+def get_superuser_info(user):
+    try:
+        # code to fetch data from the database
+        with sql.connect("database.db") as con:
+            cur = con.cursor()
+            # get the row whose email matches
+            sql_search_query = 'SELECT * FROM superuser WHERE email = ?'
             cur.execute(sql_search_query, (user,))
             record = cur.fetchone()
             return record
@@ -295,7 +350,8 @@ def get_discipline_shift(discipline, shift_number):
             sql_search_query = sql_search_query + ' WHERE shift_number = ?'
             cur.execute(sql_search_query, (shift_number,))
             record = cur.fetchone()
-            return record
+            _, res = record
+            return res
     except:
         con.rollback()
     finally:
@@ -312,7 +368,7 @@ def get_master_schedule_info(shift_number):
             sql_search_query = 'SELECT * FROM master_schedule WHERE shift_number = ?'
             cur.execute(sql_search_query, (shift_number,))
             record = cur.fetchone()
-            return record
+            return list(record[1:])
     except:
         con.rollback()
     finally:
@@ -358,9 +414,10 @@ def check_user(user):
 # 1 = name
 # 2 = status
 # 3 = shift_capacity
-# 4 = this_block_la
-# 5 = next_block_la
-# 6 = individual_tutor
+# 4 = tutoring_disciplines
+# 5 = this_block_la
+# 6 = next_block_la
+# 7 = individual_tutor
 # Function that will update the user's status
 def update_status(user):
     try:
@@ -393,6 +450,21 @@ def update_shift_capacity(user, new_capacity):
             update_query = 'UPDATE tutors SET shift_capacity =' + str(new_capacity)
             update_query = update_query + ' WHERE email = ?'
             cur.execute(update_query, (user,))
+    except:
+        con.rollback()
+    finally:
+        con.close()
+
+
+# Function to update the user's tutoring disciplines
+def update_tutoring_disciplines(user, disciplines):
+    try:
+        with sql.connect("database.db") as con:
+            cur = con.cursor()
+            # do stuff to update capacity to desired capacity
+            update_query = 'UPDATE tutors SET tutoring_disciplines =?'
+            update_query = update_query + ' WHERE email = ?'
+            cur.execute(update_query, (disciplines, user))
     except:
         con.rollback()
     finally:
@@ -506,4 +578,6 @@ def update_master_schedule(shift_number, disciplines, new_assignments):
 
 if __name__ == '__main__':
     discipline_list = ["CS", "Math", "Econ", "Physics", "CHBC"]
+    new_list = '["CS", "Math", "Econ", "Physics", "CHBC"]'
+    old_list = '["CS", "Math", "Econ"]'
     create_tables(discipline_list)
