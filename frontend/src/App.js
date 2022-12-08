@@ -11,7 +11,7 @@ function App() {
     });
   }, []);
 
-  const [loginStatus, setLoginStatus] = useState(false);
+  const [loginStatus, setLoginStatus] = useState("0");
   useEffect(() => {
     fetch('http://52.12.35.11:8080/api/login_status')
     .then(res => res.json())
@@ -19,13 +19,13 @@ function App() {
       console.log(data.login_status)
       setLoginStatus(data.login_status)
     });
-  }, [loginStatus])
+  }, [])
 
   return (
     <div className="App">
       <p>The current time is {currentTime}.</p>
       {
-        loginStatus == false
+        loginStatus == "1"
         ? <h2> You are logged in, so the home page now becomes this.</h2>
         : <LoginScreen></LoginScreen>
       }
