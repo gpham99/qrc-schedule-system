@@ -15,8 +15,11 @@ function App() {
   useEffect(() => {
     fetch('http://52.12.35.11:8080/api/login_status')
     .then(res => res.json())
-    .then(data => {setLoginStatus(data.login_status)})
-  }, [])
+    .then(data => {
+      console.log(data.login_status)
+      setLoginStatus(data.login_status)
+    });
+  }, [loginStatus])
 
   return (
     <div className="App">
@@ -26,7 +29,6 @@ function App() {
         ? <LoginScreen></LoginScreen>
         : <h2> You are logged in, so the home page now becomes this.</h2>
       }
-      
     </div>
   );
 }
