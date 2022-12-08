@@ -1,43 +1,44 @@
 import sqlite3 as sql
-# The Database has:
-# 1. the creation of tables -> Complete
-    # create_master_schedule()      O
-    # add_new_discipline_table()    O
-    # create_discipline_tables()    O
-    # create_tables()               O
-# 2. The insertion of new rows into the tables-> Complete
-    # add_tutor()                   O
-    # add_superuser()               O
-    # add_admin()                   O
-    # add_disciplines()             O
-    # add_shifts()                  O
-    # add_to_master_schedule()
-# 3. The updating of tables should new information be added ex. more disciplines -> Complete
-    # create_new_master_schedule()
-# 4. The deletion of rows from tables -> Complete
-    # delete_tutors()
-    # delete_admins()
-    # delete_superusers()
-    # clear_table()
-# 5. The deletion of tables should we need to make new tables -> Complete
-    # delete_table()
-# 6. The retrieval of data from the tables-> Complete
-    # get_single_tutor_info()       O
-    # get_admin_info                O
-    # get_super_user_info           O
-    # get_discipline_shift()        O
-    # get_master_schedule_info()
-# 7. The ability to check if a user exits in the database -> Complete
-    # check_user()
-# 8. The updating of rows in tables -> Complete
-    # update_tutor_status()
-    # update_shift_capacity()
-    # update_tutoring_disciplines
-    # update_this_block_la()
-    # update_next_block_la()
-    # update_individual_tutor()
-    # update_discipline_shifts()
-    # update_master_schedule()
+# The Database file includes:
+    # 1. the creation of tables -> Complete
+        # create_master_schedule()      O
+        # add_new_discipline_table()    O
+        # create_discipline_tables()    O
+        # create_tables()               O
+    # 2. The insertion of new rows into the tables-> Complete
+        # add_tutor()                   O
+        # add_superuser()               O
+        # add_admin()                   O
+        # add_disciplines()             O
+        # add_shifts()                  O
+        # add_to_master_schedule()      O
+    # 3. The updating of tables should new information be added ex. more disciplines -> Complete
+        # create_new_master_schedule()  O
+    # 4. The deletion of rows from tables -> Complete
+        # delete_tutors()               O
+        # delete_admins()               O
+        # delete_superusers()           O
+        # clear_table()                 O
+    # 5. The deletion of tables should we need to make new tables -> Complete
+        # delete_table()                O
+    # 6. The retrieval of data from the tables-> Complete
+        # get_single_tutor_info()       O
+        # get_admin_info                O
+        # get_super_user_info           O
+        # get_discipline_shift()        O
+        # get_master_schedule_info()    O
+        # get_roster()                  O
+    # 7. The ability to check if a user exits in the database -> Complete
+        # check_user()              `   O
+    # 8. The updating of rows in tables -> Complete
+        # update_tutor_status()         O
+        # update_shift_capacity()       O
+        # update_tutoring_disciplines   O
+        # update_this_block_la()        O
+        # update_next_block_la()        O
+        # update_individual_tutor()     O
+        # update_discipline_shifts()    O
+        # update_master_schedule()      O
 
 
 # function to create the master_schedule
@@ -82,7 +83,7 @@ def create_tables(all_disciplines):
                  'INTEGER, tutoring_disciplines TEXT, this_block_la INTEGER, next_block_la INTEGER, '
                  'individual_tutor INTEGER, PRIMARY KEY (email))')
     # create the admins table
-    conn.execute('CREATE TABLE IF NOT EXISTS admins (name TEXT, email TEXT)')
+    conn.execute('CREATE TABLE IF NOT EXISTS admins (email TEXT, name TEXT)')
     # create the disciplines table
     conn.execute('CREATE TABLE IF NOT EXISTS disciplines(name TEXT, available_shifts TEXT)')
     # close connection to database
@@ -145,12 +146,10 @@ def add_superuser(name, email):
 
 # function that will add rows to the admins table
 def add_admin(name, email):
-    name = name
-    email = email
     try:
         with sql.connect("database.db") as con:
             cur = con.cursor()
-            cur.execute('INSERT OR IGNORE INTO admins (name, email) VALUES(?, ?)', (name, email))
+            cur.execute('INSERT OR IGNORE INTO admins (email, name) VALUES(?, ?)', (email, name))
             con.commit()
     except:
         con.rollback()
@@ -375,6 +374,27 @@ def get_master_schedule_info(shift_number):
         con.close()
 
 
+# Function that will get the tutors in the system along with their information
+def get_roster():
+    try:
+        # code to fetch data from the database
+        with sql.connect("database.db") as con:
+            roster_list = []
+            cur = con.cursor()
+            # get the row whose email matches
+            sql_search_query = 'SELECT * FROM tutors'
+            cur.execute(sql_search_query)
+            records = cur.fetchall()
+            for record in records:
+                roster_list.append(record)
+                print(record)
+            return roster_list
+    except:
+        con.rollback()
+    finally:
+        con.close()
+
+
 # function to check if the user is in the system
 # Will return a boolean based on answer as well as the table the user has access to
 def check_user(user):
@@ -462,8 +482,8 @@ def update_tutoring_disciplines(user, disciplines):
         with sql.connect("database.db") as con:
             cur = con.cursor()
             # do stuff to update capacity to desired capacity
-            update_query = 'UPDATE tutors SET tutoring_disciplines =?'
-            update_query = update_query + ' WHERE email = ?'
+            update_query = 'UPDATE tutors SET tutoring_disciplines =? WHERE email = ?'
+            disciplines = str(disciplines)
             cur.execute(update_query, (disciplines, user))
     except:
         con.rollback()
@@ -559,17 +579,20 @@ def update_master_schedule(shift_number, disciplines, new_assignments):
     try:
         with sql.connect("database.db") as con:
             cur = con.cursor()
-
+            params = ()
             update_query = 'UPDATE master_schedule SET '
             # loop through the disciplines to get every column
             for item, discipline in enumerate(disciplines):
                 if item != len(disciplines) - 1:
-                    update_query = update_query + discipline + " = " + new_assignments[item] + ', '
+                    update_query = update_query + discipline + ' = ?, '
                 else:
-                    update_query = update_query + discipline + " = " + new_assignments[item] + ' '
+                    update_query = update_query + discipline + ' = ? '
 
+                params = params + (new_assignments[item],)
+
+            params = params + (shift_number,)
             update_query = update_query + ' WHERE shift_number = ?'
-            cur.execute(update_query, (shift_number,))
+            cur.execute(update_query, params)
     except:
         con.rollback()
     finally:
@@ -578,6 +601,4 @@ def update_master_schedule(shift_number, disciplines, new_assignments):
 
 if __name__ == '__main__':
     discipline_list = ["CS", "Math", "Econ", "Physics", "CHBC"]
-    new_list = '["CS", "Math", "Econ", "Physics", "CHBC"]'
-    old_list = '["CS", "Math", "Econ"]'
     create_tables(discipline_list)
