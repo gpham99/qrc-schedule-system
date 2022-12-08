@@ -3,59 +3,29 @@ import { Card, Image, Button } from "react-bootstrap";
 
 const gradient = "linear-gradient(to right, purple, pink, lavender)";
 
+const MyImage = () => {
+  return (
+    <div className="d-flex flex-row align-items-center justify-content-center responsive">
+      <img
+        src="/Images/CClogo.jpeg"
+        alt="Placeholder image"
+        className="img-fluid"
+        style={{ maxWidth: "65%", maxHeight: "65%" }}
+      />
+    </div>
+  );
+};
+
 const LoginScreen = () => {
   return (
     <div>
-      <Image
-        style={{ height: "150px", margin: "30px auto" }}
-        src="/Images/CClogo.jpeg"
-        responsive
-      />
-      <Card
-        style={{
-          margintop: "230px",
-          height: "100vh",
-          background: gradient,
-        }}
-      >
-        <Card
-          style={{
-            transform: "translate(20%, 5%)",
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "space-evenly",
-            height: "38%",
-            background: "#EBECF0",
-            width: "65%",
-            padding: "60px",
-            boxShadow: "3px 3px 9px #F4AAB9",
-          }}
-        >
-          <p style={{ fontWeight: "bold", color: "#5F465E", fontSize: "275%" }}>
-            Welcome to the QRC Scheduling System!
-          </p>
-          <div>
-            <button
-              variant="outlined"
-              style={{
-                backgroundColor: "#5F465E",
-                fontWeight: "bold",
-                color: "white",
-                height: "60px",
-                width: "120px",
-                borderradius: "5px",
-                position: "absolute",
-                textAlign: "center",
-                top: "70%",
-                transform: "translate(-50%, -50%)",
-                zIndex: "1",
-              }}
-            >
-              Log In with SSO
-            </button>
-          </div>
-        </Card>
-      </Card>
+      <MyImage />
+      <div class="d-flex w-100 h-75 position-absolute bottom-0 bg-primary justify-content-center align-items-center p-3">
+        <div class="bg-secondary p-5">
+          <h3>Welcome to QRC Schedule System!</h3>
+          <button>Click me</button>
+        </div>
+      </div>
     </div>
   );
 };

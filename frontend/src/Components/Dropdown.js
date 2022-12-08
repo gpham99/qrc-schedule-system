@@ -1,6 +1,5 @@
 import React from "react";
 import Dropdown from "react-bootstrap/Dropdown";
-import Button from "react-bootstrap";
 import { StarFill } from "react-bootstrap-icons";
 
 export const DropDown = () => {
