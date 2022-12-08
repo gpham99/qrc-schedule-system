@@ -26,8 +26,8 @@ function App() {
       <p>The current time is {currentTime}.</p>
       {
         loginStatus == "1"
-        ? <LoginScreen></LoginScreen>
-        : <h2> You are logged in, so the home page now becomes this.</h2>
+        ? <h2> You are logged in, so the home page now becomes this.</h2>
+        : <LoginScreen></LoginScreen> 
       }
     </div>
   );

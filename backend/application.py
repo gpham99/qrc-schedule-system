@@ -100,6 +100,7 @@ def get_current_time():
 
 @application.route('/api/login_status')
 def get_login_status():
+    print("session: ", session)
     if 'username' in session:
         return {"login_status": "1"}
     else:
