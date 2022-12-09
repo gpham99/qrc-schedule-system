@@ -8,9 +8,9 @@ function TutorInfo() {
   return (
     <div class="d-flex justify-content-center mt-5">
       <div class="table-responsive row justify-content center">
-        <h1 class>
+        <h1 class="d-flex flex-row justify-content-center align-items-center">
           Tutor's Information
-          <button class="btn btn-outline-primary">
+          <button class="btn btn-outline-primary m-3">
             <Pencil />
           </button>
         </h1>
@@ -25,7 +25,7 @@ function TutorInfo() {
           <tbody>
             <tr>
               <td>Jessica</td>
-              <td scope="row" class="">
+              <td scope="row">
                 <CheckedBoxDisabled />
               </td>
               <td>
