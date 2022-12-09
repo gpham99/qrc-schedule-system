@@ -17,9 +17,9 @@ export const DropDown = () => {
           </Dropdown.Toggle>
 
           <Dropdown.Menu>
-            <Dropdown.Item href="#/action-1">Action</Dropdown.Item>
-            <Dropdown.Item href="#/action-2">Another action</Dropdown.Item>
-            <Dropdown.Item href="#/action-3">Something else</Dropdown.Item>
+            <Dropdown.Item href="#/action-1">Chem</Dropdown.Item>
+            <Dropdown.Item href="#/action-2">CS</Dropdown.Item>
+            <Dropdown.Item href="#/action-3">Econ</Dropdown.Item>
           </Dropdown.Menu>
         </Dropdown>
       </div>
