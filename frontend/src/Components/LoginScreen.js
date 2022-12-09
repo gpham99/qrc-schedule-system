@@ -7,10 +7,10 @@ const MyImage = () => {
   return (
     <div className="d-flex flex-row align-items-center justify-content-center responsive">
       <img
-        src="/Images/CClogo.jpeg"
+        src="./src/Images/CClogo.jpeg"
         alt="Placeholder image"
         className="img-fluid"
-        style={{ maxWidth: "65%", maxHeight: "65%" }}
+        // style={{ maxWidth: "70%", maxHeight: "70%" }}
       />
     </div>
   );
@@ -19,11 +19,41 @@ const MyImage = () => {
 const LoginScreen = () => {
   return (
     <div>
-      <MyImage />
-      <div class="d-flex w-100 h-75 position-absolute bottom-0 bg-primary justify-content-center align-items-center p-3">
-        <div class="bg-secondary p-5">
-          <h3>Welcome to QRC Schedule System!</h3>
-          <button>Click me</button>
+      <div class="p-3 responsive">
+        <img
+          class="img-fluid"
+          style={{ height: "150px" }}
+          src={require("../Images/CClogo.jpeg")}
+        />
+      </div>
+
+      <div
+        class="d-flex w-100 h-75 position-absolute bottom-0 justify-content-center align-items-center"
+        style={{ background: "#35363A" }}
+      >
+        <div
+          class="p-5"
+          style={{
+            background: "#EBECF0",
+            boxShadow: "5px 5px 5px 1px",
+          }}
+        >
+          <h3 class="p-5" style={{ fontWeight: "bold", color: "#5F465E" }}>
+            Welcome to the QRC Scheduling System!
+          </h3>
+          <a href="http://52.12.35.11:8080/login">
+            <button
+              class="p-2"
+              variant="outlined"
+              style={{
+                backgroundColor: "#5F465E",
+                fontWeight: "bold",
+                color: "white",
+              }}
+            >
+              Log in with SSO
+            </button>
+          </a>
         </div>
       </div>
     </div>

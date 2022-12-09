@@ -1,20 +1,13 @@
 const ImportFile = () => {
   return (
     <div
-      class="d-inline-flex flex-column align-items-center responsive"
-      style={{
-        position: "absolute",
-        bottom: "50%",
-        lexDirection: "column",
-        margin: "auto",
-      }}
+      class="d-inline-flex align-items-center flex-column p-5 responsive bg-secondary"
+      style={{ transform: "translate(0%, 250%)" }}
     >
-      <div class="mb-3">
-        <label for="formFile" class="form-label">
-          Input an excel file
-        </label>
-        <input class="form-control" type="file" id="formFile"></input>
-      </div>
+      <label for="formFile" class="form-label">
+        Input an excel file
+      </label>
+      <input class="form-control" type="file" id="formFile"></input>
     </div>
   );
 };
