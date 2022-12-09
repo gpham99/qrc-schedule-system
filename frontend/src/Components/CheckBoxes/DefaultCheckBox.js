@@ -7,9 +7,7 @@ const DefaultCheckBox = () => {
         value=""
         id="flexCheckDefault"
       />
-      <label class="form-check-label" for="flexCheckDefault">
-        Default checkbox
-      </label>
+      <label class="form-check-label" for="flexCheckDefault"></label>
     </div>
   );
 };
