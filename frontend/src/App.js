@@ -7,7 +7,7 @@ import ImportFile from "./Components/ImportFileScreen/ImportFile";
 function App() {
   return (
     <div className="App">
-      <LoginScreen></LoginScreen>
+      <ImportFile></ImportFile>
     </div>
   );
 }
