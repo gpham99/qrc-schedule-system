@@ -13,33 +13,35 @@ const Admin = () => {
         <h1>Admin Routes</h1>
       </div>
 
-      <ul class="nav justify-content-center">
-        <li class="nav-item">
-          <a class="nav-link active" href="/admin/excel">
-            Roster
-          </a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="/admin/tutor-info">
-            Tutors' Information
-          </a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="/admin/schedule">
-            Master Schedule
-          </a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="/admin/time-window">
-            Time Window
-          </a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="/admin/internal">
-            Internal
-          </a>
-        </li>
-      </ul>
+      <div>
+        <ul class="nav justify-content-center">
+          <li class="nav-item">
+            <a class="nav-link active" href="/admin/excel">
+              Roster
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/admin/tutor-info">
+              Tutors' Information
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/admin/schedule">
+              Master Schedule
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/admin/time-window">
+              Time Window
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/admin/internal">
+              Internal
+            </a>
+          </li>
+        </ul>
+      </div>
 
       <div class="p-5">
         <Routes>
