@@ -35,18 +35,19 @@ const LoginScreen = () => {
           <h3 class="p-5" style={{ fontWeight: "bold", color: "#5F465E" }}>
             Welcome to the QRC Scheduling System!
           </h3>
-          <button
-            href="http://52.12.35.11:8080/login"
-            class="p-2"
-            variant="outlined"
-            style={{
-              backgroundColor: "#5F465E",
-              fontWeight: "bold",
-              color: "white",
-            }}
-          >
-            Log in with SSO
-          </button>
+          <a href="http://52.12.35.11:8080/login">
+            <button
+              class="p-2"
+              variant="outlined"
+              style={{
+                backgroundColor: "#5F465E",
+                fontWeight: "bold",
+                color: "white",
+              }}
+            >
+              Log in with SSO
+            </button>
+          </a>
         </div>
       </div>
     </div>
