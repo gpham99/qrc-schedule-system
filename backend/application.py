@@ -1,13 +1,12 @@
+
 import time
 from flask import Flask, request, session, redirect, url_for
-from cas_client import CASClient
+from cas import CASClient
 from flask_cors import CORS
 
-
 # print a nice greeting.
-def say_hello(username="Team"):
+def say_hello(username = "Team"):
     return '<p>Hello %s!</p>\n' % username
-
 
 # some bits of text for the page.
 header_text = '''
@@ -21,10 +20,12 @@ application = Flask(__name__)
 CORS(application)
 
 application.secret_key = 'V7nlCN90LPHOTA9PGGyf'
-cas_client = CASClient( service_url='http://52.12.35.11:8080/',
+
+cas_client = CASClient(
+    version=3,    
+    service_url='http://52.12.35.11:8080/',
     server_url='https://cas.coloradocollege.edu/cas/'
 )
-
 
 # add a rule for the index page
 @application.route('/')
@@ -38,7 +39,7 @@ def index():
 
     if not ticket:
         return header_text + say_hello() + footer_text + sso_link
-
+    
     application.logger.debug('ticket: %s', ticket)
     application.logger.debug('next: %s', next)
     user, attributes, pgtiou = cas_client.verify_ticket(ticket)
@@ -55,19 +56,12 @@ def index():
             return redirect(url_for('profile'))
         return redirect(next)
 
-
 @application.route('/profile')
 def profile(method=['GET']):
     application.logger.debug('session when you hit profile: %s', session)
     if 'username' in session:
-        # comapre the username to the database contents
-        # use check_user() will return true if user is in system or false if not
-
-
-        return 'Logged in as {}. Your email address is {}. <a href="/logout">Exit</a>'.format(session['username'],
-                                                                                              session['email'])
+        return 'Logged in as {}. Your email address is {}. <a href="/logout">Exit</a>'.format(session['username'], session['email'])
     return 'Login required. <a href="/login">Login</a>', 403
-
 
 @application.route('/login')
 def login():
@@ -84,8 +78,7 @@ def login():
         # No ticket, the request come from end user, send to CAS login
         cas_login_url = cas_client.get_login_url()
         application.logger.debug('CAS login URL: %s', cas_login_url)
-        return redirect(cas_login_url)  # the return of this is /ticket?=...
-
+        return redirect(cas_login_url) # the return of this is /ticket?=...
 
 @application.route('/cas_logout')
 def logout():
@@ -97,17 +90,14 @@ def logout():
 
     return redirect(cas_logout_url)
 
-
 @application.route('/logout')
 def logout_callback():
     session.clear()
     return redirect("https://www.coloradocollege.edu/")
-
-
+    
 @application.route('/api/time')
 def get_current_time():
     return {'time': time.time()}
-
 
 @application.route('/api/login_status')
 def get_login_status():
@@ -117,10 +107,9 @@ def get_login_status():
     else:
         return {"login_status": "0"}
 
-
 # # run the app.
-if __name__ == "__main__":
-    # Setting debug to True enables debug output. This line should be
-    # removed before deploying a production app.
-    application.debug = True
-    application.run()
+# if __name__ == "__main__":
+#     # Setting debug to True enables debug output. This line should be
+#     # removed before deploying a production app.
+#     application.debug = True
+#     application.run()
