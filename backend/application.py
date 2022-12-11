@@ -1,18 +1,12 @@
+from .databaseTest import get_roster, get_master_schedule_info
 import time
-from flask import Flask, request, session, redirect, url_for, send_from_directory
-import os
-from werkzeug.utils import secure_filename
+from flask import Flask, request, session, redirect, url_for
 from cas import CASClient
-from .models import Tutor, read_roster
 from flask_cors import CORS
 
-UPLOAD_FOLDER = '.'
-ALLOWED_EXTENSIONS = {'xls', 'xlsx', 'xlsm', 'xlsb', 'odf', 'ods', 'odt'}
-
 # print a nice greeting.
-def say_hello(username="Team"):
+def say_hello(username = "Team"):
     return '<p>Hello %s!</p>\n' % username
-
 
 # some bits of text for the page.
 header_text = '''
@@ -24,20 +18,12 @@ sso_link = '<p><a href="/login">Log in using SSO</a></p>'
 # EB looks for an 'application' callable by default.
 application = Flask(__name__)
 CORS(application)
-
 application.secret_key = 'V7nlCN90LPHOTA9PGGyf'
-application.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-
 cas_client = CASClient(
-    version=3,
+    version=3,    
     service_url='http://52.12.35.11:8080/',
     server_url='https://cas.coloradocollege.edu/cas/'
 )
-
-def allowed_file(filename):
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
 
 # add a rule for the index page
 @application.route('/')
@@ -98,23 +84,48 @@ def logout():
     application.logger.debug('Redirect logout URL %s', redirect_url)
     cas_logout_url = cas_client.get_logout_url(redirect_url)
     application.logger.debug('CAS logout URL: %s', cas_logout_url)
-
     return redirect(cas_logout_url)
 
 @application.route('/logout')
 def logout_callback():
     session.clear()
-    return 'Exited CAS. <a href="/login">Login</a>'
+    return redirect("https://www.coloradocollege.edu/")
     
 @application.route('/api/time')
 def get_current_time():
     return {'time': time.time()}
 
-@application.route('/api/
+@application.route('/api/login_status')
+def get_login_status():
+    print("session: ", session)
+    if 'username' in session:
+        return {"login_status": "1"}
+    else:
+        return {"login_status": "0"}
 
-# run the app.
-if __name__ == "__main__":
-    # Setting debug to True enables debug output. This line should be
-    # removed before deploying a production app.
-    application.debug = True
-    application.run()
+@application.route('api/master_schedule')
+def get_master_schedule():
+    disciplines = ["CS", "Math", "Econ", "Physics", "CHMB"]
+    roster = get_roster()
+    master_schedule = []
+    master_schedule_with_disciplines = {}
+    for i in range(20): #TODO: MAGIC CONSTANT
+        master_schedule.append(get_master_schedule_info(i))
+    shift_num = 0
+    for line in master_schedule:
+        final_shift_list = ""
+        for tutor in line:
+            if tutor != None:
+                for tutor_entry in roster:
+                    if tutor_entry[1] == tutor: #find the tutor in the roster
+                        final_shift_list += str(tutor) + ": " + str(tutor_entry[4]) + "\n"
+        master_schedule_with_disciplines[shift_num] = final_shift_list
+        shift_num += 1
+    return master_schedule_with_disciplines
+
+# # run the app.
+# if __name__ == "__main__":
+#     # Setting debug to True enables debug output. This line should be
+#     # removed before deploying a production app.
+#     application.debug = True
+#     application.run()
