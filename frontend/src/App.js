@@ -10,7 +10,7 @@ import DateTimeInterval from "./Components/AdminTimeWindowFrame/TimeWindow";
 function App() {
   return (
     <div className="App">
-      <DateTimeInterval />
+      <ScheduleChart></ScheduleChart>
     </div>
   );
 }
