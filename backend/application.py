@@ -1,4 +1,4 @@
-
+from .databaseTest import get_roster, get_master_schedule_info
 import time
 from flask import Flask, request, session, redirect, url_for
 from cas import CASClient
@@ -106,6 +106,26 @@ def get_login_status():
         return {"login_status": "1"}
     else:
         return {"login_status": "0"}
+
+@application.route('api/master_schedule')
+def get_master_schedule():
+    disciplines = ["CS", "Math", "Econ", "Physics", "CHMB"]
+    roster = get_roster()
+    master_schedule = []
+    master_schedule_with_disciplines = {}
+    for i in range(20): #TODO: MAGIC CONSTANT
+        master_schedule.append(get_master_schedule_info(i))
+    shift_num = 0
+    for line in master_schedule:
+        final_shift_list = ""
+        for tutor in line:
+            if tutor != None:
+                for tutor_entry in roster:
+                    if tutor_entry[1] == tutor: #find the tutor in the roster
+                        final_shift_list += str(tutor) + ": " + str(tutor_entry[4]) + "\n"
+        master_schedule_with_disciplines[shift_num] = final_shift_list
+        shift_num += 1
+    return master_schedule_with_disciplines
 
 # # run the app.
 # if __name__ == "__main__":
