@@ -110,6 +110,8 @@ def logout_callback():
 def get_current_time():
     return {'time': time.time()}
 
+@application.route('/api/
+
 # run the app.
 if __name__ == "__main__":
     # Setting debug to True enables debug output. This line should be
