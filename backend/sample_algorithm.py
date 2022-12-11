@@ -1,5 +1,6 @@
 from new_models import Tutor
 from random import randint, sample
+from statistics import stdev
 from copy import deepcopy
 
 disciplines = ['CHMB', 'M', 'P', 'CS', 'E']
@@ -108,34 +109,50 @@ def discipline_evenness(schedule):
             if schedule[i][j] != '':
                 shift_count += 1
         shift_counts.append(shift_count)
-    maximum = max(shift_counts)
-    return sum(shift_counts) / (len(shift_counts) * maximum) 
+    deviation = stdev(shift_counts)
+    return deviation
 
-def algorithm():
+def algorithm(totaltries):
     possible_solutions = []
-    for i in range(10):
+    for i in range(totaltries):
         soln, assigned = greedy()
         unfairness = tutor_unfairness(soln)
         evenness = discipline_evenness(soln)
         possible_solutions.append((soln, assigned, unfairness, evenness))
     assigned_amounts = [soln[1] for soln in possible_solutions]
     maximum = max(assigned_amounts)
-    for soln in possible_solutions:
+    i = 0
+    while i < len(possible_solutions):
+        soln = possible_solutions[i]
         if soln[1] != maximum:
-            possible_solutions.remove(soln) 
+            possible_solutions.remove(soln)
+        else:
+            i+=1
     unfairness_amounts = [soln[2] for soln in possible_solutions]
     minimum = min(unfairness_amounts)
-    for soln in possible_solutions:
+    i = 0
+    while i < len(possible_solutions):
+        soln = possible_solutions[i]
         if soln[2] != minimum:
-            possible_solutions.remove(soln) 
+            possible_solutions.remove(soln)
+        else:
+            i+=1
     evenness_amounts = [soln[3] for soln in possible_solutions]
     maximum = max(evenness_amounts)
-    for soln in possible_solutions:
+    i = 0
+    while i < len(possible_solutions):
+        soln = possible_solutions[i]
         if soln[3] != maximum:
             possible_solutions.remove(soln)
+        else:
+            i+=1
 
     for soln in possible_solutions:
         print(soln[1], soln[2], soln[3])   
+        for line in soln[0]:
+            print(line)
+
     #print(['Total shifts assigned: ', possible_solutions[0] 'Tutor unfairness (lower is better): ', 'Discipline evenness (higher is better): '][j], d)
 
-algorithm()
+algorithm(200)
+print("-----------------------------------------")
