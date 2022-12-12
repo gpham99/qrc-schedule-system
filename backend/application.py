@@ -4,6 +4,7 @@ from flask import Flask, request, session, redirect, url_for
 from cas import CASClient
 from flask_cors import CORS
 import ast
+from models import read_roster
 
 # print a nice greeting.
 def say_hello(username = "Team"):
@@ -139,6 +140,28 @@ def get_master_schedule():
 @application.route('/api/tutor/<username>')
 def get_tutor_schedule(username):
     disciplines = get_disciplines()
+    
+@application.route('/api/upload_roster', methods=['POST'])
+def upload_roster():
+    # check if the post request has the file part
+    if 'file' not in request.files:
+        print('No file part')
+        return redirect(request.url)
+    file = request.files['file']
+    # If the user does not select a file, the browser submits an
+    # empty file without a filename.
+    if file.filename == '':
+        flash('No selected file')
+        return redirect(request.url)
+    if file and allowed_file(file.filename):
+        filename = secure_filename(file.filename)
+        file.save(os.path.join(application.config['UPLOAD_FOLDER'], filename))
+        if 'ROSTER' in application.config:
+            os.remove(application.config['ROSTER'])
+        application.config['ROSTER'] = filename
+        result = read_roster(filename)
+        print(result)
+        return result
     
     
 

@@ -30,14 +30,15 @@ def read_roster(roster_file):
             tutor_tuple = (full_names[i], df['email address'][i])
             output.append(tutor_tuple)
     except KeyError:
-        print("Error reading file. Please ensure your columns are named \"first name\", \"last name\", and \"email address\".")
+        return "Error reading file. Please ensure your columns are named \"first name\", \"last name\", and \"email address\"."
     except:
-        print("Error reading file. Please ensure you submitted an Excel file.")
+        return "Error reading file. Please ensure you submitted an Excel file."
         traceback.print_exc()
     if len(output) > 0:
-        create_tables(['CHMB','CS','E','M','P'])
         for tutor in output:
             add_tutor(tutor[0], tutor[1])
+        return "File successfully read, tutors added to database"
+    return "No tutors found in file"
 
 
 
