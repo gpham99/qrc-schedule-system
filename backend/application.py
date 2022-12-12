@@ -106,7 +106,7 @@ def get_login_status():
 
 @application.route('/api/master_schedule')
 def get_master_schedule():
-    disciplines = ["CS", "Math", "Econ", "Physics", "CHMB"]
+    disciplines = ["CS", "Math", "Econ", "Physics", "CHMB"] #TODO: MAGIC CONSTANT
     roster = get_roster()
     master_schedule = []
     master_schedule_with_disciplines = {}
@@ -128,6 +128,10 @@ def get_master_schedule():
         master_schedule_with_disciplines[shift_num] = final_shift_list
         shift_num += 1
     return master_schedule_with_disciplines
+
+@application.route('/api/tutor/<username>')
+def get_tutor_schedule(username):
+    
 
 # # run the app.
 # if __name__ == "__main__":
