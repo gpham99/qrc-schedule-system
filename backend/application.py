@@ -28,6 +28,10 @@ cas_client = CASClient(
     server_url='https://cas.coloradocollege.edu/cas/'
 )
 
+def check_login():
+    pass
+    
+
 # add a rule for the index page
 @application.route('/')
 def index():
@@ -150,7 +154,9 @@ def get_tutor_schedule(username):
             if email in line:
                 index = line.index(email)
                 tutor_schedule[shift_num] = disciplines[index]
-        shift_num += 1
+            else:
+                tutor_schedule[shift_num] = None
+            shift_num += 1
     return tutor_schedule
     
     
