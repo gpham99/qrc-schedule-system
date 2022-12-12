@@ -108,17 +108,14 @@ def get_login_status():
 @application.route('/api/master_schedule')
 def get_master_schedule():
     disciplines = get_disciplines()
-    print(disciplines)
     roster = get_roster()
     master_schedule = []
     master_schedule_with_disciplines = {}
     for i in range(20): #TODO: MAGIC CONSTANT
         master_schedule.append(get_master_schedule_info(i))
-    print(master_schedule)
     shift_num = 0
     for line in master_schedule:
         if line != None:
-            print(line)
             for d in range(len(line)):
                 email = line[d]
                 if email != None:
@@ -137,9 +134,24 @@ def get_master_schedule():
         shift_num += 1
     return master_schedule_with_disciplines
 
+#Page where any individual tutor's schedule is stored: shift number and discipline they signed up for
 @application.route('/api/tutor/<username>')
 def get_tutor_schedule(username):
+    email = username + "@coloradocollege.edu"
     disciplines = get_disciplines()
+    master_schedule = []
+    tutor_schedule = {}
+    for i in range(20): #TODO: MAGIC CONSTANT
+        master_schedule.append(get_master_schedule_info(i))
+    shift_num = 0
+    for line in master_schedule:
+        if line != None:
+            if email in line:
+                index = line.index(email)
+                tutor_schedule[shift_num] = disciplines[index]
+        shift_num += 1
+    return tutor_schedule
+    
     
 @application.route('/api/upload_roster', methods=['POST'])
 def upload_roster():
