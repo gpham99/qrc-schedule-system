@@ -1,4 +1,4 @@
-from .databaseTest import get_roster, get_master_schedule_info
+from databaseTest import get_roster, get_master_schedule_info
 import time
 from flask import Flask, request, session, redirect, url_for
 from cas import CASClient
@@ -103,7 +103,7 @@ def get_login_status():
     else:
         return {"login_status": "0"}
 
-@application.route('api/master_schedule')
+@application.route('/api/master_schedule')
 def get_master_schedule():
     disciplines = ["CS", "Math", "Econ", "Physics", "CHMB"]
     roster = get_roster()
@@ -114,15 +114,16 @@ def get_master_schedule():
     shift_num = 0
     for line in master_schedule:
         final_shift_list = ""
-        for tutor in line:
-            if tutor != None:
-                for tutor_entry in roster:
-                    if tutor_entry[1] == tutor: #find the tutor in the roster
-                        discipline_list = tutor_entry[4]
-                        for i in range(len(discipline_list): 
-                            if discipline_list[i] == 'CHMB':
-                                discipline_list[i] = 'CH/MB'
-                        final_shift_list += str(tutor) + ": " + str(discipline_list) + "\n"
+        if line != None:
+            for tutor in line:
+                if tutor != None:
+                    for tutor_entry in roster:
+                        if tutor_entry[1] == tutor: #find the tutor in the roster
+                            discipline_list = tutor_entry[4]
+                            for i in range(len(discipline_list): 
+                                if discipline_list[i] == 'CHMB':
+                                    discipline_list[i] = 'CH/MB'
+                            final_shift_list += str(tutor) + ": " + str(discipline_list) + "\n"
         master_schedule_with_disciplines[shift_num] = final_shift_list
         shift_num += 1
     return master_schedule_with_disciplines
