@@ -3,6 +3,7 @@ import time
 from flask import Flask, request, session, redirect, url_for
 from cas import CASClient
 from flask_cors import CORS
+import ast
 
 # print a nice greeting.
 def say_hello(username = "Team"):
@@ -119,8 +120,8 @@ def get_master_schedule():
                 if tutor != None:
                     for tutor_entry in roster:
                         if tutor_entry[1] == tutor: #find the tutor in the roster
-                            discipline_list = tutor_entry[4]
-                            for i in range(len(discipline_list): 
+                            discipline_list = ast.literal_eval(tutor_entry[4])
+                            for i in range(len(discipline_list)): 
                                 if discipline_list[i] == 'CHMB':
                                     discipline_list[i] = 'CH/MB'
                             final_shift_list += str(tutor) + ": " + str(discipline_list) + "\n"
