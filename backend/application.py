@@ -118,7 +118,11 @@ def get_master_schedule():
             if tutor != None:
                 for tutor_entry in roster:
                     if tutor_entry[1] == tutor: #find the tutor in the roster
-                        final_shift_list += str(tutor) + ": " + str(tutor_entry[4]) + "\n"
+                        discipline_list = tutor_entry[4]
+                        for i in range(len(discipline_list): 
+                            if discipline_list[i] == 'CHMB':
+                                discipline_list[i] = 'CH/MB'
+                        final_shift_list += str(tutor) + ": " + str(discipline_list) + "\n"
         master_schedule_with_disciplines[shift_num] = final_shift_list
         shift_num += 1
     return master_schedule_with_disciplines
