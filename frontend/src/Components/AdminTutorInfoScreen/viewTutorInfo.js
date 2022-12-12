@@ -1,8 +1,7 @@
-import { Check } from "react-bootstrap-icons";
+import { Check, Pencil } from "react-bootstrap-icons";
 import CheckedBoxDisabled from "../CheckBoxes/CheckedBoxDisabled";
 import UncheckedBoxDisabled from "../CheckBoxes/UncheckedBoxDisabled";
 import DefaultCheckBox from "../CheckBoxes/DefaultCheckBox";
-import { Pencil } from "react-bootstrap-icons";
 
 function TutorInfo() {
   return (

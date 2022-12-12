@@ -1,4 +1,4 @@
-const DefaultCheckBox = () => {
+const DefaultCheckBox = ({ box_label }) => {
   return (
     <div class="form-check">
       <input
@@ -7,7 +7,9 @@ const DefaultCheckBox = () => {
         value=""
         id="flexCheckDefault"
       />
-      <label class="form-check-label" for="flexCheckDefault"></label>
+      <label class="form-check-label text-white" for="flexCheckDefault">
+        {box_label}
+      </label>
     </div>
   );
 };
