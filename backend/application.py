@@ -128,7 +128,7 @@ def get_master_schedule():
                                     discipline_list[i] = 'CH/MB'
                             output_str = "/".join(discipline_list) + ": " + str(email)
                             master_schedule_with_disciplines[str(shift_num)+disciplines[d]] = output_str
-                    if (!tutor_found):
+                    if not tutor_found:
                         print("Warning: One tutor (", email, ") not found in database. Omitting corresponding shift.")
         shift_num += 1
     return master_schedule_with_disciplines
