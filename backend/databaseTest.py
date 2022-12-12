@@ -1,56 +1,58 @@
 import sqlite3 as sql
 # The Database file includes:
     # 1. the creation of tables -> Complete
-        # create_master_schedule()      O
-        # add_new_discipline_table()    O
-        # create_discipline_tables()    O
-        # create_tables()               O
+        # create_master_schedule()          O
+        # add_new_discipline_table()        O
+        # create_discipline_tables()        O
+        # create_tables()                   O
     # 2. The insertion of new rows into the tables-> Complete
-        # add_tutor()                   O
-        # add_superuser()               O
-        # add_admin()                   O
-        # add_disciplines()             O
-        # add_shifts()                  O
-        # add_to_master_schedule()      O
+        # add_tutor()                       O
+        # add_superuser()                   O
+        # add_admin()                       O
+        # add_disciplines()                 O
+        # add_shifts()                      O
+        # add_to_master_schedule()          O
     # 3. The updating of tables should new information be added ex. more disciplines -> Complete
-        # create_new_master_schedule()  O
+        # create_new_master_schedule()      O
     # 4. The deletion of rows from tables -> Complete
-        # delete_tutors()               O
-        # delete_admins()               O
-        # delete_superusers()           O
-        # clear_table()                 O
+        # delete_tutors()                   O
+        # delete_admins()                   O
+        # delete_superusers()               O
+        # clear_table()                     O
     # 5. The deletion of tables should we need to make new tables -> Complete
-        # delete_table()                O
+        # delete_table()                    O
     # 6. The retrieval of data from the tables-> Complete
-        # get_single_tutor_info()       O
-        # get_admin_info                O
-        # get_super_user_info           O
-        # get_discipline_shift()        O
-        # get_master_schedule_info()    O
-        # get_roster()                  O
+        # get_single_tutor_info()           O
+        # get_admin_info                    O
+        # get_super_user_info               O
+        # get_discipline_shift()            O
+        # get_master_schedule_info()        O
+        # get_roster()                      O
+        # get_discipline_shifts_offered()   O
     # 7. The ability to check if a user exits in the database -> Complete
-        # check_user()              `   O
+        # check_user()              `       O
     # 8. The updating of rows in tables -> Complete
-        # update_tutor_status()         O
-        # update_shift_capacity()       O
-        # update_tutoring_disciplines   O
-        # update_this_block_la()        O
-        # update_next_block_la()        O
-        # update_individual_tutor()     O
-        # update_discipline_shifts()    O
-        # update_master_schedule()      O
+        # update_tutor_status()             O
+        # update_shift_capacity()           O
+        # update_tutoring_disciplines       O
+        # update_this_block_la()            O
+        # update_next_block_la()            O
+        # update_individual_tutor()         O
+        # update_discipline_shifts()        O
+        # update_master_schedule()          O
+    # 9 Other functions to help with the basic keeping of the database
+        # rebirth()
+        # list_all_tables()
+        # 
 
 
 # function to create the master_schedule
 def create_master_schedule(all_disciplines):
     conn = sql.connect('database.db')
     sql_query = 'CREATE TABLE IF NOT EXISTS master_schedule(shift_number INTEGER, '
-    for index, discipline in enumerate(all_disciplines):
-        if index != len(all_disciplines) - 1:
-            sql_query = sql_query + discipline + ' TEXT, '
-        elif index == len(all_disciplines) - 1:
-            sql_query = sql_query + discipline + ' TEXT '
-    sql_query = sql_query + ')'
+    for discipline in all_disciplines:
+        sql_query = sql_query + discipline + ' TEXT, '
+    sql_query = sql_query + 'PRIMARY KEY (shift_number))'
     conn.execute(sql_query)
     conn.close()
 
@@ -59,7 +61,8 @@ def create_master_schedule(all_disciplines):
 # Function to create new discipline tables in the future
 def add_new_discipline_table(discipline_name):
     conn = sql.connect('database.db')
-    sql_query = 'CREATE TABLE IF NOT EXISTS ' + discipline_name + '(shift_number INTEGER, available_tutors TEXT)'
+    sql_query = 'CREATE TABLE IF NOT EXISTS ' + discipline_name + '(shift_number INTEGER, available_tutors TEXT,' \
+                                                                  ' PRIMARY KEY (shift_number))'
     conn.execute(sql_query)
     # close connection to database
     conn.close()
@@ -77,15 +80,15 @@ def create_tables(all_disciplines):
     # create a database
     conn = sql.connect('database.db')
     # create superuser table
-    conn.execute('CREATE TABLE IF NOT EXISTS superuser (email TEXT, name TEXT)')
+    conn.execute('CREATE TABLE IF NOT EXISTS superuser (email TEXT, name TEXT, PRIMARY KEY (email))')
     # create the tutors table
     conn.execute('CREATE TABLE IF NOT EXISTS tutors (email TEXT, name TEXT, status INTEGER,shift_capacity '
                  'INTEGER, tutoring_disciplines TEXT, this_block_la INTEGER, next_block_la INTEGER, '
                  'individual_tutor INTEGER, PRIMARY KEY (email))')
     # create the admins table
-    conn.execute('CREATE TABLE IF NOT EXISTS admins (email TEXT, name TEXT)')
+    conn.execute('CREATE TABLE IF NOT EXISTS admins (email TEXT, name TEXT, PRIMARY KEY (email)) ')
     # create the disciplines table
-    conn.execute('CREATE TABLE IF NOT EXISTS disciplines(name TEXT, available_shifts TEXT)')
+    conn.execute('CREATE TABLE IF NOT EXISTS disciplines(subject TEXT, available_shifts TEXT, PRIMARY KEY (subject))')
     # close connection to database
     conn.close()
     # creates the remaining tables (disciplines, and master)
@@ -159,15 +162,24 @@ def add_admin(name, email):
 
 # function that will add rows to the discipline table
 def add_disciplines(subject, shifts):
-    try:
+   try:
         with sql.connect("database.db") as con:
             cur = con.cursor()
-            cur.execute('INSERT OR IGNORE INTO disciplines (name, available_shifts) VALUES(?, ?)', (subject, shifts))
-            con.commit()
-    except:
-        con.rollback()
-    finally:
-        con.close()
+            sql_select_query = 'SELECT * FROM disciplines WHERE subject=? '
+            cur.execute(sql_select_query, (subject,))
+            data = cur.fetchone()
+            # If the user doesn't exist
+            if data is None:
+                cur.execute('INSERT OR IGNORE INTO disciplines (subject, available_shifts) '
+                            'VALUES(?, ?)', (subject, str(shifts)))
+                con.commit()
+            # else update the name of the user
+            else:
+                pass
+   except:
+       con.rollback()
+   finally:
+       con.close()
 
 
 # function to add rows to a specific discipline table
@@ -387,8 +399,44 @@ def get_roster():
             records = cur.fetchall()
             for record in records:
                 roster_list.append(record)
-                print(record)
             return roster_list
+    except:
+        con.rollback()
+    finally:
+        con.close()
+
+
+# Function that will retrieve all existing disciplines
+def get_disciplines():
+    try:
+        # code to fetch data from the database
+        with sql.connect("database.db") as con:
+            disciplines_list = []
+            cur = con.cursor()
+            # get the row whose email matches
+            sql_search_query = 'SELECT * FROM disciplines'
+            cur.execute(sql_search_query)
+            records = cur.fetchall()
+            for record in records:
+                disciplines_list.append(record[0])
+            return disciplines_list
+    except:
+        con.rollback()
+    finally:
+        con.close()
+
+
+# Function that will return which shifts a particular discipline is available for
+def get_discipline_shifts_offered(discipline):
+    try:
+        # code to fetch data from the database
+        with sql.connect("database.db") as con:
+            cur = con.cursor()
+            # get the row whose email matches
+            sql_search_query = 'SELECT * FROM disciplines WHERE subject = ?'
+            cur.execute(sql_search_query, (discipline,))
+            record = cur.fetchone()
+            return list(record)[1]
     except:
         con.rollback()
     finally:
@@ -599,6 +647,55 @@ def update_master_schedule(shift_number, disciplines, new_assignments):
         con.close()
 
 
+# Function to reset the database and create all the appropriate tables once a new discipline has been added
+def rebirth(new_disciplines_list):
+    # creates the new master_schedule after deleting the old one
+    create_new_master_schedule(new_disciplines_list)
+    # creates a new table for the new discipline
+    create_discipline_tables(new_disciplines_list)
+    empty_list = []
+    # get all the current existing tables
+    current_disciplines = get_disciplines()
+    # iterates through the new discipline list
+    for discipline in new_disciplines_list:
+        # if it is new then add it to the discipline table with an empty list
+        if discipline not in current_disciplines:
+            add_disciplines(discipline, empty_list)
+    print("Rebirth process complete")
+
+
+# Functton that will return a list of all tables
+def list_all_tables():
+    try:
+        with sql.connect("database.db") as con:
+            table_list = []
+            cur = con.cursor()
+
+            sql_query = 'PRAGMA main.table_list'
+            cur.execute(sql_query)
+            data = list(cur.fetchall())
+            for table in data:
+                if table[1] != 'sqlite_schema':
+                    table_list.append(table[1])
+
+            return table_list
+    except:
+        con.rollback()
+    finally:
+        con.close()
+
+
+# Function to reboot the database in its entirety (mostly for testing)
+def reboot_database(all_disciplines):
+    all_tables = list_all_tables()
+    for table in all_tables:
+        delete_table(table)
+    create_tables(all_disciplines)
+    print("print database reboot completed")
+
+
 if __name__ == '__main__':
     discipline_list = ["CS", "Math", "Econ", "Physics", "CHBC"]
     create_tables(discipline_list)
+    reboot_database(discipline_list)
+
