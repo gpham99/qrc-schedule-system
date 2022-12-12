@@ -178,8 +178,7 @@ def upload_roster():
 
 @application.route('/unauthorized_login')
 def unauthorized_login():
-    return "You have successfully logged in to Colorado College, but your account is not part of the QRC database. \n"
-    + "Please contact QRC administrators if you believe this is an error. " + logout_link
+    return "You have successfully logged in to Colorado College, but your account is not part of the QRC database. \n Please contact QRC administrators if you believe this is an error. " + logout_link
     
 
 # # run the app.
