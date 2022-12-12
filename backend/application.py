@@ -16,6 +16,7 @@ header_text = '''
 home_link = '<p><a href="/">Back</a></p>\n'
 footer_text = '</body>\n</html>'
 sso_link = '<p><a href="/login">Log in using SSO</a></p>'
+logout_link = '<p><a href="/cas_logout">Log out of CAS</a></p>'
 
 # EB looks for an 'application' callable by default.
 application = Flask(__name__)
@@ -174,7 +175,11 @@ def upload_roster():
         result = read_roster(filename)
         print(result)
         return result
-    
+
+@application.route('/unauthorized_login')
+def unauthorized_login():
+    return "You have successfully logged in to Colorado College, but your account is not part of the QRC database. \n"
+    + "Please contact QRC administrators if you believe this is an error. " + logout_link
     
 
 # # run the app.
