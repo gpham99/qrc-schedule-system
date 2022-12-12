@@ -1,6 +1,6 @@
 import pandas as pd
 import traceback
-from .databaseTest import create_tables, add_tutor
+from databaseTest import create_tables, add_tutor
 
 class Tutor:
     def __init__(self, email, firstname, lastname):
