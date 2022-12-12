@@ -28,6 +28,7 @@ import sqlite3 as sql
         # get_discipline_shift()            O
         # get_master_schedule_info()        O
         # get_roster()                      O
+        # get_disciplines()                 O
         # get_discipline_shifts_offered()   O
     # 7. The ability to check if a user exits in the database -> Complete
         # check_user()              `       O
@@ -43,7 +44,7 @@ import sqlite3 as sql
     # 9 Other functions to help with the basic keeping of the database
         # rebirth()
         # list_all_tables()
-        # 
+        # reboot_database()                 O
 
 
 # function to create the master_schedule
@@ -77,6 +78,7 @@ def create_discipline_tables(all_disciplines):
 
 # Function to create the tables
 def create_tables(all_disciplines):
+    empty_list = []
     # create a database
     conn = sql.connect('database.db')
     # create superuser table
@@ -94,6 +96,10 @@ def create_tables(all_disciplines):
     # creates the remaining tables (disciplines, and master)
     create_discipline_tables(all_disciplines)
     create_master_schedule(all_disciplines)
+    for discipline in all_disciplines:
+        add_disciplines(discipline, empty_list)
+
+
 
 
 # function that will add tutors to the tutorTable
@@ -664,7 +670,7 @@ def rebirth(new_disciplines_list):
     print("Rebirth process complete")
 
 
-# Functton that will return a list of all tables
+# Function that will return a list of all tables
 def list_all_tables():
     try:
         with sql.connect("database.db") as con:
@@ -696,6 +702,8 @@ def reboot_database(all_disciplines):
 
 if __name__ == '__main__':
     discipline_list = ["CS", "Math", "Econ", "Physics", "CHBC"]
+    empty_list = []
+    non_empty_list = [1, 2, 3, 4, 5, 6, 7]
     create_tables(discipline_list)
-    reboot_database(discipline_list)
+    print(get_disciplines())
 
