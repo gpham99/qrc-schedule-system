@@ -59,7 +59,7 @@ const TutorInfo = () => {
               <tr>
                 {subarr.map((item) => (
                   <td>
-                    {item == 0 && (
+                    {item === 0 && (
                       <input
                         class="form-check-input"
                         type="checkbox"
@@ -68,7 +68,7 @@ const TutorInfo = () => {
                         disabled
                       />
                     )}
-                    {item == 1 && (
+                    {item === 1 && (
                       <input
                         class="form-check-input"
                         type="checkbox"
@@ -78,7 +78,7 @@ const TutorInfo = () => {
                         disabled
                       />
                     )}
-                    {item != 1 && item != 0 && item}
+                    {item !== 1 && item !== 0 && item}
                   </td>
                 ))}
               </tr>

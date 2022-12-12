@@ -1,6 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 
 const Roster = () => {
+  const handleSubmit = (event) => {
+    console.log("hi");
+    event.preventDefault();
+  };
+
   return (
     <div class="container align-items-center bg-light">
       <div class="row p-4 justify-content-center">
@@ -16,7 +21,7 @@ const Roster = () => {
       </div>
 
       <div class="row p-4 justify-content-center">
-        <form action="#">
+        <form onSubmit={handleSubmit}>
           <input type="file" id="myFile" name="filename" />
           <input type="submit" />
         </form>
