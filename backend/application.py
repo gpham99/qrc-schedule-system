@@ -115,6 +115,7 @@ def get_master_schedule():
     shift_num = 0
     for line in master_schedule:
         if line != None:
+            print(line)
             for d in range(len(line)):
                 email = line[d]
                 if email != None:
