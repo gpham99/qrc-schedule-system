@@ -1,4 +1,4 @@
-from databaseTest import get_roster, get_master_schedule_info
+from databaseTest import get_roster, get_master_schedule_info, get_disciplines
 import time
 from flask import Flask, request, session, redirect, url_for
 from cas import CASClient
@@ -106,7 +106,7 @@ def get_login_status():
 
 @application.route('/api/master_schedule')
 def get_master_schedule():
-    disciplines = ["CS", "Math", "Econ", "Physics", "CHMB"] #TODO: MAGIC CONSTANT
+    disciplines = get_disciplines()
     roster = get_roster()
     master_schedule = []
     master_schedule_with_disciplines = {}
@@ -114,23 +114,29 @@ def get_master_schedule():
         master_schedule.append(get_master_schedule_info(i))
     shift_num = 0
     for line in master_schedule:
-        final_shift_list = ""
         if line != None:
-            for tutor in line:
-                if tutor != None:
+            for d in range(len(line)):
+                email = line[d]
+                if email != None:
                     for tutor_entry in roster:
-                        if tutor_entry[1] == tutor: #find the tutor in the roster
+                        tutor_found = False
+                        if tutor_entry[0] == email: #find the tutor in the roster
+                            tutor_found = True
                             discipline_list = ast.literal_eval(tutor_entry[4])
                             for i in range(len(discipline_list)): 
                                 if discipline_list[i] == 'CHMB':
                                     discipline_list[i] = 'CH/MB'
-                            final_shift_list += str(tutor) + ": " + str(discipline_list) + "\n"
-        master_schedule_with_disciplines[shift_num] = final_shift_list
+                            output_str = "/".join(discipline_list) + ": " + str(email)
+                            master_schedule_with_disciplines[str(shift_num)+disciplines[d]] = output_str
+                    if (!tutor_found):
+                        print("Warning: One tutor (", email, ") not found in database. Omitting corresponding shift.")
         shift_num += 1
     return master_schedule_with_disciplines
 
 @application.route('/api/tutor/<username>')
 def get_tutor_schedule(username):
+    disciplines = get_disciplines()
+    
     
 
 # # run the app.
