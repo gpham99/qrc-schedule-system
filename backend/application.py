@@ -107,11 +107,13 @@ def get_login_status():
 @application.route('/api/master_schedule')
 def get_master_schedule():
     disciplines = get_disciplines()
+    print(disciplines)
     roster = get_roster()
     master_schedule = []
     master_schedule_with_disciplines = {}
     for i in range(20): #TODO: MAGIC CONSTANT
         master_schedule.append(get_master_schedule_info(i))
+    print(master_schedule)
     shift_num = 0
     for line in master_schedule:
         if line != None:
@@ -127,7 +129,7 @@ def get_master_schedule():
                             for i in range(len(discipline_list)): 
                                 if discipline_list[i] == 'CHMB':
                                     discipline_list[i] = 'CH/MB'
-                            output_str = "/".join(discipline_list) + ": " + str(email)
+                            output_str = "/".join(discipline_list) + ": " + str(tutor_entry[1])
                             master_schedule_with_disciplines[str(shift_num)+disciplines[d]] = output_str
                     if not tutor_found:
                         print("Warning: One tutor (", email, ") not found in database. Omitting corresponding shift.")
