@@ -7,7 +7,11 @@ const LoginScreen = () => {
       style={{ width: "100vw", height: "100vh", background: "pink" }}
     >
       <div class="h-25 bg-white d-flex justify-content-center align-items-center">
-        <img class="img-fluid h-75" src={require("../Images/CClogo.jpeg")} />
+        <img
+          class="img-fluid h-75"
+          alt="cc logo"
+          src={require("../Images/CClogo.jpeg")}
+        />
       </div>
 
       <div class="h-75 bg-info d-flex justify-content-center align-items-center">

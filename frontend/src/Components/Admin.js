@@ -37,7 +37,7 @@ const Admin = () => {
           </li>
           <li class="nav-item">
             <a class="nav-link" href="/admin/internal">
-              Internal
+              Remove/Add Admin
             </a>
           </li>
         </ul>
