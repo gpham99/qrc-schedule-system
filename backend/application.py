@@ -172,8 +172,11 @@ def get_tutor_schedule(username):
     
 @application.route('/api/upload_roster', methods=['POST'])
 def upload_roster():
+    title = request.get_data()
+    print(title)
+    return "success"
     # check if the post request has the file part
-    if 'file' not in request.files:
+    """if 'file' not in request.files:
         print('No file part')
         return redirect(request.url)
     file = request.files['file']
@@ -191,7 +194,7 @@ def upload_roster():
         result = read_roster(filename)
         print(result)
         return result
-    return "File format not accepted"
+    return "File format not accepted"""
 
 @application.route('/unauthorized_login')
 def unauthorized_login():
