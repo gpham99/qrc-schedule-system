@@ -1,6 +1,16 @@
 import React from "react";
 
-const Schedule = () => {
+const lst = [];
+for (var i = 0; i < 20; i++) {
+  lst.push([]);
+}
+lst[3] = ["Mathematics", "Physics", "Chemistry"];
+lst[6] = ["Mathematics", "Computer Science", "Chemistry"];
+lst[10] = ["Mathematics", "CHMB", "Economics"];
+lst[19] = ["Mathematics", "Physics", "CHMB"];
+console.log(lst);
+
+const ScheduleSkeleton = () => {
   return (
     <div class="container align-items-center bg-light">
       <div class="d-flex justify-content-center p-4">
@@ -53,36 +63,52 @@ const Schedule = () => {
           <tbody>
             <tr>
               <td>2-4 PM</td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
+              {lst.slice(0, 5).map((disciplines) => (
+                <td>
+                  {disciplines.map((discipline) => (
+                    <div class="p-1">
+                      <span class="badge badge-success p-1">{discipline}</span>
+                    </div>
+                  ))}
+                </td>
+              ))}
             </tr>
 
             <tr>
               <td>4-6 PM</td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
+              {lst.slice(5, 10).map((disciplines) => (
+                <td>
+                  {disciplines.map((discipline) => (
+                    <div class="p-1">
+                      <span class="badge badge-success p-1">{discipline}</span>
+                    </div>
+                  ))}
+                </td>
+              ))}
             </tr>
             <tr>
               <td>6-8 PM</td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
+              {lst.slice(10, 15).map((disciplines) => (
+                <td>
+                  {disciplines.map((discipline) => (
+                    <div class="p-1">
+                      <span class="badge badge-success p-1">{discipline}</span>
+                    </div>
+                  ))}
+                </td>
+              ))}
             </tr>
             <tr>
               <td>8-10 PM</td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
+              {lst.slice(15, 20).map((disciplines) => (
+                <td>
+                  {disciplines.map((discipline) => (
+                    <div class="p-1">
+                      <span class="badge badge-success p-1">{discipline}</span>
+                    </div>
+                  ))}
+                </td>
+              ))}
             </tr>
           </tbody>
         </table>
@@ -91,4 +117,4 @@ const Schedule = () => {
   );
 };
 
-export default Schedule;
+export default ScheduleSkeleton;

@@ -55,13 +55,12 @@ const TimeWindow = () => {
         </div>
       </div>
 
-      <div class="p-4 d-flex justify-content-center">
-        <button type="button" class="btn btn-info mr-3 ml-3">
-          Create a new time window
-        </button>
-
+      <div class="pb-4 d-flex justify-content-center">
         <button type="button" class="btn btn-secondary mr-3 ml-3">
           Update the time window
+        </button>
+        <button type="button" class="btn btn-info mr-3 ml-3">
+          Create a new time window
         </button>
       </div>
     </div>

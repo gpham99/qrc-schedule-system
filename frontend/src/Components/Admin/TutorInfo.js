@@ -2,8 +2,8 @@ import React from "react";
 
 // true is 1 and false is 0
 const lst2 = [
-  ["a", 1, 0],
-  ["b", 0, 1],
+  ["Jessica Hannebert", 1, 0],
+  ["Pralad Mishra", 0, 1],
 ];
 
 const TutorInfo = () => {
@@ -15,9 +15,7 @@ const TutorInfo = () => {
           <p class="text-left">
             You can view the tutor's current Availablility status and LA status.
           </p>
-          <p class="text-left">
-            To make any changes, click on the pencil icon.
-          </p>
+          <p class="text-left">To make any changes, go to Edit.</p>
         </section>
       </div>
       {/* pencil button */}
@@ -58,28 +56,34 @@ const TutorInfo = () => {
             {lst2.map((subarr) => (
               <tr>
                 {subarr.map((item) => (
-                  <td>
+                  <>
                     {item === 0 && (
-                      <input
-                        class="form-check-input"
-                        type="checkbox"
-                        value=""
-                        id="flexCheckDisabled"
-                        disabled
-                      />
+                      <td>
+                        <input
+                          class="form-check-input"
+                          type="checkbox"
+                          value=""
+                          id="flexCheckDisabled"
+                          disabled
+                        />
+                      </td>
                     )}
                     {item === 1 && (
-                      <input
-                        class="form-check-input"
-                        type="checkbox"
-                        value=""
-                        id="flexCheckCheckedDisabled"
-                        checked
-                        disabled
-                      />
+                      <td>
+                        <input
+                          class="form-check-input"
+                          type="checkbox"
+                          value=""
+                          id="flexCheckCheckedDisabled"
+                          checked
+                          disabled
+                        />
+                      </td>
                     )}
-                    {item !== 1 && item !== 0 && item}
-                  </td>
+                    {item !== 1 && item !== 0 && item && (
+                      <td class="text-left">{item}</td>
+                    )}
+                  </>
                 ))}
               </tr>
             ))}
