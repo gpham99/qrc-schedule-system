@@ -1,6 +1,6 @@
 from databaseTest import get_roster, get_master_schedule_info, get_disciplines, check_user
 import time
-from flask import Flask, request, session, redirect, url_for
+from flask import Flask, request, session, redirect, url_for, jsonify
 from cas import CASClient
 from flask_cors import CORS
 import ast
@@ -135,6 +135,9 @@ def get_login_status():
 @application.route('/api/master_schedule')
 def get_master_schedule():
     disciplines = get_disciplines()
+    for i in range(len(disciplines)): 
+        if disciplines[i] == 'CHMB':
+            disciplines[i] = 'CH/MB'
     roster = get_roster()
     master_schedule = []
     master_schedule_with_disciplines = {}
@@ -143,6 +146,7 @@ def get_master_schedule():
     shift_num = 0
     for line in master_schedule:
         if line != None:
+            shift_list = []
             for d in range(len(line)):
                 email = line[d]
                 if email != None:
@@ -154,10 +158,15 @@ def get_master_schedule():
                             for i in range(len(discipline_list)): 
                                 if discipline_list[i] == 'CHMB':
                                     discipline_list[i] = 'CH/MB'
-                            output_str = "/".join(discipline_list) + ": " + str(tutor_entry[1])
-                            master_schedule_with_disciplines[str(shift_num)+disciplines[d]] = output_str
+                            discipline_list.remove(disciplines[d]) #ensure there is no redundant information
+                            #output_str = "/".join(discipline_list) + ": " + str(tutor_entry[1])
+                            output_dict = {"tutor": tutor_entry[1],
+                                    "discipline": disciplines[d],
+                                    "other_disciplines": "/".join(discipline_list)}
+                            shift_list.append(output_dict)
                     if not tutor_found:
                         print("Warning: One tutor (", email, ") not found in database. Omitting corresponding shift.")
+            master_schedule_with_disciplines[shift_num] = shift_list
         shift_num += 1
     return master_schedule_with_disciplines
 
@@ -203,7 +212,7 @@ def upload_roster():
         result = read_roster(filename)
         print(result)
         return result
-    return "File format not accepted"""
+    return "File format not accepted"
 
 @application.route('/unauthorized_login')
 def unauthorized_login():
