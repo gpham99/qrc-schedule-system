@@ -8,7 +8,7 @@ lst[3] = ["Mathematics", "Physics", "Chemistry"];
 lst[6] = ["Mathematics", "Computer Science", "Chemistry"];
 lst[10] = ["Mathematics", "CHMB", "Economics"];
 lst[19] = ["Mathematics", "Physics", "CHMB"];
-console.log(lst);
+// console.log(lst);
 
 const ScheduleSkeleton = () => {
   return (
