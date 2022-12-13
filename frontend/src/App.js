@@ -1,24 +1,33 @@
-import logo from './logo.svg';
-import {useState, useEffect} from 'react';
-import './App.css';
+import logo from "./logo.svg";
+import { useState, useEffect } from "react";
+import "./App.css";
+import { Route, Routes } from "react-router-dom";
+import Home from "./Components/Home";
+import Admin from "./Components/Admin";
+import Tutor from "./Components/Tutor";
 
 function App() {
   const [currentTime, setCurrentTime] = useState(0);
-
   useEffect(() => {
-    fetch('http://127.0.0.1:5000/api/time')
-    .then(res => res.json())
-    .then(data => {setCurrentTime(data.time);});
+    fetch("http://52.12.35.11:8080/api/time")
+      .then((res) => res.json())
+      .then((data) => {
+        setCurrentTime(data.time);
+      });
   }, []);
 
   return (
     <div className="App">
-      <header className="App-header">
-
-        ... no changes in this part ...
-
-        <p>The current time is {currentTime}.</p>
-      </header>
+      {/* <div class="alert alert-info" role="alert">
+        The current time is {currentTime}.
+      </div> */}
+      <div>
+        <Routes>
+          <Route path="/admin/*" element={<Admin />}></Route>
+          <Route path="/tutor/*" element={<Tutor></Tutor>}></Route>
+          <Route path="/" element={<Home></Home>}></Route>
+        </Routes>
+      </div>
     </div>
   );
 }
