@@ -21,6 +21,10 @@ const ScheduleSkeleton = () => {
           <p class="text-left">
             To create a new skeleton of the master schedule, go to Edit.
           </p>
+          <p class="text-left font-weight-light font-italic">
+            Creating a new schedule skeleton clears every tutor's current
+            schedule and the master schedule.
+          </p>
         </section>
       </div>
 

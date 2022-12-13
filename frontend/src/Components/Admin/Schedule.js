@@ -6,11 +6,9 @@ const Schedule = () => {
       <div class="d-flex justify-content-center p-4">
         <section>
           <p class="text-left">
-            You can view the current skeleton of the master schedule.
+            This is the aggregated view of the master schedule.
           </p>
-          <p class="text-left">
-            To create a new skeleton of the master schedule, go to Edit.
-          </p>
+          <p class="text-left">To make changes, go to Edit.</p>
         </section>
       </div>
 
@@ -86,6 +84,12 @@ const Schedule = () => {
             </tr>
           </tbody>
         </table>
+      </div>
+
+      <div class="p-4">
+        <button type="button" class="btn btn-secondary">
+          Export schedule
+        </button>
       </div>
     </div>
   );

@@ -6,10 +6,26 @@ import Roster from "./Admin/Roster";
 import TimeWindow from "./Admin/TimeWindow";
 import Internal from "./Admin/Internal";
 import ScheduleSkeleton from "./Admin/ScheduleSkeleton";
+import Discipline from "./Admin/Discipline";
 
 const Admin = () => {
   return (
     <div>
+      <div class="bg-info">
+        <div class="pt-3">
+          <h4 class="text-white text-bold"> Welcome to Block 4!</h4>
+        </div>
+
+        <div class="d-flex flex-row justify-content-end pr-4">
+          <a href="http://52.12.35.11:8080/logout" class="p-3 text-white">
+            Exit
+          </a>
+          <a href="http://52.12.35.11:8080/cas_logout" class="p-3 text-white">
+            CAS Log out
+          </a>
+        </div>
+      </div>
+
       <div class="mt-5 p-2">
         <h1>Admin Routes</h1>
       </div>
@@ -59,6 +75,11 @@ const Admin = () => {
               Remove/Add Admin
             </a>
           </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/admin/discipline">
+              Remove/Add Discipline
+            </a>
+          </li>
         </ul>
       </div>
 
@@ -74,6 +95,7 @@ const Admin = () => {
           <Route path="schedule" element={<Schedule></Schedule>}></Route>
           <Route path="time-window" element={<TimeWindow></TimeWindow>}></Route>
           <Route path="internal" element={<Internal></Internal>}></Route>
+          <Route path="discipline" element={<Discipline></Discipline>}></Route>
         </Routes>
       </div>
     </div>

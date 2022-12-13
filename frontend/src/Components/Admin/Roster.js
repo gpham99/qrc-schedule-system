@@ -9,7 +9,10 @@ const Roster = () => {
   return (
     <div class="container align-items-center bg-light">
       <div class="row p-4 justify-content-center">
-        <p>If your roster has any changes, please upload it here.</p>
+        <p>
+          If your roster has any changes, please upload it here. This includes
+          adding or removing a tutor.
+        </p>
       </div>
 
       <div class="row p-4 justify-content-center">

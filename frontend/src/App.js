@@ -18,9 +18,9 @@ function App() {
 
   return (
     <div className="App">
-      <div class="alert alert-info" role="alert">
+      {/* <div class="alert alert-info" role="alert">
         The current time is {currentTime}.
-      </div>
+      </div> */}
       <div>
         <Routes>
           <Route path="/admin/*" element={<Admin />}></Route>
