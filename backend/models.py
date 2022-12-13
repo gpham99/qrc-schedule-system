@@ -36,6 +36,7 @@ def read_roster(roster_file):
         traceback.print_exc()
     if len(output) > 0:
         for tutor in output:
+            print(tutor)
             add_tutor(tutor[0], tutor[1])
         return "File successfully read, tutors added to database"
     return "No tutors found in file"

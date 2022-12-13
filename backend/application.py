@@ -4,7 +4,12 @@ from flask import Flask, request, session, redirect, url_for
 from cas import CASClient
 from flask_cors import CORS
 import ast
+import os
 from models import read_roster
+from werkzeug.utils import secure_filename
+
+UPLOAD_FOLDER = '.'
+ALLOWED_EXTENSIONS = {'xls', 'xlsx', 'xlsm', 'xlsb', 'odf', 'ods', 'odt'}
 
 # print a nice greeting.
 def say_hello(username = "Team"):
@@ -22,11 +27,16 @@ logout_link = '<p><a href="/cas_logout">Log out of CAS</a></p>'
 application = Flask(__name__)
 CORS(application)
 application.secret_key = 'V7nlCN90LPHOTA9PGGyf'
+application.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 cas_client = CASClient(
     version=3,    
     service_url='http://52.12.35.11:8080/',
     server_url='https://cas.coloradocollege.edu/cas/'
 )
+
+def allowed_file(filename):
+    return '.' in filename and \
+            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 def check_login():
     if 'username' in session:
@@ -136,8 +146,8 @@ def get_master_schedule():
             for d in range(len(line)):
                 email = line[d]
                 if email != None:
+                    tutor_found = False
                     for tutor_entry in roster:
-                        tutor_found = False
                         if tutor_entry[0] == email: #find the tutor in the roster
                             tutor_found = True
                             discipline_list = ast.literal_eval(tutor_entry[4])
@@ -174,25 +184,21 @@ def get_tutor_schedule(username):
     
 @application.route('/api/upload_roster', methods=['POST'])
 def upload_roster():
-    file = request.files()
-    title = request.get_data()
-    print(title)
-    return "success"
     # check if the post request has the file part
-    """if 'file' not in request.files:
+    if 'filename' not in request.files:
         print('No file part')
         return redirect(request.url)
-    file = request.files['file']
+    file = request.files['filename']
     # If the user does not select a file, the browser submits an
     # empty file without a filename.
     if file.filename == '':
-        flash('No selected file')
+        print('No selected file')
         return "No selected file"
     if file and allowed_file(file.filename):
         filename = secure_filename(file.filename)
-        file.save(os.path.join(application.config['UPLOAD_FOLDER'], filename))
         if 'ROSTER' in application.config:
             os.remove(application.config['ROSTER'])
+        file.save(os.path.join(application.config['UPLOAD_FOLDER'], filename))
         application.config['ROSTER'] = filename
         result = read_roster(filename)
         print(result)
