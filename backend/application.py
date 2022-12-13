@@ -172,6 +172,7 @@ def get_tutor_schedule(username):
     
 @application.route('/api/upload_roster', methods=['POST'])
 def upload_roster():
+    file = request.files()
     title = request.get_data()
     print(title)
     return "success"
