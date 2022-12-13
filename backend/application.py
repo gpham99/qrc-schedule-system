@@ -40,7 +40,7 @@ def allowed_file(filename):
 
 def check_login():
     if 'username' in session:
-        in_system, group = check_user(session['username'])
+        in_system, group = check_user(session['username']+"@coloradocollege.edu")
     else:
         in_system, group = False, "Logged out"
     return in_system, group

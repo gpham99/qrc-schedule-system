@@ -27,7 +27,7 @@ def read_roster(roster_file):
     try:
         full_names = df['first name'] + ' ' + df['last name']
         for i in range(len(df.index)):
-            tutor_tuple = (full_names[i], df['email address'][i])
+            tutor_tuple = (full_names[i], df['email address'][i].lower())
             output.append(tutor_tuple)
     except KeyError:
         return "Error reading file. Please ensure your columns are named \"first name\", \"last name\", and \"email address\"."
