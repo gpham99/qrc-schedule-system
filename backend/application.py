@@ -1,4 +1,4 @@
-from databaseTest import get_roster, get_master_schedule_info, get_disciplines
+from databaseTest import get_roster, get_master_schedule_info, get_disciplines, check_user
 import time
 from flask import Flask, request, session, redirect, url_for
 from cas import CASClient
@@ -29,16 +29,23 @@ cas_client = CASClient(
 )
 
 def check_login():
-    pass
-    
+    if 'username' in session:
+        in_system, group = check_user(session['username'])
+    else:
+        in_system, group = False, "Logged out"
+    return in_system, group
 
 # add a rule for the index page
 @application.route('/')
 def index():
-    if 'username' in session:
+    in_system, group = check_login()
+    if in_system:
+        return 'You are logged in as part of the ' + group + ' ! <a href="/logout">Exit</a>'
+    #if 'username' in session:
         # Already logged in
-        return 'You are logged in. Here you are going to see your schedule. <a href="/logout">Exit</a>'
-
+    #    return 'You are logged in. Here you are going to see your schedule. <a href="/logout">Exit</a>'
+    elif group == "None":
+        return 'You are not authorized to access this site. <a href="/logout">Exit</a>'
     next = request.args.get('next')
     ticket = request.args.get('ticket')
 
@@ -64,8 +71,11 @@ def index():
 @application.route('/profile')
 def profile(method=['GET']):
     application.logger.debug('session when you hit profile: %s', session)
-    if 'username' in session:
+    in_system, group = check_login()
+    if in_system:
         return 'Logged in as {}. Your email address is {}. <a href="/logout">Exit</a>'.format(session['username'], session['email'])
+    elif group == "None":
+        return 'You are not authorized to access this site. <a href="/logout">Exit</a>'
     return 'Login required. <a href="/login">Login</a>', 403
 
 @application.route('/login')
@@ -171,7 +181,7 @@ def upload_roster():
     # empty file without a filename.
     if file.filename == '':
         flash('No selected file')
-        return redirect(request.url)
+        return "No selected file"
     if file and allowed_file(file.filename):
         filename = secure_filename(file.filename)
         file.save(os.path.join(application.config['UPLOAD_FOLDER'], filename))
@@ -181,6 +191,7 @@ def upload_roster():
         result = read_roster(filename)
         print(result)
         return result
+    return "File format not accepted"
 
 @application.route('/unauthorized_login')
 def unauthorized_login():
