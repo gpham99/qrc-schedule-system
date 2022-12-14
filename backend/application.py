@@ -1,11 +1,13 @@
 from databaseTest import get_roster, get_master_schedule_info, get_disciplines, check_user
 import time
 from flask import Flask, request, session, redirect, url_for, jsonify
+from flask_jwt import JWT, jwt_required, current_identity
+from security import authenticate, identity
 from cas import CASClient
 from flask_cors import CORS
 import ast
 import os
-from models import read_roster
+from models import read_roster, User
 from werkzeug.utils import secure_filename
 
 UPLOAD_FOLDER = '.'
@@ -26,13 +28,14 @@ logout_link = '<p><a href="/cas_logout">Log out of CAS</a></p>'
 # EB looks for an 'application' callable by default.
 application = Flask(__name__)
 CORS(application)
-application.secret_key = 'V7nlCN90LPHOTA9PGGyf'
+application.secret_key = ';sufhiagr3yugfjcnkdlmsx0-w9u4fhbuewiejfigehbjrs'
 application.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 cas_client = CASClient(
     version=3,    
     service_url='http://52.12.35.11:8080/',
     server_url='https://cas.coloradocollege.edu/cas/'
 )
+jwt = JWT(application, authenticate, identity)
 
 def allowed_file(filename):
     return '.' in filename and \
