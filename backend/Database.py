@@ -12,7 +12,7 @@ from datetime import date, datetime
         # add_tutor(name, email)
         # add_superuser(name, email)
         # add_admin(name, email)
-        # add_disciplines(discipline, shifts)
+        # add_discipline(discipline, abbreviation, shifts)
         # add_shifts(discipline, shift_number, available_tutors)
         # add_to_master_schedule(shift_number, assignments)
         # add_time_window(block, start_date, end_date)
@@ -181,7 +181,7 @@ def add_admin(name, email):
 
 
 # function that will add rows to the discipline table
-def add_disciplines(discipline, abbreviation, shifts):
+def add_discipline(discipline, abbreviation, shifts):
    try:
         with sql.connect("database.db") as con:
             cur = con.cursor()
@@ -796,12 +796,32 @@ def reconfigure_database(new_disciplines_list):
     for discipline in new_disciplines_list:
         # if it is new then add it to the discipline table with an empty list
         if discipline not in current_disciplines:
-            add_disciplines(discipline, empty_list)
+            add_discipline(discipline, empty_list)
     print("Rebirth process complete")
 
 
+# Function that will return a list of all tables with the exceptions to the admins ,
+def list_all_tables_exceptions():
+    try:
+        with sql.connect("database.db") as con:
+            table_list = []
+            cur = con.cursor()
+            sql_query = 'PRAGMA main.table_list'
+            cur.execute(sql_query)
+            data = list(cur.fetchall())
+            for table in data:
+                if table[1] != 'sqlite_schema' and table[1] != 'tutors' and table[1] != 'admins' and table[1] != 'superusers':
+                    table_list.append(table[1])
+
+            return table_list
+    except:
+        con.rollback()
+    finally:
+        con.close()
+
+
 # Function that will return a list of all tables
-def list_all_tables():
+def list_all_tables_exceptions():
     try:
         with sql.connect("database.db") as con:
             table_list = []
@@ -821,8 +841,8 @@ def list_all_tables():
 
 
 # Function to reboot the database in its entirety (mostly for testing)
-def reboot_database(all_disciplines):
-    all_tables = list_all_tables()
+def reboot_database_exceptions(all_disciplines):
+    all_tables = list_all_tables_exceptions()
     for table in all_tables:
         delete_table(table)
     create_tables(all_disciplines)
@@ -832,12 +852,14 @@ def reboot_database(all_disciplines):
 if __name__ == '__main__':
     discipline_list = ["CS", "Math", "Econ", "Physics", "CHBC"]
     discipline_abbreviations = ['CS', 'M', 'E', 'P', 'CHBC']
-    reboot_database(discipline_list)
+    add_tutor('moises', 'First email')
+    add_tutor('John', 'second email')
+    add_tutor('Jason', 'third email')
+    reboot_database_exceptions(discipline_list)
     now = datetime.now()
     print(now.strftime("%d-%m-%Y %H:%M:%S"))
-    print(list_all_tables())
-    # preserve data from these tables
-    # tutors
-    # superuser
-    # admins
+    print(check_user('None'))
+
+
+
 
