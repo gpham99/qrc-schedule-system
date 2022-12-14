@@ -1,4 +1,4 @@
-from databaseTest import get_roster, get_master_schedule_info, get_disciplines, check_user
+from Database import get_roster, get_master_schedule_info, get_disciplines, check_user, get_discipline_abbreviation
 import time
 from flask import Flask, request, session, redirect, url_for, jsonify
 from cas import CASClient
@@ -7,6 +7,7 @@ import ast
 import os
 from models import read_roster
 from werkzeug.utils import secure_filename
+from utility import replace_chars 
 
 UPLOAD_FOLDER = '.'
 ALLOWED_EXTENSIONS = {'xls', 'xlsx', 'xlsm', 'xlsb', 'odf', 'ods', 'odt'}
@@ -132,12 +133,16 @@ def get_login_status():
     else:
         return {"login_status": "0"}
 
+
+
 @application.route('/api/master_schedule')
 def get_master_schedule():
     disciplines = get_disciplines()
-    for i in range(len(disciplines)): 
-        if disciplines[i] == 'CHMB':
-            disciplines[i] = 'CH/MB'
+    abbreviations = []
+    for discipline in disciplines:
+        abbreviation = get_discipline_abbreviation(discipline)
+        abbreviation = replace_chars(abbreviation)
+        abbreviations.append(abbreviation)
     roster = get_roster()
     master_schedule = []
     master_schedule_with_disciplines = {}
@@ -155,13 +160,13 @@ def get_master_schedule():
                         if tutor_entry[0] == email: #find the tutor in the roster
                             tutor_found = True
                             discipline_list = ast.literal_eval(tutor_entry[4])
-                            for i in range(len(discipline_list)): 
-                                if discipline_list[i] == 'CHMB':
-                                    discipline_list[i] = 'CH/MB'
                             discipline_list.remove(disciplines[d]) #ensure there is no redundant information
+                            #get abbreviations for each discipline
+                            for i in range(len(discipline_list)):
+                                discipline_list[i] = abbreviations[disciplines.index(discipline_list[i])]
                             #output_str = "/".join(discipline_list) + ": " + str(tutor_entry[1])
                             output_dict = {"tutor": tutor_entry[1],
-                                    "discipline": disciplines[d],
+                                    "discipline": abbreviations[d],
                                     "other_disciplines": "/".join(discipline_list)}
                             shift_list.append(output_dict)
                     if not tutor_found:
