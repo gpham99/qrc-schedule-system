@@ -16,7 +16,7 @@ import time
         # add_discipline(discipline, shifts)
         # add_shifts(discipline, shift_number, available_tutors)
         # add_to_master_schedule(shift_number, assignments)
-        # add_time_window(block, start_date, end_date)
+        # add_time_window(block, start_time, end_time)
 
     # 3. The updating of tables should new information be added ex. more disciplines
         # create_new_master_schedule(new_disciplines)
@@ -54,11 +54,12 @@ import time
         # update_individual_tutor(email)
         # update_discipline_shifts(discipline, shift_number, new_available_tutors)
         # update_master_schedule(shift_number,all_disciplines, new_assignments)
-        # update_time_window(block)
+        # update_time_window(block, start_time, end_time)
 
     # 9 Other functions to help with the basic keeping of the database
         # reconfigure_database(new_disciplines_list)
         # list_all_tables(exceptions)
+        # check_time(current_time, block)
         # reboot_database(all_disciplines, exceptions)
 
 
@@ -108,7 +109,7 @@ def create_tables(all_disciplines):
     conn.execute('CREATE TABLE IF NOT EXISTS disciplines(discipline TEXT, abbreviation TEXT, available_shifts TEXT,'
                  ' PRIMARY KEY (discipline))')
     # create the times table
-    conn.execute('CREATE TABLE IF NOT EXISTS times(block INTEGER, start_time BIGINT, end_time BIGINT,'
+    conn.execute('CREATE TABLE IF NOT EXISTS time_window(block INTEGER, start_time BIGINT, end_time BIGINT,'
                  'PRIMARY KEY (block))')
     # create the discipline abbreviation table
     # close connection to database
@@ -184,7 +185,7 @@ def add_admin(name, email):
 
 # function that will add rows to the discipline table
 def add_discipline(discipline, abbreviation, shifts):
-   try:
+    try:
         with sql.connect("database.db") as con:
             cur = con.cursor()
             sql_select_query = 'SELECT * FROM disciplines WHERE discipline=? '
@@ -198,10 +199,10 @@ def add_discipline(discipline, abbreviation, shifts):
             # else update the name of the user
             else:
                 pass
-   except:
-       con.rollback()
-   finally:
-       con.close()
+    except:
+        con.rollback()
+    finally:
+        con.close()
 
 
 # function to add rows to a specific discipline table
@@ -221,7 +222,7 @@ def add_shifts(discipline, shift_number, available_tutors):
 # add rows to the master schedule
 # take in list of shift assignments and then return the finished schedule
 def add_to_master_schedule(shift_number, all_disciplines, assignments):
-    if True :
+    try:
         with sql.connect("database.db") as con:
             cur = con.cursor()
             t_list = (shift_number,)
@@ -239,16 +240,22 @@ def add_to_master_schedule(shift_number, all_disciplines, assignments):
             sql_query = sql_query + values
             cur.execute(sql_query, t_list)
             con.commit()
+    except:
+        con.rollback()
+    finally:
+        con.close()
 
 
 # Function to add Time window
 def add_time_window(block, start_date, end_date):
     try:
         with sql.connect("database.db") as con:
+
             cur = con.cursor()
-            sql_query = 'INSERT OR IGNORE INTO time_window(block, start_date, end_date) VALUES (?, ?, ?)'
+            sql_query = 'INSERT OR IGNORE INTO time_window(block, start_time, end_time) VALUES (?, ?, ?)'
             cur.execute(sql_query, (block, start_date, end_date))
             con.commit()
+            print('inserted')
     except:
         con.rollback()
     finally:
@@ -327,13 +334,13 @@ def delete_table(table):
     conn.close()
 
 
-# Function to delete a times table
+# Function to delete certain block's time window
 def delete_time_window(block):
     try:
         with sql.connect("database.db") as con:
             cur = con.cursor()
             # delete the row whose email matches
-            cur.execute('DELETE FROM times WHERE block = ?', (block,))
+            cur.execute('DELETE FROM time_window WHERE block = ?', (block,))
             con.commit()
     except:
         con.rollback()
@@ -470,6 +477,7 @@ def get_admin_roster():
     finally:
         con.close()
 
+
 # Function that will retrieve all existing disciplines
 def get_disciplines():
     try:
@@ -514,10 +522,11 @@ def get_time_window(block):
         with sql.connect("database.db") as con:
             cur = con.cursor()
             # get the row whose email matches
-            sql_search_query = 'SELECT * FROM times WHERE block = ?'
+            sql_search_query = 'SELECT * FROM time_window WHERE block = ?'
             cur.execute(sql_search_query, (block,))
             record = cur.fetchone()
-            return record
+            _, start_time, end_time = record
+            return start_time, end_time
     except:
         con.rollback()
     finally:
@@ -772,12 +781,12 @@ def update_master_schedule(shift_number, disciplines, new_assignments):
 
 
 # Function to update the time window
-def update_time_window(block, new_start_date, new_end_date):
+def update_time_window(block, start_time, end_time):
     try:
         with sql.connect("database.db") as con:
             cur = con.cursor()
-            update_query = 'UPDATE times SET new_start_date = ?, new_end_date = ? WHERE block = ?'
-            cur.execute(update_query, (new_start_date, new_end_date, block))
+            update_query = 'UPDATE time_window SET start_time = ?, end_time = ?  WHERE block = ?'
+            cur.execute(update_query, (start_time, end_time, block))
     except:
         con.rollback()
     finally:
@@ -838,6 +847,28 @@ def list_all_tables(exceptions):
         con.close()
 
 
+# Function that will compare current_time to the times saved in the time_window for a particular block
+def check_time(current_time, block):
+    try:
+        # code to fetch data from the database
+        with sql.connect("database.db") as con:
+            cur = con.cursor()
+            # get the row whose email matches
+            sql_search_query = 'SELECT * FROM time_window WHERE block = ?'
+            cur.execute(sql_search_query, (block,))
+            record = cur.fetchone()
+            _, start_time, end_time = record
+            if start_time <= current_time <= end_time:
+                return True
+            else:
+                return False
+
+    except:
+        con.rollback()
+    finally:
+        con.close()
+
+
 # Function to reboot the database in its entirety (mostly for testing)
 def reboot_database(all_disciplines, exceptions):
     all_tables = list_all_tables(exceptions)
@@ -847,20 +878,21 @@ def reboot_database(all_disciplines, exceptions):
     print("database reboot completed")
 
 
-
-if __name__ == '__main__':
-    discipline_list = ["CS", "Math", "Econ", "Physics", "CHBC"]
-    reboot_database(discipline_list, 'No')
-
-    date_time = datetime.datetime(2022, 6, 3, 12, 0, 50)
-    print("Given Date:", date_time)
-    print("UNIX timestamp:",
-          (time.mktime(date_time.timetuple())))
-
-    date_time = datetime.datetime(2022, 6, 3, 12, 0, 49)
-    print("Given Date:", date_time)
-    print("UNIX timestamp:",
-          (time.mktime(date_time.timetuple())))
-
-    #unix time stamp for time window
-
+# if __name__ == '__main__':
+#     discipline_list = ["CS", "Math", "Econ", "Physics", "CHBC"]
+#     reboot_database(discipline_list, 'No')
+# 
+#     # saved in year, month, day, hour, minute, and second
+#     raw_start = datetime.datetime(2022, 6, 3, 12, 0, 50)
+#     start_date = time.mktime(raw_start.timetuple())
+#     raw_end = datetime.datetime(2022, 6, 3, 12, 0, 49)
+#     end_date = time.mktime(raw_end.timetuple())
+#     print(start_date)
+#     print(end_date)
+#     add_time_window(1, start_date, end_date)
+#     print(get_time_window(1))
+#     update_time_window(1, end_date, start_date)
+#     print(get_time_window(1))
+# 
+#     # unix time stamp for time window
+#     print(check_time(1654279249, 1))
