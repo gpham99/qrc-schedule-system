@@ -3,6 +3,7 @@ import { exportComponentAsJPEG } from "react-component-export-image";
 
 const Schedule = () => {
   const [masterSchedule, setMasterSchedule] = useState({});
+  const [editMode, setEditMode] = useState(0);
   const componentRef = useRef();
 
   useEffect(() => {
@@ -15,6 +16,12 @@ const Schedule = () => {
       });
   }, []);
 
+  const toggleEditMode = (event) => {
+    event.preventDefault();
+    setEditMode(1 - editMode);
+    console.log(editMode);
+  };
+
   return (
     <div className="container align-items-center bg-light p-4">
       {masterSchedule === {} ? (
@@ -24,18 +31,29 @@ const Schedule = () => {
       ) : (
         <>
           <div className="d-flex justify-content-center p-4">
-            <section>
-              <p className="text-left">
-                This is the aggregated view of the master schedule.
-              </p>
-              <p className="text-left">To make changes, go to Edit.</p>
-            </section>
+            {editMode === 0 ? (
+              <section>
+                <p className="text-left">
+                  This is the aggregated view of the master schedule.
+                </p>
+                <p className="text-left">To make changes, go to Edit.</p>
+              </section>
+            ) : (
+              <section>
+                <p className="text-left">
+                  This is the editable view of the master schedule.{" "}
+                </p>
+                <p className="text-left">
+                  To cancel changes without saving them, go to Cancel.
+                </p>
+              </section>
+            )}
           </div>
 
           {/* pencil button */}
           <div className="d-flex justify-content-end pl-4 pr-4">
-            <a href="#">
-              <button className="btn btn-info">
+            {editMode === 0 ? (
+              <button className="btn btn-info" onClick={toggleEditMode}>
                 <span className="p-1"> Edit </span>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -52,11 +70,15 @@ const Schedule = () => {
                   />
                 </svg>
               </button>
-            </a>
+            ) : (
+              <button className="btn btn-info" onClick={toggleEditMode}>
+                Cancel
+              </button>
+            )}
           </div>
 
           {/* uneditable skeleton of master schedule */}
-          <div className="p-4 table-responsive" ref={componentRef}>
+          <div className="pr-4 pl-4 table-responsive" ref={componentRef}>
             <div class="p-3">
               <h5>Block 4 Drop-In Schedule</h5>
             </div>
@@ -83,17 +105,33 @@ const Schedule = () => {
               </thead>
               <tbody>
                 <tr>
-                  <td scope="row">2-4 PM</td>
+                  <td>2-4 PM</td>
                   {[0, 1, 2, 3, 4]?.map((num) => (
                     <td key={num}>
                       <div class="d-flex flex-column">
                         {masterSchedule[num]?.map((shift_tutor) => (
                           <div class="m-1 text-left">
-                            <span class="text-success">
-                              {shift_tutor["discipline"]}
-                            </span>
-                            /{shift_tutor["other_disciplines"]}:{" "}
-                            {shift_tutor["tutor"].split(" ")[0]}
+                            {editMode === 0 ? (
+                              <>
+                                <span class="text-success">
+                                  {shift_tutor["discipline"]}
+                                </span>
+                                /{shift_tutor["other_disciplines"]}:{" "}
+                                {shift_tutor["tutor"].split(" ")[0]}
+                              </>
+                            ) : (
+                              <>
+                                <span class="text-success">
+                                  {shift_tutor["discipline"]}
+                                </span>
+                                <input
+                                  type="text"
+                                  class="form-control"
+                                  id="inlineFormInputGroup"
+                                  placeholder="Username"
+                                ></input>
+                              </>
+                            )}
                           </div>
                         ))}
                       </div>
@@ -102,7 +140,7 @@ const Schedule = () => {
                 </tr>
 
                 <tr>
-                  <td scope="row">4-6 PM</td>
+                  <td>4-6 PM</td>
                   {[5, 6, 7, 8, 9]?.map((num) => (
                     <td key={num}>
                       <div class="d-flex flex-column">
@@ -120,7 +158,7 @@ const Schedule = () => {
                   ))}
                 </tr>
                 <tr>
-                  <td scope="row">6-8 PM</td>
+                  <td>6-8 PM</td>
                   {[10, 11, 12, 13, 14]?.map((num) => (
                     <td key={num}>
                       <div class="d-flex flex-column">
@@ -138,7 +176,7 @@ const Schedule = () => {
                   ))}
                 </tr>
                 <tr>
-                  <td scope="row">8-10 PM</td>
+                  <td>8-10 PM</td>
                   {[15, 16, 17, 18, 19]?.map((num) => (
                     <td key={num}>
                       <div class="d-flex flex-column">
@@ -159,16 +197,22 @@ const Schedule = () => {
             </table>
           </div>
 
-          <div className="p-4">
-            <button
-              type="button"
-              className="btn btn-secondary"
-              onClick={() => {
-                exportComponentAsJPEG(componentRef);
-              }}
-            >
-              Export schedule
-            </button>
+          <div className="p-2">
+            {editMode === 0 ? (
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={() => {
+                  exportComponentAsJPEG(componentRef);
+                }}
+              >
+                Export schedule
+              </button>
+            ) : (
+              <button type="button" className="btn btn-info">
+                Save
+              </button>
+            )}
           </div>
         </>
       )}
