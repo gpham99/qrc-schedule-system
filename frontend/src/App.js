@@ -6,6 +6,9 @@ import Home from "./Components/Home";
 import Admin from "./Components/Admin";
 import Tutor from "./Components/Tutor";
 import Schedule from "./Components/Admin/Schedule";
+import ErrorPage from "./Components/ErrorPage/FileNotFoundError";
+import FileNotFound from "./Components/ErrorPage/FileNotFoundError";
+import Unauthorized from "./Components/ErrorPage/UnauthorizedError";
 
 function App() {
   // const [currentSchedule, setCurrentSchedule] = useState([]);
@@ -17,22 +20,21 @@ function App() {
   //     });
   // }, []);
 
+  // console.log(currentSchedule);
+
   return (
-    <Schedule></Schedule>
-    //     <div className="App">
-    //       <div class="d-flex flex-column">
-    //         The master schedule is {currentSchedule}.
-    //       </div>
-    //       <div>
-    //         {/* <MyComponent></MyComponent> */}
-    //         {/* <datePicker /> */}
-    //         {/* <Routes>
-    //           <Route path="/admin/*" element={<Admin />}></Route>
-    //           <Route path="/tutor/*" element={<Tutor></Tutor>}></Route>
-    //           <Route path="/" element={<Home></Home>}></Route>
-    //         </Routes> */}
-    //       </div>
-    //     </div>
+    <div className="App">
+      <FileNotFound></FileNotFound>
+      <div>
+        {/* <MyComponent></MyComponent> */}
+        {/* <datePicker /> */}
+        {/* <Routes>
+              <Route path="/admin/*" element={<Admin />}></Route>
+              <Route path="/tutor/*" element={<Tutor></Tutor>}></Route>
+              <Route path="/" element={<Home></Home>}></Route>
+            </Routes> */}
+      </div>
+    </div>
   );
 }
 
