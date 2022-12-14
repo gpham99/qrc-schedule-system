@@ -1,8 +1,6 @@
 from Database import get_roster, get_master_schedule_info, get_disciplines, check_user, get_discipline_abbreviation
 import time
 from flask import Flask, request, session, redirect, url_for, jsonify
-from flask_jwt import JWT, jwt_required, current_identity
-from security import authenticate, identity
 from cas import CASClient
 from flask_cors import CORS
 import ast
@@ -36,7 +34,6 @@ cas_client = CASClient(
     service_url='http://52.12.35.11:8080/',
     server_url='https://cas.coloradocollege.edu/cas/'
 )
-jwt = JWT(application, authenticate, identity)
 
 def allowed_file(filename):
     return '.' in filename and \
@@ -175,6 +172,17 @@ def get_master_schedule():
                             shift_list.append(output_dict)
                     if not tutor_found:
                         print("Warning: One tutor (", email, ") not found in database. Omitting corresponding shift.")
+                        output_dict = {"tutor": None,
+                                "email": None,
+                                "discipline": abbreviations[d],
+                                "other_disciplines": None}
+                        shift_list.append(output_dict)
+                else: #if email == None, implying no tutor signed up
+                    output_dict = {"tutor": None,
+                            "email": None,
+                            "discipline": abbreviations[d],
+                            "other_disciplines": None}
+                    shift_list.append(output_dict)
             master_schedule_with_disciplines[shift_num] = shift_list
         shift_num += 1
     return master_schedule_with_disciplines
@@ -226,6 +234,17 @@ def upload_roster():
 @application.route('/unauthorized_login')
 def unauthorized_login():
     return "You have successfully logged in to Colorado College, but your account is not part of the QRC database. \n Please contact QRC administrators if you believe this is an error. " + logout_link
+
+@application.route('/api/add_remove_disciplines')
+def get_disciplines_abbreviations():
+    disciplines = get_disciplines()
+    discipline_schedule_with_abv = []
+    for discipline in disciplines:
+        abbreviation = get_discipline_abbreviation(discipline)
+        abbreviation = replace_chars(abbreviation)
+        discipline_schedule_with_abv.append([discipline, abbreviation])
+
+    return discipline_schedule_with_abv
     
 
 # # run the app.
