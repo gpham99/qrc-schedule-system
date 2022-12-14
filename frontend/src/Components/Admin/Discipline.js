@@ -1,25 +1,38 @@
 import React from "react";
-
-var Name = "";
-var Abv = "";
-
-function HandleName(event) {
-  event.preventDefault();
-  Name = event.target.value;
-}
-
-function HandleAbv(event) {
-  event.preventDefault();
-  Abv = event.target.value;
-}
-
-function OnSubmit(event) {
-  event.preventDefault();
-  console.log(Name);
-  console.log(Abv);
-}
+import { useEffect, useState, useRef } from "react";
 
 const Discipline = () => {
+  const [DisciplinesAbbvs, setDisciplineAbbv] = useState({});
+
+  useEffect(() => {
+    fetch("http://52.12.35.11:8080/api/add_remove_disciplines")
+      .then((res) => res.json())
+      .then((data) => {
+        console.log("data: ", data);
+        setDisciplineAbbv(data);
+        console.log("ms: ", DisciplinesAbbvs);
+      });
+  }, []);
+
+  var Name = "";
+  var Abv = "";
+
+  function HandleName(event) {
+    event.preventDefault();
+    Name = event.target.value;
+  }
+
+  function HandleAbv(event) {
+    event.preventDefault();
+    Abv = event.target.value;
+  }
+
+  function OnSubmit(event) {
+    event.preventDefault();
+    console.log(Name);
+    console.log(Abv);
+  }
+
   return (
     <div class="container align-items-center bg-light">
       <div class="row p-4 justify-content-center">
@@ -77,8 +90,9 @@ const Discipline = () => {
                   </div>
                   <div class="form-check"></div>
                   <button
-                    type="submit"
-                    class="btn btn-primary bg-info"
+                    class="btn btn-info"
+                    data-dismiss="modal"
+                    aria-label="Close"
                     onClick={OnSubmit}
                   >
                     Submit
@@ -102,18 +116,20 @@ const Discipline = () => {
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td>Mathematics</td>
-              <td>M</td>
-              <td>
-                <a href="#" class="p-2">
-                  Edit
-                </a>
-                <a href="#" class="p-2">
-                  Remove
-                </a>
-              </td>
-            </tr>
+            {Object.values(DisciplinesAbbvs).map((val) => (
+              <tr>
+                <td>{val[0]}</td>
+                <td>{val[1]}</td>
+                <td>
+                  <a href="#" class="p-2">
+                    Edit
+                  </a>
+                  <a href="#" class="p-2">
+                    Remove
+                  </a>
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>
