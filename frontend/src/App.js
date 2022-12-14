@@ -13,6 +13,7 @@ import { Route, Routes } from "react-router-dom";
 import Home from "./Components/Home";
 import Admin from "./Components/Admin";
 import Tutor from "./Components/Tutor";
+import DisciplineModal from "./Components/Admin/DisciplineModal";
 
 function App() {
   const [currentTime, setCurrentTime] = useState(0);
@@ -36,6 +37,7 @@ function App() {
           <Route path="/" element={<Home></Home>}></Route>
         </Routes>
       </div>
+      {/* <DisciplineModal></DisciplineModal> */}
     </div>
   );
 }
