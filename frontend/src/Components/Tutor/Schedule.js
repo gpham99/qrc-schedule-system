@@ -6,14 +6,17 @@ const Schedule = () => {
       <div class="d-flex justify-content-center p-4">
         <section>
           <p class="text-left">
-            This is the aggregated view of the master schedule.
+            This is your personalized QRC schedule this block.
           </p>
-          <p class="text-left">To make changes, go to Edit.</p>
+          <p class="text-left">
+            You can only edit your schedule within the shift registration time
+            window set by the QRC adminstrators.
+          </p>
         </section>
       </div>
 
       {/* pencil button */}
-      <div class="d-flex justify-content-end pl-4 pr-4">
+      {/* <div class="d-flex justify-content-end pl-4 pr-4">
         <a href="#">
           <button class="btn btn-info">
             <span class="p-1"> Edit </span>
@@ -33,7 +36,7 @@ const Schedule = () => {
             </svg>
           </button>
         </a>
-      </div>
+      </div> */}
 
       {/* uneditable skeleton of master schedule */}
       <div class="p-4 table-responsive">
@@ -84,12 +87,6 @@ const Schedule = () => {
             </tr>
           </tbody>
         </table>
-      </div>
-
-      <div class="p-4">
-        <button type="button" class="btn btn-secondary">
-          Export schedule
-        </button>
       </div>
     </div>
   );
