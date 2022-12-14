@@ -2,21 +2,20 @@ import pandas as pd
 import traceback
 from databaseTest import create_tables, add_tutor
 
-class Tutor:
-    def __init__(self, email, firstname, lastname):
+class User:
+    def __init__(self, email, group=None):
         self.email = email
-        self.firstname = firstname
-        self.lastname = lastname
+        self.group = group
 
     def __repr__(self):
-        return self.email + self.firstname + self.lastname
+        return "User (email=%s, group=%s)"%(self.email, str(self.group))
 
-    def asdict(self):
-        return {
-            'Email': self.email,
-            "Firstname": self.firstname,
-            "Lastname": self.lastname
-        }
+    #def asdict(self):
+    #    return {
+    #        'Email': self.email,
+    #        "Firstname": self.firstname,
+    #        "Lastname": self.lastname
+    #    }
 
 #Method to read in an Excel file and turn it into a legible table
 #roster_file: Accepts a file path or file-like object as the file
