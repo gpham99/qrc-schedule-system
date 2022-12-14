@@ -103,27 +103,57 @@ const Schedule = () => {
 
                 <tr>
                   <td scope="row">4-6 PM</td>
-                  <td></td>
-                  <td></td>
-                  <td></td>
-                  <td></td>
-                  <td></td>
+                  {[5, 6, 7, 8, 9]?.map((num) => (
+                    <td key={num}>
+                      <div class="d-flex flex-column">
+                        {masterSchedule[num]?.map((shift_tutor) => (
+                          <div class="m-1 text-left">
+                            <span class="text-success">
+                              {shift_tutor["discipline"]}
+                            </span>
+                            /{shift_tutor["other_disciplines"]}:{" "}
+                            {shift_tutor["tutor"].split(" ")[0]}
+                          </div>
+                        ))}
+                      </div>
+                    </td>
+                  ))}
                 </tr>
                 <tr>
                   <td scope="row">6-8 PM</td>
-                  <td></td>
-                  <td></td>
-                  <td></td>
-                  <td></td>
-                  <td></td>
+                  {[10, 11, 12, 13, 14]?.map((num) => (
+                    <td key={num}>
+                      <div class="d-flex flex-column">
+                        {masterSchedule[num]?.map((shift_tutor) => (
+                          <div class="m-1 text-left">
+                            <span class="text-success">
+                              {shift_tutor["discipline"]}
+                            </span>
+                            /{shift_tutor["other_disciplines"]}:{" "}
+                            {shift_tutor["tutor"].split(" ")[0]}
+                          </div>
+                        ))}
+                      </div>
+                    </td>
+                  ))}
                 </tr>
                 <tr>
                   <td scope="row">8-10 PM</td>
-                  <td></td>
-                  <td></td>
-                  <td></td>
-                  <td></td>
-                  <td></td>
+                  {[15, 16, 17, 18, 19]?.map((num) => (
+                    <td key={num}>
+                      <div class="d-flex flex-column">
+                        {masterSchedule[num]?.map((shift_tutor) => (
+                          <div class="m-1 text-left">
+                            <span class="text-success">
+                              {shift_tutor["discipline"]}
+                            </span>
+                            /{shift_tutor["other_disciplines"]}:{" "}
+                            {shift_tutor["tutor"].split(" ")[0]}
+                          </div>
+                        ))}
+                      </div>
+                    </td>
+                  ))}
                 </tr>
               </tbody>
             </table>
