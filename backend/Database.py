@@ -12,7 +12,7 @@ from datetime import date, datetime
         # add_tutor(name, email)
         # add_superuser(name, email)
         # add_admin(name, email)
-        # add_discipline(discipline, abbreviation, shifts)
+        # add_discipline(discipline, shifts)
         # add_shifts(discipline, shift_number, available_tutors)
         # add_to_master_schedule(shift_number, assignments)
         # add_time_window(block, start_date, end_date)
@@ -821,7 +821,7 @@ def list_all_tables_exceptions():
 
 
 # Function that will return a list of all tables
-def list_all_tables_exceptions():
+def list_all_tables(exceptions):
     try:
         with sql.connect("database.db") as con:
             table_list = []
@@ -830,9 +830,12 @@ def list_all_tables_exceptions():
             cur.execute(sql_query)
             data = list(cur.fetchall())
             for table in data:
-                if table[1] != 'sqlite_schema' and table[1] != 'tutors' and table[1] != 'admins' and table[1] != 'superusers':
-                    table_list.append(table[1])
-
+                if exceptions == 'Yes':
+                    if table[1] != 'sqlite_schema' and table[1] != 'tutors' and table[1] != 'admins' and table[1] != 'superusers':
+                        table_list.append(table[1])
+                else:
+                    if table[1] != 'sqlite_schema':
+                        table_list.append(table[1])
             return table_list
     except:
         con.rollback()
@@ -841,8 +844,8 @@ def list_all_tables_exceptions():
 
 
 # Function to reboot the database in its entirety (mostly for testing)
-def reboot_database_exceptions(all_disciplines):
-    all_tables = list_all_tables_exceptions()
+def reboot_database(all_disciplines, exceptions):
+    all_tables = list_all_tables(exceptions)
     for table in all_tables:
         delete_table(table)
     create_tables(all_disciplines)
@@ -855,11 +858,9 @@ if __name__ == '__main__':
     add_tutor('moises', 'First email')
     add_tutor('John', 'second email')
     add_tutor('Jason', 'third email')
-    reboot_database_exceptions(discipline_list)
+    reboot_database(discipline_list, "No")
     now = datetime.now()
     print(now.strftime("%d-%m-%Y %H:%M:%S"))
-    print(check_user('None'))
-
-
+    print(check_user('First email'))
 
 
