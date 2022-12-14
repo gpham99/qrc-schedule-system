@@ -2,6 +2,33 @@ import time
 from flask import Flask, request, session, redirect, url_for
 from cas import CASClient
 from flask_cors import CORS
+from flask_jwt import JWT, jwt_required, current_identity
+from werkzeug.security import safe_str_cmp
+
+
+class User(object):
+    def __init__(self, id, email, role):
+        self.id = id
+        self.email = email
+        self.role = role
+
+    def __str__(self):
+        return "User(id='%s')" % self.id
+
+users = [ User(1, 'p_mishra@coloradocollege.edu', 'tutor'), 
+User(2, 's_getty@coloradocollege.edu', 'admin')]
+
+email_table = {u.email: u for u in users}
+userid_table = {u.role: u for u in users}
+
+def authenticate(email, role):
+    user = email_table.get(email, None)
+    if user and safe_str_cmp(user.role.encode('utf-8'), role.encode('utf-8')):
+        return user
+
+def identity(payload):
+    user_id = payload['identity']
+    return userid_table.get(user_id, None)
 
 # print a nice greeting.
 def say_hello(username = "Team"):
@@ -25,6 +52,13 @@ cas_client = CASClient(
     service_url='http://52.12.35.11:8080/',
     server_url='https://cas.coloradocollege.edu/cas/'
 )
+
+jwt = JWT(application,authenticate,identity)
+
+@app.route('/protected')
+@jwt_required()
+def protected():
+    print('%s' % current_identity)
 
 # add a rule for the index page
 @application.route('/')
