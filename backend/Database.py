@@ -1,5 +1,5 @@
 import sqlite3 as sql
-from datetime import date, datetime
+# from datetime import date, datetime
 # The Database file includes:
 
     # 1. the creation of tables -> Complete
@@ -57,8 +57,8 @@ from datetime import date, datetime
 
     # 9 Other functions to help with the basic keeping of the database
         # reconfigure_database(new_disciplines_list)
-        # list_all_tables()
-        # reboot_database(all_disciplines)
+        # list_all_tables(exceptions)
+        # reboot_database(all_disciplines, exceptions)
 
 
 # function to create the master_schedule
@@ -185,7 +185,7 @@ def add_discipline(discipline, abbreviation, shifts):
    try:
         with sql.connect("database.db") as con:
             cur = con.cursor()
-            sql_select_query = 'SELECT * FROM disciplines WHERE subject=? '
+            sql_select_query = 'SELECT * FROM disciplines WHERE discipline=? '
             cur.execute(sql_select_query, (discipline,))
             data = cur.fetchone()
             # If the user doesn't exist
@@ -219,7 +219,7 @@ def add_shifts(discipline, shift_number, available_tutors):
 # add rows to the master schedule
 # take in list of shift assignments and then return the finished schedule
 def add_to_master_schedule(shift_number, all_disciplines, assignments):
-    try:
+    if True :
         with sql.connect("database.db") as con:
             cur = con.cursor()
             t_list = (shift_number,)
@@ -235,13 +235,8 @@ def add_to_master_schedule(shift_number, all_disciplines, assignments):
                     sql_query = sql_query + all_disciplines[index] + ") "
 
             sql_query = sql_query + values
-            print(sql_query)
             cur.execute(sql_query, t_list)
             con.commit()
-    except:
-        con.rollback()
-    finally:
-        con.close()
 
 
 # Function to add Time window
@@ -406,9 +401,7 @@ def get_discipline_shift(discipline, shift_number):
         with sql.connect("database.db") as con:
             cur = con.cursor()
             # get the row whose email matches
-            sql_search_query = 'SELECT * FROM '
-            sql_search_query = sql_search_query + discipline
-            sql_search_query = sql_search_query + ' WHERE shift_number = ?'
+            sql_search_query = 'SELECT * FROM ' + discipline + ' WHERE shift_number = ?'
             cur.execute(sql_search_query, (shift_number,))
             record = cur.fetchone()
             _, res = record
@@ -483,10 +476,10 @@ def get_discipline_shifts_offered(discipline):
         with sql.connect("database.db") as con:
             cur = con.cursor()
             # get the row whose email matches
-            sql_search_query = 'SELECT * FROM disciplines WHERE subject = ?'
+            sql_search_query = 'SELECT * FROM disciplines WHERE discipline = ?'
             cur.execute(sql_search_query, (discipline,))
             record = cur.fetchone()
-            return list(record)[1]
+            return list(record)[2]
     except:
         con.rollback()
     finally:
@@ -520,7 +513,7 @@ def get_discipline_abbreviation(discipline):
             sql_search_query = 'SELECT * FROM disciplines WHERE discipline = ?'
             cur.execute(sql_search_query, (discipline,))
             record = cur.fetchone()
-            return record
+            return record[1]
     except:
         con.rollback()
     finally:
@@ -784,7 +777,7 @@ def update_discipline_abbreviation(discipline, new_abbreviation):
 
 
 # Function to reset the database and create all the appropriate tables once a new discipline has been added
-def reconfigure_database(new_disciplines_list):
+def reconfigure_database(new_disciplines_list, new_disciplines_abbreviations):
     # creates the new master_schedule after deleting the old one
     create_new_master_schedule(new_disciplines_list)
     # creates a new table for the new discipline
@@ -793,31 +786,11 @@ def reconfigure_database(new_disciplines_list):
     # get all the current existing tables
     current_disciplines = get_disciplines()
     # iterates through the new discipline list
-    for discipline in new_disciplines_list:
+    for item, discipline in enumerate(new_disciplines_list):
         # if it is new then add it to the discipline table with an empty list
         if discipline not in current_disciplines:
-            add_discipline(discipline, empty_list)
+            add_discipline(discipline, new_disciplines_abbreviations[item], empty_list)
     print("Rebirth process complete")
-
-
-# Function that will return a list of all tables with the exceptions to the admins ,
-def list_all_tables_exceptions():
-    try:
-        with sql.connect("database.db") as con:
-            table_list = []
-            cur = con.cursor()
-            sql_query = 'PRAGMA main.table_list'
-            cur.execute(sql_query)
-            data = list(cur.fetchall())
-            for table in data:
-                if table[1] != 'sqlite_schema' and table[1] != 'tutors' and table[1] != 'admins' and table[1] != 'superusers':
-                    table_list.append(table[1])
-
-            return table_list
-    except:
-        con.rollback()
-    finally:
-        con.close()
 
 
 # Function that will return a list of all tables
@@ -831,7 +804,8 @@ def list_all_tables(exceptions):
             data = list(cur.fetchall())
             for table in data:
                 if exceptions == 'Yes':
-                    if table[1] != 'sqlite_schema' and table[1] != 'tutors' and table[1] != 'admins' and table[1] != 'superusers':
+                    if table[1] != 'sqlite_schema' and table[1] != 'tutors' and table[1] != 'admins'\
+                            and table[1] != 'superusers':
                         table_list.append(table[1])
                 else:
                     if table[1] != 'sqlite_schema':
@@ -855,12 +829,7 @@ def reboot_database(all_disciplines, exceptions):
 if __name__ == '__main__':
     discipline_list = ["CS", "Math", "Econ", "Physics", "CHBC"]
     discipline_abbreviations = ['CS', 'M', 'E', 'P', 'CHBC']
-    add_tutor('moises', 'First email')
-    add_tutor('John', 'second email')
-    add_tutor('Jason', 'third email')
-    reboot_database(discipline_list, "No")
-    now = datetime.now()
-    print(now.strftime("%d-%m-%Y %H:%M:%S"))
-    print(check_user('First email'))
-
-
+    tutors = ['m_padilla@ColoradoCollege.edu', None, None, None, None]
+    reboot_database(discipline_list, 'No')
+    add_discipline('molecular', 'mb', discipline_list)
+    print(get_disciplines())
