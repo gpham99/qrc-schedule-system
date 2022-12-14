@@ -1,14 +1,15 @@
 import sqlite3 as sql
-# from datetime import date, datetime
+import datetime
+import time
 # The Database file includes:
 
-    # 1. the creation of tables -> Complete
+    # 1. the creation of tables
         # create_master_schedule(all_disciplines)
         # add_new_discipline_table(discipline_name)
         # create_discipline_tables(all_disciplines)
         # create_tables(all_disciplines)
 
-    # 2. The insertion of new rows into the tables-> Complete
+    # 2. The insertion of new rows into the tables
         # add_tutor(name, email)
         # add_superuser(name, email)
         # add_admin(name, email)
@@ -17,20 +18,20 @@ import sqlite3 as sql
         # add_to_master_schedule(shift_number, assignments)
         # add_time_window(block, start_date, end_date)
 
-    # 3. The updating of tables should new information be added ex. more disciplines -> Complete
+    # 3. The updating of tables should new information be added ex. more disciplines
         # create_new_master_schedule(new_disciplines)
 
-    # 4. The deletion of rows from tables -> Complete
+    # 4. The deletion of rows from tables
         # delete_tutors(email)
         # delete_admins(email)
         # delete_superusers(email)
         # clear_table(table)
         # delete_time_window(block)
 
-    # 5. The deletion of tables should we need to make new tables -> Complete
+    # 5. The deletion of tables should we need to make new tables
         # delete_table(table)
 
-    # 6. The retrieval of data from the tables-> Complete
+    # 6. The retrieval of data from the tables
         # get_single_tutor_info(email)
         # get_admin_info(email)
         # get_super_user_info(email)
@@ -41,10 +42,10 @@ import sqlite3 as sql
         # get_discipline_shifts_offered()
         # get_time_window(block)
 
-    # 7. The ability to check if a user exits in the database -> Complete
+    # 7. The ability to check if a user exits in the database
         # check_user(email)              `
 
-    # 8. The updating of rows in tables -> Complete
+    # 8. The updating of rows in tables
         # update_tutor_status(email)
         # update_shift_capacity(email, new_shift_capacity)
         # update_tutoring_disciplines(email, disciplines)
@@ -107,7 +108,8 @@ def create_tables(all_disciplines):
     conn.execute('CREATE TABLE IF NOT EXISTS disciplines(discipline TEXT, abbreviation TEXT, available_shifts TEXT,'
                  ' PRIMARY KEY (discipline))')
     # create the times table
-    conn.execute('CREATE TABLE IF NOT EXISTS times(block INTEGER, start_date DATE, end_date DATE,  PRIMARY KEY (block))')
+    conn.execute('CREATE TABLE IF NOT EXISTS times(block INTEGER, start_time BIGINT, end_time BIGINT,'
+                 'PRIMARY KEY (block))')
     # create the discipline abbreviation table
     # close connection to database
     conn.close()
@@ -448,6 +450,25 @@ def get_roster():
     finally:
         con.close()
 
+
+# Function to get the roster of admins
+def get_admin_roster():
+    try:
+        # code to fetch data from the database
+        with sql.connect("database.db") as con:
+            roster_list = []
+            cur = con.cursor()
+            # get the row whose email matches
+            sql_search_query = 'SELECT * FROM admins'
+            cur.execute(sql_search_query)
+            records = cur.fetchall()
+            for record in records:
+                roster_list.append(record)
+            return roster_list
+    except:
+        con.rollback()
+    finally:
+        con.close()
 
 # Function that will retrieve all existing disciplines
 def get_disciplines():
@@ -826,10 +847,20 @@ def reboot_database(all_disciplines, exceptions):
     print("database reboot completed")
 
 
+
 if __name__ == '__main__':
     discipline_list = ["CS", "Math", "Econ", "Physics", "CHBC"]
-    discipline_abbreviations = ['CS', 'M', 'E', 'P', 'CHBC']
-    tutors = ['m_padilla@ColoradoCollege.edu', None, None, None, None]
     reboot_database(discipline_list, 'No')
-    add_discipline('molecular', 'mb', discipline_list)
-    print(get_disciplines())
+
+    date_time = datetime.datetime(2022, 6, 3, 12, 0, 50)
+    print("Given Date:", date_time)
+    print("UNIX timestamp:",
+          (time.mktime(date_time.timetuple())))
+
+    date_time = datetime.datetime(2022, 6, 3, 12, 0, 49)
+    print("Given Date:", date_time)
+    print("UNIX timestamp:",
+          (time.mktime(date_time.timetuple())))
+
+    #unix time stamp for time window
+
