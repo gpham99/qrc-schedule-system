@@ -1,4 +1,4 @@
-from Database import get_roster, get_master_schedule_info, get_disciplines, check_user, get_discipline_abbreviation, update_master_schedule_single_discipline
+from Database import get_roster, get_master_schedule_info, get_disciplines, check_user, get_discipline_abbreviation, update_master_schedule_single_discipline, get_abbreviations
 import time
 from flask import Flask, request, session, redirect, url_for, jsonify
 from cas import CASClient
@@ -142,11 +142,7 @@ def get_login_status():
 @application.route('/api/master_schedule')
 def get_master_schedule():
     disciplines = get_disciplines()
-    abbreviations = []
-    for discipline in disciplines:
-        abbreviation = get_discipline_abbreviation(discipline)
-        abbreviation = replace_chars(abbreviation)
-        abbreviations.append(abbreviation)
+    abbreviations = get_abbreviations()
     roster = get_roster()
     master_schedule = []
     master_schedule_with_disciplines = {}
@@ -259,20 +255,25 @@ def protected():
 @application.route('/api/update_master_schedule', methods=['POST'])
 def update_tutors_in_master_schedule():
     disciplines = get_disciplines()
-    abbreviations = []
-    for discipline in disciplines:
-        abbreviation = get_discipline_abbreviation(discipline)
-        abbreviation = replace_chars(abbreviation)
-        abbreviations.append(abbreviation) 
+    abbreviations = get_abbreviations()
     result = json.load(request.get_json())
+    result = ""
     for key in result.keys():
         shift_index, discipline_abbreviation = key.split(',')
         new_tutor_username = result[key]
-        user = authenticate(new_tutor_username, "")
-        if user != None:
-            print(user.id, shift_index, discipline_abbreviation)
-            update_master_schedule_single_discipline(shift_index, disciplines[abbreviations.index(discipline_abbreviation)], user.id)
-
+        if new_tutor_username == "":
+            update_master_schedule_single_discipline(shift_index, disciplines[abbreviations.index(discipline_abbreviation)], None)
+            result += "Shift removed successfully\n"
+        else:
+            user = authenticate(new_tutor_username, "")
+            if user != None:
+                print(user.id, shift_index, discipline_abbreviation)
+                update_master_schedule_single_discipline(shift_index, disciplines[abbreviations.index(discipline_abbreviation)], user.id)
+                result += "Shift for " + user.id + " added successfully\n"
+            else:
+                result += user.id + " not found in database, please check your spelling\n"
+    return result
+        
     
 @application.route('/api/add_discipline', methods=['POST'])
 def add_discipline():
