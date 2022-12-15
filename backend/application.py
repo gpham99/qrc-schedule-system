@@ -1,4 +1,4 @@
-from Database import get_roster, get_master_schedule_info, get_disciplines, check_user, get_discipline_abbreviation, update_master_schedule
+from Database import get_roster, get_master_schedule_info, get_disciplines, check_user, get_discipline_abbreviation, update_master_schedule_single_discipline
 import time
 from flask import Flask, request, session, redirect, url_for, jsonify
 from cas import CASClient
@@ -258,6 +258,12 @@ def protected():
 
 @application.route('/api/update_master_schedule', methods=['POST'])
 def update_tutors_in_master_schedule():
+    disciplines = get_disciplines()
+    abbreviations = []
+    for discipline in disciplines:
+        abbreviation = get_discipline_abbreviation(discipline)
+        abbreviation = replace_chars(abbreviation)
+        abbreviations.append(abbreviation) 
     result = json.load(request.get_json())
     for key in result.keys():
         shift_index, discipline_abbreviation = key.split(',')
@@ -266,7 +272,7 @@ def update_tutors_in_master_schedule():
         user = authenticate(email, "")
         if user != None:
             print(user.id, shift_index, discipline_abbreviation)
-            #update_master_schedule(shift_index, get_disciplines(), 
+            update_master_schedule_single_discipline(shift_index, get_disciplines, user.id)
 
     
 @application.route('/api/add_discipline', methods=['POST'])
