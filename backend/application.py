@@ -24,17 +24,7 @@ header_text = '''
 home_link = '<p><a href="/">Back</a></p>\n'
 footer_text = '</body>\n</html>'
 sso_link = '<p><a href="/login">Log in using SSO</a></p>'
-
-# EB looks for an 'application' callable by default.
-application = Flask(__name__)
-
-application.secret_key = 'V7nlCN90LPHOTA9PGGyf'
-
-cas_client = CASClient(
-    version=3,    
-    service_url='http://35.88.95.206:8080/',
-    server_url='https://cas.coloradocollege.edu/cas/'
-)
+logout_link = '<p><a href="/cas_logout">Log out of CAS</a></p>'
 
 # EB looks for an 'application' callable by default.
 application = Flask(__name__)
@@ -62,10 +52,6 @@ def check_login():
 # add a rule for the index page
 @application.route('/')
 def index():
-    if 'username' in session:
-        # Already logged in
-        return 'You are logged in. Here you are going to see your schedule. <a href="/logout">Logout</a>'
-
     in_system, group = check_login()
     if in_system:
         return 'You are logged in as part of the ' + group + ' ! <a href="/logout">Exit</a>'
@@ -99,9 +85,6 @@ def index():
 @application.route('/profile')
 def profile(method=['GET']):
     application.logger.debug('session when you hit profile: %s', session)
-    if 'username' in session:
-        return 'Logged in as {}. Your email address is {}. <a href="/logout">Logout</a>'.format(session['username'], session['email'])
-
     in_system, group = check_login()
     if in_system:
         return 'Logged in as {}. Your email address is {}. <a href="/logout">Exit</a>'.format(session['username'], session['email'])
@@ -126,31 +109,15 @@ def login():
         application.logger.debug('CAS login URL: %s', cas_login_url)
         return redirect(cas_login_url) # the return of this is /ticket?=...
 
-@application.route('/logout')
 @application.route('/cas_logout')
 def logout():
     redirect_url = url_for('logout_callback', _external=True)
     application.logger.debug('Redirect logout URL %s', redirect_url)
     cas_logout_url = cas_client.get_logout_url(redirect_url)
     application.logger.debug('CAS logout URL: %s', cas_logout_url)
-
-    session.clear() # because logout_callback doesn't work, clear session here
-    return redirect(cas_logout_url, 302)
-
-@application.route('/logout_callback')
-def logout_callback():
-    # redirect from CAS logout request after CAS logout successfully
     session.clear()
-    return 'Logged out from CAS. <a href="/login">Login</a>'
 
-# run the app.
-if __name__ == "__main__":
-    # Setting debug to True enables debug output. This line should be
-    # removed before deploying a production app.
-    application.debug = True
-    application.run()
-
-    session.clear()
+    return redirect(cas_logout_url)
 
 @application.route('/logout')
 def logout_callback():
@@ -287,6 +254,25 @@ def get_disciplines_abbreviations():
 @jwt_required()
 def protected():
     return '%s' % current_identity
+
+@application.route('/api/add_discipline', methods=['POST'])
+def add_discipline():
+    discipline_name = request.body['Name']
+    discipline_abbreviation = request.body['Abv']
+    print("DSDLFSFDS", discipline_name)
+    print("SDFSDFDS", discipline_abbreviation)
+    add_discipline(discipline_name, discipline_abbreviation, [])
+
+@application.route('/api/add_remove_disciplines')
+def get_disciplines_abbreviations():
+    disciplines = get_disciplines()
+    discipline_schedule_with_abv = []
+    for discipline in disciplines:
+        abbreviation = get_discipline_abbreviation(discipline)
+        abbreviation = replace_chars(abbreviation)
+        discipline_schedule_with_abv.append([discipline, abbreviation])
+
+    return discipline_schedule_with_abv
 
     
 
