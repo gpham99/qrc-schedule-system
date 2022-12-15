@@ -1,4 +1,4 @@
-from Database import get_roster, get_master_schedule_info, get_disciplines, check_user, get_discipline_abbreviation, update_master_schedule_single_discipline, get_abbreviations
+from Database import get_roster, get_master_schedule_info, get_disciplines, check_user, get_discipline_abbreviation, update_master_schedule_single_discipline, get_abbreviations, add_discipline
 import time
 from flask import Flask, request, session, redirect, url_for, jsonify
 from cas import CASClient
@@ -143,6 +143,8 @@ def get_login_status():
 def get_master_schedule():
     disciplines = get_disciplines()
     abbreviations = get_abbreviations()
+    for i in range(len(abbreviations)):
+        abbreviations[i] = replace_chars(abbreviations[i])
     roster = get_roster()
     master_schedule = []
     master_schedule_with_disciplines = {}
@@ -256,32 +258,34 @@ def protected():
 def update_tutors_in_master_schedule():
     disciplines = get_disciplines()
     abbreviations = get_abbreviations()
-    result = json.load(request.get_json())
-    result = ""
+    for i in range(len(abbreviations)):
+        abbreviations[i] = replace_chars(abbreviations[i])
+    result = request.get_json()
+    output = ""
     for key in result.keys():
         shift_index, discipline_abbreviation = key.split(',')
         new_tutor_username = result[key]
         if new_tutor_username == "":
             update_master_schedule_single_discipline(shift_index, disciplines[abbreviations.index(discipline_abbreviation)], None)
-            result += "Shift removed successfully\n"
+            output += "Shift removed successfully\n"
         else:
             user = authenticate(new_tutor_username, "")
             if user != None:
                 print(user.id, shift_index, discipline_abbreviation)
                 update_master_schedule_single_discipline(shift_index, disciplines[abbreviations.index(discipline_abbreviation)], user.id)
-                result += "Shift for " + user.id + " added successfully\n"
+                output += "Shift for " + user.id + " added successfully\n"
             else:
-                result += user.id + " not found in database, please check your spelling\n"
-    return result
+                output += user.id + " not found in database, please check your spelling\n"
+    return output
         
     
 @application.route('/api/add_discipline', methods=['POST'])
-def add_discipline():
-    discipline_name = request.data['Name']
-    discipline_abbreviation = request.data['Abv']
-    print("DSDLFSFDS", discipline_name)
-    print("SDFSDFDS", discipline_abbreviation)
+def add_new_discipline():
+    req = request.get_json()
+    discipline_name = req['name']
+    discipline_abbreviation = req["abv"]
     add_discipline(discipline_name, discipline_abbreviation, [])
+    return "Things should be added"
 
 # # run the app.
 # if __name__ == "__main__":
