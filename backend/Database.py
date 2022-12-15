@@ -41,6 +41,7 @@ import sqlite3 as sql
 # get_roster()
 # get_disciplines()
 # get_abbreviations()
+# get_discipline_from_abbreviation(discipline)
 # get_discipline_shifts_offered(discipline)
 # get_discipline_abbreviation(discipline)
 # get_time_window(block)
@@ -185,7 +186,7 @@ def add_admin(name, email):
 
 # Function that will add rows to the discipline table
 def add_discipline(discipline, abbreviation, shifts):
-    try:
+    if True:
         with sql.connect("database.db") as con:
             cur = con.cursor()
             sql_select_query = 'SELECT * FROM disciplines WHERE discipline=? '
@@ -201,10 +202,8 @@ def add_discipline(discipline, abbreviation, shifts):
             else:
                 update_query = 'UPDATE disciplines SET abbreviation = ?, available_shifts = ? WHERE discipline = ?'
                 cur.execute(update_query, (abbreviation, str(shifts), discipline))
-    except:
-        con.rollback()
-    finally:
-        con.close()
+                print("updated stuff")
+
 
 
 # Function to add rows to a specific discipline table
@@ -923,13 +922,11 @@ if __name__ == '__main__':
     discipline_list = ["CS", "Math", "Econ", "Physics", "CHBC"]
     tutors = ['Joe', 'James', None, None, None]
     create_tables(discipline_list)
-    update_discipline_abbreviation('Math', 'M')
-    print(get_abbreviations())
-    add_discipline('Econ', 'E', [])
-    add_discipline('New_stuff', 'NS', ['Joe'])
-    print(get_abbreviations())
-    print(get_disciplines())
+    add_discipline('Math', 'M', [])
+    add_discipline("James", "J", [])
 
-    print(get_discipline_from_abbreviation('NS'))
 
 # update master_schedule for a single discipline
+# add_discipline
+# reconfigure_table
+# add_new_discipline_table
