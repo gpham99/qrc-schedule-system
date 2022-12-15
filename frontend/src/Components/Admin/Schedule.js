@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { exportComponentAsJPEG } from "react-component-export-image";
 
 const Schedule = () => {
+  const [unChangedMasterSchedule, setUnchangedMasterSchedule] = useState({});
   const [isChanged, setIsChanged] = useState({});
   const [masterSchedule, setMasterSchedule] = useState({});
   const [editedSchedule, setEdittedSchedule] = useState({});
@@ -13,12 +14,15 @@ const Schedule = () => {
       .then((res) => res.json())
       .then((data) => {
         setMasterSchedule(data);
+        setUnchangedMasterSchedule(structuredClone(data));
       });
   }, []);
 
   const toggleEditMode = (event) => {
     event.preventDefault();
     setEditMode(1 - editMode);
+    setIsChanged({});
+    setMasterSchedule(structuredClone(unChangedMasterSchedule));
   };
 
   const submitChange = (event) => {
@@ -134,7 +138,10 @@ const Schedule = () => {
                                     }
                                     style={{
                                       borderColor: isChanged[num + "," + index]
-                                        ? "red"
+                                        ? "green"
+                                        : "",
+                                      borderWidth: isChanged[num + "," + index]
+                                        ? "medium"
                                         : "",
                                     }}
                                     onChange={(e) => {
@@ -154,24 +161,19 @@ const Schedule = () => {
                                       setEdittedSchedule(d_copy);
 
                                       let isChanged_copy = { ...isChanged };
-                                      isChanged_copy[num + "," + index] = true;
-
-                                      // console.log(
-                                      //   masterSchedule[num][index]["email"]
-                                      // );
-                                      // console.log(
-                                      //   "this shdnt change: ",
-                                      //   unChangedMasterSchedule[num][index][
-                                      //     "email"
-                                      //   ]
-                                      // );
-                                      // console.log(
-                                      //   "is the current value equal to the original one ",
-                                      //   masterSchedule[num][index]["email"] ===
-                                      //     unChangedMasterSchedule[num][index][
-                                      //       "email"
-                                      //     ]
-                                      // );
+                                      let isSame =
+                                        (unChangedMasterSchedule[num][index][
+                                          "email"
+                                        ] === null &&
+                                          masterSchedule[num][index][
+                                            "email"
+                                          ] === "") ||
+                                        masterSchedule[num][index]["email"] ===
+                                          unChangedMasterSchedule[num][index][
+                                            "email"
+                                          ]?.split("@")[0];
+                                      isChanged_copy[num + "," + index] =
+                                        !isSame;
                                       setIsChanged(isChanged_copy);
                                     }}
                                   />
@@ -218,6 +220,14 @@ const Schedule = () => {
                                         "email"
                                       ]?.split("@")[0]
                                     }
+                                    style={{
+                                      borderColor: isChanged[num + "," + index]
+                                        ? "green"
+                                        : "",
+                                      borderWidth: isChanged[num + "," + index]
+                                        ? "medium"
+                                        : "",
+                                    }}
                                     onChange={(e) => {
                                       let new_email = e.target.value;
                                       let master_schedule_copy = {
@@ -233,6 +243,22 @@ const Schedule = () => {
                                       let d_copy = { ...editedSchedule };
                                       d_copy[d_key] = e.target.value;
                                       setEdittedSchedule(d_copy);
+
+                                      let isChanged_copy = { ...isChanged };
+                                      let isSame =
+                                        (unChangedMasterSchedule[num][index][
+                                          "email"
+                                        ] === null &&
+                                          masterSchedule[num][index][
+                                            "email"
+                                          ] === "") ||
+                                        masterSchedule[num][index]["email"] ===
+                                          unChangedMasterSchedule[num][index][
+                                            "email"
+                                          ]?.split("@")[0];
+                                      isChanged_copy[num + "," + index] =
+                                        !isSame;
+                                      setIsChanged(isChanged_copy);
                                     }}
                                   />
                                 </div>
@@ -277,6 +303,14 @@ const Schedule = () => {
                                         "email"
                                       ]?.split("@")[0]
                                     }
+                                    style={{
+                                      borderColor: isChanged[num + "," + index]
+                                        ? "green"
+                                        : "",
+                                      borderWidth: isChanged[num + "," + index]
+                                        ? "medium"
+                                        : "",
+                                    }}
                                     onChange={(e) => {
                                       let new_email = e.target.value;
                                       let master_schedule_copy = {
@@ -292,6 +326,22 @@ const Schedule = () => {
                                       let d_copy = { ...editedSchedule };
                                       d_copy[d_key] = e.target.value;
                                       setEdittedSchedule(d_copy);
+
+                                      let isChanged_copy = { ...isChanged };
+                                      let isSame =
+                                        (unChangedMasterSchedule[num][index][
+                                          "email"
+                                        ] === null &&
+                                          masterSchedule[num][index][
+                                            "email"
+                                          ] === "") ||
+                                        masterSchedule[num][index]["email"] ===
+                                          unChangedMasterSchedule[num][index][
+                                            "email"
+                                          ]?.split("@")[0];
+                                      isChanged_copy[num + "," + index] =
+                                        !isSame;
+                                      setIsChanged(isChanged_copy);
                                     }}
                                   />
                                 </div>
@@ -336,6 +386,14 @@ const Schedule = () => {
                                         "email"
                                       ]?.split("@")[0]
                                     }
+                                    style={{
+                                      borderColor: isChanged[num + "," + index]
+                                        ? "green"
+                                        : "",
+                                      borderWidth: isChanged[num + "," + index]
+                                        ? "medium"
+                                        : "",
+                                    }}
                                     onChange={(e) => {
                                       let new_email = e.target.value;
                                       let master_schedule_copy = {
@@ -351,6 +409,22 @@ const Schedule = () => {
                                       let d_copy = { ...editedSchedule };
                                       d_copy[d_key] = e.target.value;
                                       setEdittedSchedule(d_copy);
+
+                                      let isChanged_copy = { ...isChanged };
+                                      let isSame =
+                                        (unChangedMasterSchedule[num][index][
+                                          "email"
+                                        ] === null &&
+                                          masterSchedule[num][index][
+                                            "email"
+                                          ] === "") ||
+                                        masterSchedule[num][index]["email"] ===
+                                          unChangedMasterSchedule[num][index][
+                                            "email"
+                                          ]?.split("@")[0];
+                                      isChanged_copy[num + "," + index] =
+                                        !isSame;
+                                      setIsChanged(isChanged_copy);
                                     }}
                                   />
                                 </div>
