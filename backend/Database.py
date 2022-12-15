@@ -16,6 +16,7 @@ import sqlite3 as sql
 # add_discipline(discipline, shifts)
 # add_shifts(discipline, shift_number, available_tutors)
 # add_to_master_schedule(shift_number, assignments)
+# update_master_schedule_single_discipline(shift_number, discipline, new_assignment)
 # add_time_window(block, start_time, end_time)
 
 # 3. The updating of tables should new information be added ex. more disciplines
@@ -475,6 +476,23 @@ def get_disciplines():
         con.close()
 
 
+# Function that will retrieve all existing abbreviations
+def get_abbreviations():
+    try:
+        with sql.connect("database.db") as con:
+            disciplines_list = []
+            cur = con.cursor()
+            sql_search_query = 'SELECT * FROM disciplines'
+            cur.execute(sql_search_query)
+            records = cur.fetchall()
+            for record in records:
+                disciplines_list.append(record[1])
+            return disciplines_list
+    except:
+        con.rollback()
+    finally:
+        con.close()
+
 # Function that will return which shifts a particular discipline is available for
 def get_discipline_shifts_offered(discipline):
     try:
@@ -886,13 +904,8 @@ if __name__ == '__main__':
     discipline_list = ["CS", "Math", "Econ", "Physics", "CHBC"]
     tutors = ['Joe', 'James', None, None, None]
     reboot_database(discipline_list, 'No')
-    print(get_master_schedule_columns())
-
-    add_to_master_schedule(0, discipline_list, tutors)
-    print(get_master_schedule_info(0))
-    update_master_schedule_single_discipline(0, 'Econ', 'James')
-    print(get_master_schedule_info(0))
-
+    update_discipline_abbreviation('Math', 'M')
+    print(get_abbreviations())
 
 
 # update master_schedule for a single discipline
