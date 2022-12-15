@@ -1,11 +1,6 @@
 import "./App.css";
 import LoginScreen from "./Components/LoginScreen.js";
 import React from "react";
-import ScheduleChart from "./Components/ScheduleTableScreen/ScheduleChart";
-import ImportFile from "./Components/ImportFileScreen/ImportFile";
-import TutorInfo from "./Components/AdminTutorInfoScreen/viewTutorInfo";
-import TutorInfoEditable from "./Components/AdminTutorInfoScreen/viewTutorInfoEditable";
-import TutorProfile from "./Components/ProfilePage/TutorProfile";
 import logo from "./logo.svg";
 import { useState, useEffect } from "react";
 import "./App.css";
@@ -13,7 +8,6 @@ import { Route, Routes } from "react-router-dom";
 import Home from "./Components/Home";
 import Admin from "./Components/Admin";
 import Tutor from "./Components/Tutor";
-import DisciplineModal from "./Components/Admin/DisciplineModal";
 
 function App() {
   const [currentTime, setCurrentTime] = useState(0);
@@ -37,7 +31,6 @@ function App() {
           <Route path="/" element={<Home></Home>}></Route>
         </Routes>
       </div>
-      {/* <DisciplineModal></DisciplineModal> */}
     </div>
   );
 }

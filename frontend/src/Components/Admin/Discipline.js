@@ -1,5 +1,5 @@
 import React from "react";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 
 const Discipline = () => {
   const [DisciplinesAbbvs, setDisciplineAbbv] = useState({});
@@ -8,18 +8,17 @@ const Discipline = () => {
     fetch("http://52.12.35.11:8080/api/add_remove_disciplines")
       .then((res) => res.json())
       .then((data) => {
-        console.log("data: ", data);
         setDisciplineAbbv(data);
-        console.log("ms: ", DisciplinesAbbvs);
+        console.log(data);
       });
   }, []);
 
-  var Discipline_Name = "";
+  var DisciplineName = "";
   var Abbreviation = "";
 
   function HandleName(event) {
     event.preventDefault();
-    Discipline_Name = event.target.value;
+    DisciplineName = event.target.value;
   }
 
   function HandleAbv(event) {
@@ -35,14 +34,14 @@ const Discipline = () => {
           method: "POST",
           mode: "no-cors",
           body: JSON.stringify({
-            name: Discipline_Name,
-            Abv: Abbreviation,
+            name: DisciplineName,
+            abv: Abbreviation,
           }),
         }
       );
 
       if (!response.ok) {
-        throw new Error(`Error! status: ${response.status}`);
+        throw new Error(`Error! dsjfksdflskjfdslk: ${response.status}`);
       }
 
       const result = await response.json();
