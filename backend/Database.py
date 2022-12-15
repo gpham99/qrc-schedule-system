@@ -121,7 +121,6 @@ def create_tables(all_disciplines):
     create_discipline_tables(all_disciplines)
 
 
-
 # Function that will add tutors to the tutors table
 # if the tutor already exists than it will check if the name matches
 # if it doesn't then it will update the name to the new one, else nothing happens
@@ -186,7 +185,7 @@ def add_admin(name, email):
 
 # Function that will add rows to the discipline table
 def add_discipline(discipline, abbreviation, shifts):
-    if True:
+    try:
         with sql.connect("database.db") as con:
             cur = con.cursor()
             sql_select_query = 'SELECT * FROM disciplines WHERE discipline=? '
@@ -202,7 +201,10 @@ def add_discipline(discipline, abbreviation, shifts):
             else:
                 update_query = 'UPDATE disciplines SET abbreviation = ?, available_shifts = ? WHERE discipline = ?'
                 cur.execute(update_query, (abbreviation, str(shifts), discipline))
-
+    except:
+        con.rollback()
+    finally:
+        con.close()
 
 
 # Function to add rows to a specific discipline table
@@ -488,6 +490,22 @@ def get_abbreviations():
             for record in records:
                 disciplines_list.append(record[1])
             return disciplines_list
+    except:
+        con.rollback()
+    finally:
+        con.close()
+
+
+# Function to return discipline names from abbreviations
+def get_discipline_from_abbreviation(abbreviation):
+    try:
+        with sql.connect("database.db") as con:
+            disciplines_list = []
+            cur = con.cursor()
+            sql_search_query = 'SELECT * FROM disciplines where abbreviation = ?'
+            cur.execute(sql_search_query, (abbreviation, ))
+            record = cur.fetchone()
+            return record
     except:
         con.rollback()
     finally:
@@ -912,5 +930,6 @@ if __name__ == '__main__':
     print(get_abbreviations())
     print(get_disciplines())
 
+    print(get_discipline_from_abbreviation('NS'))
 
 # update master_schedule for a single discipline
