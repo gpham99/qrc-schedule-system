@@ -1,15 +1,13 @@
-from flask import Flask, request, session, redirect, url_for
-from cas import CASClient
+from Database import get_roster, get_master_schedule_info, get_disciplines, check_user, get_discipline_abbreviation
 import time
-from databaseTest import get_roster, get_master_schedule_info, get_disciplines, check_user
-import time
-from flask import Flask, request, session, redirect, url_for
+from flask import Flask, request, session, redirect, url_for, jsonify
 from cas import CASClient
 from flask_cors import CORS
 import ast
 import os
-from models import read_roster
+from models import read_roster, User
 from werkzeug.utils import secure_filename
+from utility import replace_chars 
 
 UPLOAD_FOLDER = '.'
 ALLOWED_EXTENSIONS = {'xls', 'xlsx', 'xlsm', 'xlsb', 'odf', 'ods', 'odt'}
@@ -24,27 +22,12 @@ header_text = '''
 home_link = '<p><a href="/">Back</a></p>\n'
 footer_text = '</body>\n</html>'
 sso_link = '<p><a href="/login">Log in using SSO</a></p>'
-
-# EB looks for an 'application' callable by default.
-application = Flask(__name__)
-
-application.secret_key = 'V7nlCN90LPHOTA9PGGyf'
-
-cas_client = CASClient(
-    version=3,    
-    service_url='http://35.88.95.206:8080/',
-    server_url='https://cas.coloradocollege.edu/cas/'
-)
-
-@app.route('/time')
-def get_current_time():
-    return {'time': time.time()}
 logout_link = '<p><a href="/cas_logout">Log out of CAS</a></p>'
 
 # EB looks for an 'application' callable by default.
 application = Flask(__name__)
 CORS(application)
-application.secret_key = 'V7nlCN90LPHOTA9PGGyf'
+application.secret_key = ';sufhiagr3yugfjcnkdlmsx0-w9u4fhbuewiejfigehbjrs'
 application.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 cas_client = CASClient(
     version=3,    
@@ -58,7 +41,7 @@ def allowed_file(filename):
 
 def check_login():
     if 'username' in session:
-        in_system, group = check_user(session['username'])
+        in_system, group = check_user(session['username']+"@coloradocollege.edu")
     else:
         in_system, group = False, "Logged out"
     return in_system, group
@@ -66,10 +49,6 @@ def check_login():
 # add a rule for the index page
 @application.route('/')
 def index():
-    if 'username' in session:
-        # Already logged in
-        return 'You are logged in. Here you are going to see your schedule. <a href="/logout">Logout</a>'
-
     in_system, group = check_login()
     if in_system:
         return 'You are logged in as part of the ' + group + ' ! <a href="/logout">Exit</a>'
@@ -103,9 +82,6 @@ def index():
 @application.route('/profile')
 def profile(method=['GET']):
     application.logger.debug('session when you hit profile: %s', session)
-    if 'username' in session:
-        return 'Logged in as {}. Your email address is {}. <a href="/logout">Logout</a>'.format(session['username'], session['email'])
-
     in_system, group = check_login()
     if in_system:
         return 'Logged in as {}. Your email address is {}. <a href="/logout">Exit</a>'.format(session['username'], session['email'])
@@ -130,31 +106,15 @@ def login():
         application.logger.debug('CAS login URL: %s', cas_login_url)
         return redirect(cas_login_url) # the return of this is /ticket?=...
 
-@application.route('/logout')
 @application.route('/cas_logout')
 def logout():
     redirect_url = url_for('logout_callback', _external=True)
     application.logger.debug('Redirect logout URL %s', redirect_url)
     cas_logout_url = cas_client.get_logout_url(redirect_url)
     application.logger.debug('CAS logout URL: %s', cas_logout_url)
-
-    session.clear() # because logout_callback doesn't work, clear session here
-    return redirect(cas_logout_url, 302)
-
-@application.route('/logout_callback')
-def logout_callback():
-    # redirect from CAS logout request after CAS logout successfully
     session.clear()
-    return 'Logged out from CAS. <a href="/login">Login</a>'
 
-# run the app.
-if __name__ == "__main__":
-    # Setting debug to True enables debug output. This line should be
-    # removed before deploying a production app.
-    application.debug = True
-    application.run()
-
-    session.clear()
+    return redirect(cas_logout_url)
 
 @application.route('/logout')
 def logout_callback():
@@ -173,9 +133,15 @@ def get_login_status():
     else:
         return {"login_status": "0"}
 
+
 @application.route('/api/master_schedule')
 def get_master_schedule():
     disciplines = get_disciplines()
+    abbreviations = []
+    for discipline in disciplines:
+        abbreviation = get_discipline_abbreviation(discipline)
+        abbreviation = replace_chars(abbreviation)
+        abbreviations.append(abbreviation)
     roster = get_roster()
     master_schedule = []
     master_schedule_with_disciplines = {}
@@ -184,6 +150,7 @@ def get_master_schedule():
     shift_num = 0
     for line in master_schedule:
         if line != None:
+            shift_list = []
             for d in range(len(line)):
                 email = line[d]
                 if email != None:
@@ -192,13 +159,18 @@ def get_master_schedule():
                         if tutor_entry[0] == email: #find the tutor in the roster
                             tutor_found = True
                             discipline_list = ast.literal_eval(tutor_entry[4])
-                            for i in range(len(discipline_list)): 
-                                if discipline_list[i] == 'CHMB':
-                                    discipline_list[i] = 'CH/MB'
-                            output_str = "/".join(discipline_list) + ": " + str(tutor_entry[1])
-                            master_schedule_with_disciplines[str(shift_num)+disciplines[d]] = output_str
+                            discipline_list.remove(disciplines[d]) #ensure there is no redundant information
+                            #get abbreviations for each discipline
+                            for i in range(len(discipline_list)):
+                                discipline_list[i] = abbreviations[disciplines.index(discipline_list[i])]
+                            #output_str = "/".join(discipline_list) + ": " + str(tutor_entry[1])
+                            output_dict = {"tutor": tutor_entry[1],
+                                    "discipline": abbreviations[d],
+                                    "other_disciplines": "/".join(discipline_list)}
+                            shift_list.append(output_dict)
                     if not tutor_found:
                         print("Warning: One tutor (", email, ") not found in database. Omitting corresponding shift.")
+            master_schedule_with_disciplines[shift_num] = shift_list
         shift_num += 1
     return master_schedule_with_disciplines
 
@@ -244,7 +216,17 @@ def upload_roster():
         result = read_roster(filename)
         print(result)
         return result
-    return "File format not accepted"""
+    return "File format not accepted"
+
+@application.route('/api/add_discipline', methods=['POST'])
+def add_discipline():
+    discipline_name = request.body['Name']
+    discipline_abbreviation = request.body['Abv']
+    print("DSDLFSFDS", discipline_name)
+    print("SDFSDFDS", discipline_abbreviation)
+    add_discipline(discipline_name, discipline_abbreviation, [])
+
+    
 
 @application.route('/unauthorized_login')
 def unauthorized_login():

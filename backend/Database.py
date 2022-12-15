@@ -1,53 +1,68 @@
 import sqlite3 as sql
+# from datetime import date, datetime
 # The Database file includes:
+
     # 1. the creation of tables -> Complete
-        # create_master_schedule()          O
-        # add_new_discipline_table()        O
-        # create_discipline_tables()        O
-        # create_tables()                   O
+        # create_master_schedule(all_disciplines)
+        # add_new_discipline_table(discipline_name)
+        # create_discipline_tables(all_disciplines)
+        # create_tables(all_disciplines)
+
     # 2. The insertion of new rows into the tables-> Complete
-        # add_tutor()                       O
-        # add_superuser()                   O
-        # add_admin()                       O
-        # add_disciplines()                 O
-        # add_shifts()                      O
-        # add_to_master_schedule()          O
+        # add_tutor(name, email)
+        # add_superuser(name, email)
+        # add_admin(name, email)
+        # add_discipline(discipline, shifts)
+        # add_shifts(discipline, shift_number, available_tutors)
+        # add_to_master_schedule(shift_number, assignments)
+        # add_time_window(block, start_date, end_date)
+
     # 3. The updating of tables should new information be added ex. more disciplines -> Complete
-        # create_new_master_schedule()      O
+        # create_new_master_schedule(new_disciplines)
+
     # 4. The deletion of rows from tables -> Complete
-        # delete_tutors()                   O
-        # delete_admins()                   O
-        # delete_superusers()               O
-        # clear_table()                     O
+        # delete_tutors(email)
+        # delete_admins(email)
+        # delete_superusers(email)
+        # clear_table(table)
+        # delete_time_window(block)
+
     # 5. The deletion of tables should we need to make new tables -> Complete
-        # delete_table()                    O
+        # delete_table(table)
+
     # 6. The retrieval of data from the tables-> Complete
-        # get_single_tutor_info()           O
-        # get_admin_info                    O
-        # get_super_user_info               O
-        # get_discipline_shift()            O
-        # get_master_schedule_info()        O
-        # get_roster()                      O
-        # get_disciplines()                 O
-        # get_discipline_shifts_offered()   O
+        # get_single_tutor_info(email)
+        # get_admin_info(email)
+        # get_super_user_info(email)
+        # get_discipline_shift(discipline_number)
+        # get_master_schedule_info(discipline_number)
+        # get_roster()
+        # get_disciplines()
+        # get_discipline_shifts_offered()
+        # get_time_window(block)
+
     # 7. The ability to check if a user exits in the database -> Complete
-        # check_user()              `       O
+        # check_user(email)              `
+
     # 8. The updating of rows in tables -> Complete
-        # update_tutor_status()             O
-        # update_shift_capacity()           O
-        # update_tutoring_disciplines       O
-        # update_this_block_la()            O
-        # update_next_block_la()            O
-        # update_individual_tutor()         O
-        # update_discipline_shifts()        O
-        # update_master_schedule()          O
+        # update_tutor_status(email)
+        # update_shift_capacity(email, new_shift_capacity)
+        # update_tutoring_disciplines(email, disciplines)
+        # update_this_block_la(email)
+        # update_next_block_la(email)
+        # update_individual_tutor(email)
+        # update_discipline_shifts(discipline, shift_number, new_available_tutors)
+        # update_master_schedule(shift_number,all_disciplines, new_assignments)
+        # update_time_window(block)
+
     # 9 Other functions to help with the basic keeping of the database
-        # rebirth()
-        # list_all_tables()
-        # reboot_database()                 O
+        # reconfigure_database(new_disciplines_list)
+        # list_all_tables(exceptions)
+        # reboot_database(all_disciplines, exceptions)
 
 
 # function to create the master_schedule
+# then populates the schedule with all the shifts and empty
 def create_master_schedule(all_disciplines):
     conn = sql.connect('database.db')
     sql_query = 'CREATE TABLE IF NOT EXISTS master_schedule(shift_number INTEGER, '
@@ -78,7 +93,6 @@ def create_discipline_tables(all_disciplines):
 
 # Function to create the tables
 def create_tables(all_disciplines):
-    empty_list = []
     # create a database
     conn = sql.connect('database.db')
     # create superuser table
@@ -90,16 +104,16 @@ def create_tables(all_disciplines):
     # create the admins table
     conn.execute('CREATE TABLE IF NOT EXISTS admins (email TEXT, name TEXT, PRIMARY KEY (email)) ')
     # create the disciplines table
-    conn.execute('CREATE TABLE IF NOT EXISTS disciplines(subject TEXT, available_shifts TEXT, PRIMARY KEY (subject))')
+    conn.execute('CREATE TABLE IF NOT EXISTS disciplines(discipline TEXT, abbreviation TEXT, available_shifts TEXT,'
+                 ' PRIMARY KEY (discipline))')
+    # create the times table
+    conn.execute('CREATE TABLE IF NOT EXISTS times(block INTEGER, start_date DATE, end_date DATE,  PRIMARY KEY (block))')
+    # create the discipline abbreviation table
     # close connection to database
     conn.close()
     # creates the remaining tables (disciplines, and master)
     create_discipline_tables(all_disciplines)
     create_master_schedule(all_disciplines)
-    for discipline in all_disciplines:
-        add_disciplines(discipline, empty_list)
-
-
 
 
 # function that will add tutors to the tutorTable
@@ -167,17 +181,17 @@ def add_admin(name, email):
 
 
 # function that will add rows to the discipline table
-def add_disciplines(subject, shifts):
+def add_discipline(discipline, abbreviation, shifts):
    try:
         with sql.connect("database.db") as con:
             cur = con.cursor()
-            sql_select_query = 'SELECT * FROM disciplines WHERE subject=? '
-            cur.execute(sql_select_query, (subject,))
+            sql_select_query = 'SELECT * FROM disciplines WHERE discipline=? '
+            cur.execute(sql_select_query, (discipline,))
             data = cur.fetchone()
             # If the user doesn't exist
             if data is None:
-                cur.execute('INSERT OR IGNORE INTO disciplines (subject, available_shifts) '
-                            'VALUES(?, ?)', (subject, str(shifts)))
+                cur.execute('INSERT OR IGNORE INTO disciplines (discipline, abbreviation,  available_shifts) '
+                            'VALUES(?, ?, ?)', (discipline, abbreviation, str(shifts)))
                 con.commit()
             # else update the name of the user
             else:
@@ -205,7 +219,7 @@ def add_shifts(discipline, shift_number, available_tutors):
 # add rows to the master schedule
 # take in list of shift assignments and then return the finished schedule
 def add_to_master_schedule(shift_number, all_disciplines, assignments):
-    try:
+    if True :
         with sql.connect("database.db") as con:
             cur = con.cursor()
             t_list = (shift_number,)
@@ -219,8 +233,19 @@ def add_to_master_schedule(shift_number, all_disciplines, assignments):
                 else:
                     values = values + "?)"
                     sql_query = sql_query + all_disciplines[index] + ") "
+
             sql_query = sql_query + values
             cur.execute(sql_query, t_list)
+            con.commit()
+
+
+# Function to add Time window
+def add_time_window(block, start_date, end_date):
+    try:
+        with sql.connect("database.db") as con:
+            cur = con.cursor()
+            sql_query = 'INSERT OR IGNORE INTO time_window(block, start_date, end_date) VALUES (?, ?, ?)'
+            cur.execute(sql_query, (block, start_date, end_date))
             con.commit()
     except:
         con.rollback()
@@ -251,7 +276,7 @@ def delete_tutors(email):
         con.close()
 
 
-# function that will delete admins
+# function that will delete tutors
 def delete_admins(email):
     try:
         with sql.connect("database.db") as con:
@@ -265,7 +290,7 @@ def delete_admins(email):
         con.close()
 
 
-# function that will delete superusers
+# function that will delete tutors
 def delete_superusers(email):
     try:
         with sql.connect("database.db") as con:
@@ -300,16 +325,30 @@ def delete_table(table):
     conn.close()
 
 
-# Function to get the information from a single tutor user
+# Function to delete a times table
+def delete_time_window(block):
+    try:
+        with sql.connect("database.db") as con:
+            cur = con.cursor()
+            # delete the row whose email matches
+            cur.execute('DELETE FROM times WHERE block = ?', (block,))
+            con.commit()
+    except:
+        con.rollback()
+    finally:
+        con.close()
+
+
+# Function to get all the information from a single tutor user
 # Returns the information about the user requested
-def get_single_tutor_info(user):
+def get_single_tutor_info(email):
     try:
         # code to fetch data from the database
         with sql.connect("database.db") as con:
             cur = con.cursor()
             # get the row whose email matches
             sql_search_query = 'SELECT * FROM tutors WHERE email = ?'
-            cur.execute(sql_search_query, (user,))
+            cur.execute(sql_search_query, (email,))
             record = cur.fetchone()
             return record
     except:
@@ -320,14 +359,14 @@ def get_single_tutor_info(user):
 
 # Function to get the information from a single admin user
 # Returns the information about the user requested
-def get_admin_info(user):
+def get_admin_info(email):
     try:
         # code to fetch data from the database
         with sql.connect("database.db") as con:
             cur = con.cursor()
             # get the row whose email matches
             sql_search_query = 'SELECT * FROM admins WHERE email = ?'
-            cur.execute(sql_search_query, (user,))
+            cur.execute(sql_search_query, (email,))
             record = cur.fetchone()
             return record
     except:
@@ -338,14 +377,14 @@ def get_admin_info(user):
 
 # Function to get the information from a single superuser user
 # Returns the information about the user requested
-def get_superuser_info(user):
+def get_superuser_info(email):
     try:
         # code to fetch data from the database
         with sql.connect("database.db") as con:
             cur = con.cursor()
             # get the row whose email matches
             sql_search_query = 'SELECT * FROM superuser WHERE email = ?'
-            cur.execute(sql_search_query, (user,))
+            cur.execute(sql_search_query, (email,))
             record = cur.fetchone()
             return record
     except:
@@ -362,9 +401,7 @@ def get_discipline_shift(discipline, shift_number):
         with sql.connect("database.db") as con:
             cur = con.cursor()
             # get the row whose email matches
-            sql_search_query = 'SELECT * FROM '
-            sql_search_query = sql_search_query + discipline
-            sql_search_query = sql_search_query + ' WHERE shift_number = ?'
+            sql_search_query = 'SELECT * FROM ' + discipline + ' WHERE shift_number = ?'
             cur.execute(sql_search_query, (shift_number,))
             record = cur.fetchone()
             _, res = record
@@ -431,6 +468,7 @@ def get_disciplines():
     finally:
         con.close()
 
+
 # Function that will return which shifts a particular discipline is available for
 def get_discipline_shifts_offered(discipline):
     try:
@@ -438,10 +476,44 @@ def get_discipline_shifts_offered(discipline):
         with sql.connect("database.db") as con:
             cur = con.cursor()
             # get the row whose email matches
-            sql_search_query = 'SELECT * FROM disciplines WHERE subject = ?'
+            sql_search_query = 'SELECT * FROM disciplines WHERE discipline = ?'
             cur.execute(sql_search_query, (discipline,))
             record = cur.fetchone()
-            return list(record)[1]
+            return list(record)[2]
+    except:
+        con.rollback()
+    finally:
+        con.close()
+
+
+# Function to get the time window of a certain block
+def get_time_window(block):
+    try:
+        # code to fetch data from the database
+        with sql.connect("database.db") as con:
+            cur = con.cursor()
+            # get the row whose email matches
+            sql_search_query = 'SELECT * FROM times WHERE block = ?'
+            cur.execute(sql_search_query, (block,))
+            record = cur.fetchone()
+            return record
+    except:
+        con.rollback()
+    finally:
+        con.close()
+
+
+# Function to get the discipline abbreviation
+def get_discipline_abbreviation(discipline):
+    try:
+        # code to fetch data from the database
+        with sql.connect("database.db") as con:
+            cur = con.cursor()
+            # get the row whose email matches
+            sql_search_query = 'SELECT * FROM disciplines WHERE discipline = ?'
+            cur.execute(sql_search_query, (discipline,))
+            record = cur.fetchone()
+            return record[1]
     except:
         con.rollback()
     finally:
@@ -492,12 +564,12 @@ def check_user(user):
 # 6 = next_block_la
 # 7 = individual_tutor
 # Function that will update the user's status
-def update_status(user):
+def update_status(email):
     try:
         with sql.connect("database.db") as con:
             cur = con.cursor()
             sql_select_query = 'SELECT * FROM tutors WHERE email=? '
-            cur.execute(sql_select_query, (user,))
+            cur.execute(sql_select_query, (email,))
             data = cur.fetchone()
             # if the status is active turn it off
             if data[2] == 1:
@@ -507,7 +579,7 @@ def update_status(user):
             else:
                 # do stuff to turn it on
                 update_query = 'UPDATE tutors SET status = 1 WHERE email = ?'
-            cur.execute(update_query, (user,))
+            cur.execute(update_query, (email,))
     except:
         con.rollback()
     finally:
@@ -515,14 +587,14 @@ def update_status(user):
 
 
 # Function to update the user's shift capacity
-def update_shift_capacity(user, new_capacity):
+def update_shift_capacity(email, new_capacity):
     try:
         with sql.connect("database.db") as con:
             cur = con.cursor()
             # do stuff to update capacity to desired capacity
             update_query = 'UPDATE tutors SET shift_capacity =' + str(new_capacity)
             update_query = update_query + ' WHERE email = ?'
-            cur.execute(update_query, (user,))
+            cur.execute(update_query, (email,))
     except:
         con.rollback()
     finally:
@@ -530,14 +602,14 @@ def update_shift_capacity(user, new_capacity):
 
 
 # Function to update the user's tutoring disciplines
-def update_tutoring_disciplines(user, disciplines):
+def update_tutoring_disciplines(email, disciplines):
     try:
         with sql.connect("database.db") as con:
             cur = con.cursor()
             # do stuff to update capacity to desired capacity
             update_query = 'UPDATE tutors SET tutoring_disciplines =? WHERE email = ?'
             disciplines = str(disciplines)
-            cur.execute(update_query, (disciplines, user))
+            cur.execute(update_query, (disciplines, email))
     except:
         con.rollback()
     finally:
@@ -545,12 +617,12 @@ def update_tutoring_disciplines(user, disciplines):
 
 
 # Function to update the user's la status during the current block
-def update_this_block_la(user):
+def update_this_block_la(email):
     try:
         with sql.connect("database.db") as con:
             cur = con.cursor()
             sql_select_query = 'SELECT * FROM tutors WHERE email=? '
-            cur.execute(sql_select_query, (user,))
+            cur.execute(sql_select_query, (email,))
             data = cur.fetchone()
             # if the la status is active turn it off
             if data[4] == 1:
@@ -560,7 +632,7 @@ def update_this_block_la(user):
             else:
                 # do stuff to turn it on
                 update_query = 'UPDATE tutors SET this_block_la = 1 WHERE email = ?'
-            cur.execute(update_query, (user,))
+            cur.execute(update_query, (email,))
     except:
         con.rollback()
     finally:
@@ -568,12 +640,12 @@ def update_this_block_la(user):
 
 
 # Function to update the user's la status during the next block
-def update_next_block_la(user):
+def update_next_block_la(email):
     try:
         with sql.connect("database.db") as con:
             cur = con.cursor()
             sql_select_query = 'SELECT * FROM tutors WHERE email=? '
-            cur.execute(sql_select_query, (user,))
+            cur.execute(sql_select_query, (email,))
             data = cur.fetchone()
             # if the status is active turn it off
             if data[5] == 1:
@@ -583,7 +655,7 @@ def update_next_block_la(user):
             else:
                 # do stuff to turn it on
                 update_query = 'UPDATE tutors SET next_block_la = 1 WHERE email = ?'
-            cur.execute(update_query, (user,))
+            cur.execute(update_query, (email,))
     except:
         con.rollback()
     finally:
@@ -591,12 +663,12 @@ def update_next_block_la(user):
 
 
 # Function to update whether the tutor is doing individual tutoring or not
-def update_individual_tutor(user):
+def update_individual_tutor(email):
     try:
         with sql.connect("database.db") as con:
             cur = con.cursor()
             sql_select_query = 'SELECT * FROM tutors WHERE email=? '
-            cur.execute(sql_select_query, (user,))
+            cur.execute(sql_select_query, (email,))
             data = cur.fetchone()
             # if the status is active turn it off
             if data[6] == 1:
@@ -606,7 +678,7 @@ def update_individual_tutor(user):
             else:
                 # do stuff to turn it on
                 update_query = 'UPDATE tutors SET individual_tutor = 1 WHERE email = ?'
-            cur.execute(update_query, (user,))
+            cur.execute(update_query, (email,))
     except:
         con.rollback()
     finally:
@@ -628,24 +700,76 @@ def update_discipline_shifts(discipline, shift_number, new_available_tutors):
 
 
 # Function to update the master schedule by the shift number
+# will check to see if a shift exists before trying to update
+# else it will create it and fill it with an empty list
 def update_master_schedule(shift_number, disciplines, new_assignments):
     try:
         with sql.connect("database.db") as con:
             cur = con.cursor()
-            params = ()
-            update_query = 'UPDATE master_schedule SET '
-            # loop through the disciplines to get every column
-            for item, discipline in enumerate(disciplines):
-                if item != len(disciplines) - 1:
-                    update_query = update_query + discipline + ' = ?, '
-                else:
-                    update_query = update_query + discipline + ' = ? '
+            sql_select_query = 'SELECT * FROM master_schedule WHERE shift_number=? '
+            cur.execute(sql_select_query, (shift_number,))
+            data = cur.fetchone()
+            # if the data exists
+            if data != None:
+                params = ()
+                update_query = 'UPDATE master_schedule SET '
+                # loop through the disciplines to get every column
+                for item, discipline in enumerate(disciplines):
+                    if item != len(disciplines) - 1:
+                        update_query = update_query + discipline + ' = ?, '
+                    else:
+                        update_query = update_query + discipline + ' = ? '
 
-                params = params + (new_assignments[item],)
+                    params = params + (new_assignments[item],)
 
-            params = params + (shift_number,)
-            update_query = update_query + ' WHERE shift_number = ?'
-            cur.execute(update_query, params)
+                params = params + (shift_number,)
+                update_query = update_query + ' WHERE shift_number = ?'
+                cur.execute(update_query, params)
+            # if data doesn't exist
+            else:
+                insert_params = ()
+                insert_query = 'INSERT INTO master_schedule(shift_number, '
+                values = 'VALUES(?, '
+                # loop through the disciplines to get every column
+                for item, discipline in enumerate(disciplines):
+                    if item != len(disciplines) - 1:
+                        insert_query = insert_query + discipline + ', '
+                        values = values + '?, '
+                    else:
+                        insert_query = insert_query + discipline + ' )'
+                        values = values + ' ?)'
+
+                    insert_params = insert_params + (new_assignments[item],)
+
+                empty_params = (shift_number,) + insert_params
+                insert_query = insert_query + values
+                cur.execute(insert_query, empty_params)
+    except:
+        con.rollback()
+    finally:
+        con.close()
+
+
+# Function to update the time window
+def update_time_window(block, new_start_date, new_end_date):
+    try:
+        with sql.connect("database.db") as con:
+            cur = con.cursor()
+            update_query = 'UPDATE times SET new_start_date = ?, new_end_date = ? WHERE block = ?'
+            cur.execute(update_query, (new_start_date, new_end_date, block))
+    except:
+        con.rollback()
+    finally:
+        con.close()
+
+
+# Function to update the discipline abbreviation
+def update_discipline_abbreviation(discipline, new_abbreviation):
+    try:
+        with sql.connect("database.db") as con:
+            cur = con.cursor()
+            update_query = 'UPDATE disciplines SET abbreviation = ? WHERE discipline = ?'
+            cur.execute(update_query, (new_abbreviation, discipline))
     except:
         con.rollback()
     finally:
@@ -653,7 +777,7 @@ def update_master_schedule(shift_number, disciplines, new_assignments):
 
 
 # Function to reset the database and create all the appropriate tables once a new discipline has been added
-def rebirth(new_disciplines_list):
+def reconfigure_database(new_disciplines_list, new_disciplines_abbreviations):
     # creates the new master_schedule after deleting the old one
     create_new_master_schedule(new_disciplines_list)
     # creates a new table for the new discipline
@@ -662,27 +786,30 @@ def rebirth(new_disciplines_list):
     # get all the current existing tables
     current_disciplines = get_disciplines()
     # iterates through the new discipline list
-    for discipline in new_disciplines_list:
+    for item, discipline in enumerate(new_disciplines_list):
         # if it is new then add it to the discipline table with an empty list
         if discipline not in current_disciplines:
-            add_disciplines(discipline, empty_list)
+            add_discipline(discipline, new_disciplines_abbreviations[item], empty_list)
     print("Rebirth process complete")
 
 
 # Function that will return a list of all tables
-def list_all_tables():
+def list_all_tables(exceptions):
     try:
         with sql.connect("database.db") as con:
             table_list = []
             cur = con.cursor()
-
             sql_query = 'PRAGMA main.table_list'
             cur.execute(sql_query)
             data = list(cur.fetchall())
             for table in data:
-                if table[1] != 'sqlite_schema':
-                    table_list.append(table[1])
-
+                if exceptions == 'Yes':
+                    if table[1] != 'sqlite_schema' and table[1] != 'tutors' and table[1] != 'admins'\
+                            and table[1] != 'superusers':
+                        table_list.append(table[1])
+                else:
+                    if table[1] != 'sqlite_schema':
+                        table_list.append(table[1])
             return table_list
     except:
         con.rollback()
@@ -691,18 +818,18 @@ def list_all_tables():
 
 
 # Function to reboot the database in its entirety (mostly for testing)
-def reboot_database(all_disciplines):
-    all_tables = list_all_tables()
+def reboot_database(all_disciplines, exceptions):
+    all_tables = list_all_tables(exceptions)
     for table in all_tables:
         delete_table(table)
     create_tables(all_disciplines)
-    print("print database reboot completed")
+    print("database reboot completed")
 
 
 if __name__ == '__main__':
     discipline_list = ["CS", "Math", "Econ", "Physics", "CHBC"]
-    empty_list = []
-    non_empty_list = [1, 2, 3, 4, 5, 6, 7]
-    create_tables(discipline_list)
+    discipline_abbreviations = ['CS', 'M', 'E', 'P', 'CHBC']
+    tutors = ['m_padilla@ColoradoCollege.edu', None, None, None, None]
+    reboot_database(discipline_list, 'No')
+    add_discipline('molecular', 'mb', discipline_list)
     print(get_disciplines())
-
