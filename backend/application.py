@@ -1,4 +1,4 @@
-from Database import get_roster, get_master_schedule_info, get_disciplines, check_user, get_discipline_abbreviation
+from Database import get_roster, get_master_schedule_info, get_disciplines, check_user, get_discipline_abbreviation, update_master_schedule
 import time
 from flask import Flask, request, session, redirect, url_for, jsonify
 from cas import CASClient
@@ -10,6 +10,7 @@ from werkzeug.utils import secure_filename
 from utility import replace_chars 
 from flask_jwt import JWT, jwt_required, current_identity
 from security import authenticate, identity
+import json
 
 UPLOAD_FOLDER = '.'
 ALLOWED_EXTENSIONS = {'xls', 'xlsx', 'xlsm', 'xlsb', 'odf', 'ods', 'odt'}
@@ -287,6 +288,19 @@ def get_disciplines_abbreviations():
 @jwt_required()
 def protected():
     return '%s' % current_identity
+
+
+@application.route('/api/route', methods=['POST'])
+def update_tutors_in_master_schedule():
+    result = json.load(request.get_json())
+    for key in result.keys():
+        shift_index, discipline_abbreviation = key.split(',')
+        new_tutor_username = result[key]
+        email = new_tutor_username+"@coloradocollege.edu"
+        user = authenticate(email, "")
+        if user != None:
+            print(user.id, shift_index, discipline_abbreviation)
+            #update_master_schedule(shift_index, get_disciplines(), 
 
     
 
