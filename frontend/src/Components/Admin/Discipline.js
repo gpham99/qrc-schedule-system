@@ -33,14 +33,11 @@ const Discipline = () => {
         "http://52.12.35.11:8080/api/add_discipline",
         {
           method: "POST",
+          mode: "no-cors",
           body: JSON.stringify({
             name: Discipline_Name,
             Abv: Abbreviation,
           }),
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          },
         }
       );
 
