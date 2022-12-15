@@ -36,11 +36,6 @@ cas_client = CASClient(
     server_url='https://cas.coloradocollege.edu/cas/'
 )
 
-@app.route('/time')
-def get_current_time():
-    return {'time': time.time()}
-logout_link = '<p><a href="/cas_logout">Log out of CAS</a></p>'
-
 # EB looks for an 'application' callable by default.
 application = Flask(__name__)
 CORS(application)
