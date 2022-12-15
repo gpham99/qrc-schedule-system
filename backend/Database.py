@@ -26,6 +26,7 @@ import sqlite3 as sql
 # delete_tutors(email)
 # delete_admins(email)
 # delete_superusers(email)
+# delete_discipline(discipline)
 # clear_table(table)
 # delete_time_window(block)
 
@@ -197,7 +198,7 @@ def add_discipline(discipline, abbreviation, shifts):
                 cur.execute('INSERT OR IGNORE INTO disciplines (discipline, abbreviation,  available_shifts) '
                             'VALUES(?, ?, ?)', (discipline, abbreviation, str(shifts)))
                 con.commit()
-                reconfigure_database()
+                # reconfigure_database()
             # else update
             else:
                 update_query = 'UPDATE disciplines SET abbreviation = ?, available_shifts = ? WHERE discipline = ?'
@@ -302,6 +303,19 @@ def delete_superusers(email):
         with sql.connect("database.db") as con:
             cur = con.cursor()
             cur.execute('DELETE FROM superuser WHERE email = ?', (email,))
+            con.commit()
+    except:
+        con.rollback()
+    finally:
+        con.close()
+
+
+# Function to delete a discipline from the disciplines table
+def delete_discipline(discipline):
+    try:
+        with sql.connect("database.db") as con:
+            cur = con.cursor()
+            cur.execute('DELETE FROM disciplines WHERE discipline = ?', (discipline,))
             con.commit()
     except:
         con.rollback()
