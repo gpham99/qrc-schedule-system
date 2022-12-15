@@ -98,7 +98,9 @@ def create_discipline_tables(all_disciplines):
 # Function to create the tables
 def create_tables(all_disciplines):
     # create a database
+    create_master_schedule(all_disciplines)
     conn = sql.connect('database.db')
+
     # create superuser table
     conn.execute('CREATE TABLE IF NOT EXISTS superuser (email TEXT, name TEXT, PRIMARY KEY (email))')
     # create the tutors table
@@ -117,7 +119,7 @@ def create_tables(all_disciplines):
     conn.close()
     # creates the remaining tables (disciplines, and master_schedule)
     create_discipline_tables(all_disciplines)
-    create_master_schedule(all_disciplines)
+
 
 
 # Function that will add tutors to the tutors table
@@ -184,7 +186,7 @@ def add_admin(name, email):
 
 # Function that will add rows to the discipline table
 def add_discipline(discipline, abbreviation, shifts):
-    try:
+    if True:
         with sql.connect("database.db") as con:
             cur = con.cursor()
             sql_select_query = 'SELECT * FROM disciplines WHERE discipline=? '
@@ -198,12 +200,9 @@ def add_discipline(discipline, abbreviation, shifts):
                 reconfigure_database()
             # else update
             else:
-                update_query = 'UPDATE disciplines SET abbreviation = ?, shifts = ? WHERE discipline = ?'
-                cur.execute(update_query, (abbreviation, shifts, discipline))
-    except:
-        con.rollback()
-    finally:
-        con.close()
+                update_query = 'UPDATE disciplines SET abbreviation = ?, available_shifts = ? WHERE discipline = ?'
+                cur.execute(update_query, (abbreviation, str(shifts), discipline))
+
 
 
 # Function to add rows to a specific discipline table
@@ -905,11 +904,13 @@ def reboot_database(all_disciplines, exceptions):
 if __name__ == '__main__':
     discipline_list = ["CS", "Math", "Econ", "Physics", "CHBC"]
     tutors = ['Joe', 'James', None, None, None]
-    reboot_database(discipline_list, 'No')
+    create_tables(discipline_list)
     update_discipline_abbreviation('Math', 'M')
     print(get_abbreviations())
-    print(get_master_schedule_columns())
-    print(list_all_tables('No'))
+    add_discipline('Econ', 'E', [])
+    add_discipline('New_stuff', 'NS', ['Joe'])
+    print(get_abbreviations())
+    print(get_disciplines())
 
 
 # update master_schedule for a single discipline
