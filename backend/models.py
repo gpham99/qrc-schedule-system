@@ -2,21 +2,20 @@ import pandas as pd
 import traceback
 from databaseTest import create_tables, add_tutor
 
-class Tutor:
-    def __init__(self, email, firstname, lastname):
-        self.email = email
-        self.firstname = firstname
-        self.lastname = lastname
+class User:
+    def __init__(self, email, group=None):
+        self.id = email
+        self.group = group
 
     def __repr__(self):
-        return self.email + self.firstname + self.lastname
+        return "User (email=%s, group=%s)"%(self.email, str(self.group))
 
-    def asdict(self):
-        return {
-            'Email': self.email,
-            "Firstname": self.firstname,
-            "Lastname": self.lastname
-        }
+    #def asdict(self):
+    #    return {
+    #        'Email': self.email,
+    #        "Firstname": self.firstname,
+    #        "Lastname": self.lastname
+    #    }
 
 #Method to read in an Excel file and turn it into a legible table
 #roster_file: Accepts a file path or file-like object as the file
@@ -27,7 +26,7 @@ def read_roster(roster_file):
     try:
         full_names = df['first name'] + ' ' + df['last name']
         for i in range(len(df.index)):
-            tutor_tuple = (full_names[i], df['email address'][i])
+            tutor_tuple = (full_names[i], df['email address'][i].lower())
             output.append(tutor_tuple)
     except KeyError:
         return "Error reading file. Please ensure your columns are named \"first name\", \"last name\", and \"email address\"."

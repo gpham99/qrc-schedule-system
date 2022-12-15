@@ -5,4 +5,5 @@ SUBSTITUTIONS = [('_', ' '), ('$', '/')]
 def replace_chars(in_string):
     for to_replace, replacement in SUBSTITUTIONS:
         in_string = in_string.replace(to_replace, replacement)
+
     return in_string

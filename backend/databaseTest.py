@@ -48,6 +48,7 @@ import sqlite3 as sql
 
 
 # function to create the master_schedule
+# then populates the schedule with all the shifts and empty
 def create_master_schedule(all_disciplines):
     conn = sql.connect('database.db')
     sql_query = 'CREATE TABLE IF NOT EXISTS master_schedule(shift_number INTEGER, '
@@ -78,7 +79,6 @@ def create_discipline_tables(all_disciplines):
 
 # Function to create the tables
 def create_tables(all_disciplines):
-    empty_list = []
     # create a database
     conn = sql.connect('database.db')
     # create superuser table
@@ -96,10 +96,6 @@ def create_tables(all_disciplines):
     # creates the remaining tables (disciplines, and master)
     create_discipline_tables(all_disciplines)
     create_master_schedule(all_disciplines)
-    for discipline in all_disciplines:
-        add_disciplines(discipline, empty_list)
-
-
 
 
 # function that will add tutors to the tutorTable
@@ -219,7 +215,9 @@ def add_to_master_schedule(shift_number, all_disciplines, assignments):
                 else:
                     values = values + "?)"
                     sql_query = sql_query + all_disciplines[index] + ") "
+
             sql_query = sql_query + values
+            print(sql_query)
             cur.execute(sql_query, t_list)
             con.commit()
     except:
@@ -300,7 +298,7 @@ def delete_table(table):
     conn.close()
 
 
-# Function to get the information from a single tutor user
+# Function to get all the information from a single tutor user
 # Returns the information about the user requested
 def get_single_tutor_info(user):
     try:
@@ -628,24 +626,50 @@ def update_discipline_shifts(discipline, shift_number, new_available_tutors):
 
 
 # Function to update the master schedule by the shift number
+# will check to see if a shift exists before trying to update
+# else it will create it and fill it with an empty list
 def update_master_schedule(shift_number, disciplines, new_assignments):
     try:
         with sql.connect("database.db") as con:
             cur = con.cursor()
-            params = ()
-            update_query = 'UPDATE master_schedule SET '
-            # loop through the disciplines to get every column
-            for item, discipline in enumerate(disciplines):
-                if item != len(disciplines) - 1:
-                    update_query = update_query + discipline + ' = ?, '
-                else:
-                    update_query = update_query + discipline + ' = ? '
+            sql_select_query = 'SELECT * FROM master_schedule WHERE shift_number=? '
+            cur.execute(sql_select_query, (shift_number,))
+            data = cur.fetchone()
+            # if the data exists
+            if data != None:
+                params = ()
+                update_query = 'UPDATE master_schedule SET '
+                # loop through the disciplines to get every column
+                for item, discipline in enumerate(disciplines):
+                    if item != len(disciplines) - 1:
+                        update_query = update_query + discipline + ' = ?, '
+                    else:
+                        update_query = update_query + discipline + ' = ? '
 
-                params = params + (new_assignments[item],)
+                    params = params + (new_assignments[item],)
 
-            params = params + (shift_number,)
-            update_query = update_query + ' WHERE shift_number = ?'
-            cur.execute(update_query, params)
+                params = params + (shift_number,)
+                update_query = update_query + ' WHERE shift_number = ?'
+                cur.execute(update_query, params)
+            # if data doesn't exist
+            else:
+                insert_params = ()
+                insert_query = 'INSERT INTO master_schedule(shift_number, '
+                values = 'VALUES(?, '
+                # loop through the disciplines to get every column
+                for item, discipline in enumerate(disciplines):
+                    if item != len(disciplines) - 1:
+                        insert_query = insert_query + discipline + ', '
+                        values = values + '?, '
+                    else:
+                        insert_query = insert_query + discipline + ' )'
+                        values = values + ' ?)'
+
+                    insert_params = insert_params + (new_assignments[item],)
+
+                empty_params = (shift_number,) + insert_params
+                insert_query = insert_query + values
+                cur.execute(insert_query, empty_params)
     except:
         con.rollback()
     finally:
@@ -653,7 +677,7 @@ def update_master_schedule(shift_number, disciplines, new_assignments):
 
 
 # Function to reset the database and create all the appropriate tables once a new discipline has been added
-def rebirth(new_disciplines_list):
+def reconfigure_database(new_disciplines_list):
     # creates the new master_schedule after deleting the old one
     create_new_master_schedule(new_disciplines_list)
     # creates a new table for the new discipline
@@ -696,13 +720,26 @@ def reboot_database(all_disciplines):
     for table in all_tables:
         delete_table(table)
     create_tables(all_disciplines)
-    print("print database reboot completed")
+    print("database reboot completed")
+
+
+# Function for testing table copying
+def table_copy(table_name):
+    pass
+
+
 
 
 if __name__ == '__main__':
     discipline_list = ["CS", "Math", "Econ", "Physics", "CHBC"]
+    reboot_database(discipline_list)
     empty_list = []
+    tutors = ["Joe", None, None, None, "james"]
+    new_tutors = ["Jill", "Janet", "July", "Him", "her"]
     non_empty_list = [1, 2, 3, 4, 5, 6, 7]
     create_tables(discipline_list)
-    print(get_disciplines())
+
+    update_master_schedule(1, discipline_list, new_tutors)
+    print(get_master_schedule_info(1))
+    clear_table('master_schedule')
 

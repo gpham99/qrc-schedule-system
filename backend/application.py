@@ -7,7 +7,6 @@ import ast
 import os
 from models import read_roster, User
 from werkzeug.utils import secure_filename
-from utility import replace_chars 
 
 UPLOAD_FOLDER = '.'
 ALLOWED_EXTENSIONS = {'xls', 'xlsx', 'xlsm', 'xlsb', 'odf', 'ods', 'odt'}
@@ -34,6 +33,7 @@ cas_client = CASClient(
     service_url='http://52.12.35.11:8080/',
     server_url='https://cas.coloradocollege.edu/cas/'
 )
+jwt = JWT(application, authenticate, identity)
 
 def allowed_file(filename):
     return '.' in filename and \
@@ -133,7 +133,6 @@ def get_login_status():
     else:
         return {"login_status": "0"}
 
-
 @application.route('/api/master_schedule')
 def get_master_schedule():
     disciplines = get_disciplines()
@@ -159,18 +158,13 @@ def get_master_schedule():
                         if tutor_entry[0] == email: #find the tutor in the roster
                             tutor_found = True
                             discipline_list = ast.literal_eval(tutor_entry[4])
-                            discipline_list.remove(disciplines[d]) #ensure there is no redundant information
-                            #get abbreviations for each discipline
-                            for i in range(len(discipline_list)):
-                                discipline_list[i] = abbreviations[disciplines.index(discipline_list[i])]
-                            #output_str = "/".join(discipline_list) + ": " + str(tutor_entry[1])
-                            output_dict = {"tutor": tutor_entry[1],
-                                    "discipline": abbreviations[d],
-                                    "other_disciplines": "/".join(discipline_list)}
-                            shift_list.append(output_dict)
+                            for i in range(len(discipline_list)): 
+                                if discipline_list[i] == 'CHMB':
+                                    discipline_list[i] = 'CH/MB'
+                            output_str = "/".join(discipline_list) + ": " + str(tutor_entry[1])
+                            master_schedule_with_disciplines[str(shift_num)+disciplines[d]] = output_str
                     if not tutor_found:
                         print("Warning: One tutor (", email, ") not found in database. Omitting corresponding shift.")
-            master_schedule_with_disciplines[shift_num] = shift_list
         shift_num += 1
     return master_schedule_with_disciplines
 
@@ -216,7 +210,28 @@ def upload_roster():
         result = read_roster(filename)
         print(result)
         return result
-    return "File format not accepted"
+    return "File format not accepted"""
+
+@application.route('/unauthorized_login')
+def unauthorized_login():
+    return "You have successfully logged in to Colorado College, but your account is not part of the QRC database. \n Please contact QRC administrators if you believe this is an error. " + logout_link
+
+@application.route('/api/add_remove_disciplines')
+def get_disciplines_abbreviations():
+    disciplines = get_disciplines()
+    discipline_schedule_with_abv = []
+    for discipline in disciplines:
+        abbreviation = get_discipline_abbreviation(discipline)
+        abbreviation = replace_chars(abbreviation)
+        discipline_schedule_with_abv.append([discipline, abbreviation])
+
+    return discipline_schedule_with_abv
+
+
+@application.route('/protected')
+@jwt_required()
+def protected():
+    return '%s' % current_identity
 
 @application.route('/api/add_discipline', methods=['POST'])
 def add_discipline():
@@ -225,13 +240,6 @@ def add_discipline():
     print("DSDLFSFDS", discipline_name)
     print("SDFSDFDS", discipline_abbreviation)
     add_discipline(discipline_name, discipline_abbreviation, [])
-
-    
-
-@application.route('/unauthorized_login')
-def unauthorized_login():
-    return "You have successfully logged in to Colorado College, but your account is not part of the QRC database. \n Please contact QRC administrators if you believe this is an error. " + logout_link
-    
 
 # # run the app.
 # if __name__ == "__main__":
