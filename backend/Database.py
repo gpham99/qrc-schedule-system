@@ -1,6 +1,6 @@
 import sqlite3 as sql
-import datetime
-import time
+# import datetime
+# import time
 # The Database file includes:
 
 # 1. the creation of tables
@@ -55,6 +55,8 @@ import time
 # update_discipline_shifts(discipline, shift_number, new_available_tutors)
 # update_master_schedule(shift_number,all_disciplines, new_assignments)
 # update_time_window(block, start_time, end_time)
+# update_discipline_abbreviation(discipline, abbreviation)
+#
 
 # 9 Other functions to help with the basic keeping of the database
 # reconfigure_database(new_disciplines_list)
@@ -86,7 +88,9 @@ def add_new_discipline_table(discipline_name):
 # Function to take in discipline list and create all the disciplines tables
 def create_discipline_tables(all_disciplines):
     for discipline in all_disciplines:
+        empty_list = []
         add_new_discipline_table(discipline)
+        add_discipline(discipline, '    ', empty_list)
 
 
 # Function to create the tables
@@ -189,9 +193,11 @@ def add_discipline(discipline, abbreviation, shifts):
                 cur.execute('INSERT OR IGNORE INTO disciplines (discipline, abbreviation,  available_shifts) '
                             'VALUES(?, ?, ?)', (discipline, abbreviation, str(shifts)))
                 con.commit()
-            # else do nothing
+                reconfigure_database()
+            # else update
             else:
-                pass
+                update_query = 'UPDATE disciplines SET abbreviation = ?, shifts = ? WHERE discipline = ?'
+                cur.execute(update_query, (abbreviation, shifts, discipline))
     except:
         con.rollback()
     finally:
@@ -515,6 +521,22 @@ def get_discipline_abbreviation(discipline):
         con.close()
 
 
+# Function to get the column names of the master_schedule
+def get_master_schedule_columns():
+    if True:
+        with sql.connect("database.db") as con:
+            cur = con.cursor()
+            sql_query = 'PRAGMA table_info(master_schedule)'
+            cur.execute(sql_query)
+            record = cur.fetchall()
+            name_list = []
+            for column in record:
+                number, name, _, _, _, _ = column
+                if number != 0:
+                    name_list.append(name)
+            return name_list
+
+
 # function to check if the user is in the system
 # Will return a boolean based on answer as well as the table the user has access to
 def check_user(user):
@@ -691,6 +713,19 @@ def update_discipline_shifts(discipline, shift_number, new_available_tutors):
         con.close()
 
 
+# Function to update what shifts certain disciplines are available for tutoring
+def update_discipline_shift_availability(discipline, new_available_shifts):
+    try:
+        with sql.connect("database.db") as con:
+            cur = con.cursor()
+            update_query = 'UPDATE disciplines SET shifts = ? WHERE discipline = ?'
+            cur.execute(update_query, (new_available_shifts, discipline))
+    except:
+        con.rollback()
+    finally:
+        con.close()
+
+
 # Function to update the master schedule by the shift number
 # will check to see if a shift exists before trying to update
 # else it will create it and fill it with an empty list
@@ -768,23 +803,6 @@ def update_discipline_abbreviation(discipline, new_abbreviation):
         con.close()
 
 
-# Function to reset the database and create all the appropriate tables once a new discipline has been added
-def reconfigure_database(new_disciplines_list, new_disciplines_abbreviations):
-    # creates the new master_schedule after deleting the old one
-    create_new_master_schedule(new_disciplines_list)
-    # creates a new table for the new discipline
-    create_discipline_tables(new_disciplines_list)
-    empty_list = []
-    # get all the current existing tables
-    current_disciplines = get_disciplines()
-    # iterates through the new discipline list
-    for item, discipline in enumerate(new_disciplines_list):
-        # if it is new then add it to the discipline table with an empty list
-        if discipline not in current_disciplines:
-            add_discipline(discipline, new_disciplines_abbreviations[item], empty_list)
-    print("Rebirth process complete")
-
-
 # Function that will return a list of all tables
 def list_all_tables(exceptions):
     try:
@@ -807,6 +825,20 @@ def list_all_tables(exceptions):
         con.rollback()
     finally:
         con.close()
+
+
+# Function to reset the master_schedule and create all the appropriate tables once a new discipline has been added
+def reconfigure_database():
+    disciplines_list = get_disciplines()
+    tables_list = list_all_tables('No')
+    allowed_list = []
+    # iterates through the new discipline list
+    for discipline in disciplines_list:
+        if discipline not in tables_list:
+            add_new_discipline_table(discipline)
+        allowed_list.append(discipline)
+    create_new_master_schedule(allowed_list)
+    print("Reconfiguration Process Complete")
 
 
 # Function that will compare current_time to the times saved in the time_window for a particular block
@@ -840,4 +872,11 @@ def reboot_database(all_disciplines, exceptions):
 if __name__ == '__main__':
     discipline_list = ["CS", "Math", "Econ", "Physics", "CHBC"]
     reboot_database(discipline_list, 'No')
+    print(get_master_schedule_columns())
+    add_discipline('Cosmic_studies', 'CMS', [])
+    print(get_master_schedule_columns())
+    add_discipline('Gender_studies', 'GS', [])
+    print(get_master_schedule_columns())
 
+
+# update master_schedule for a single discipline 
