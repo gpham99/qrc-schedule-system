@@ -2,18 +2,29 @@ import React, { useState, useEffect, useRef } from "react";
 import { exportComponentAsJPEG } from "react-component-export-image";
 
 const Schedule = () => {
+  const [isChanged, setIsChanged] = useState({});
   const [masterSchedule, setMasterSchedule] = useState({});
+  const [editedSchedule, setEdittedSchedule] = useState({});
+  const [editMode, setEditMode] = useState(0);
   const componentRef = useRef();
 
   useEffect(() => {
     fetch("http://52.12.35.11:8080/api/master_schedule")
       .then((res) => res.json())
       .then((data) => {
-        console.log("data: ", data);
         setMasterSchedule(data);
-        console.log("ms: ", masterSchedule);
       });
   }, []);
+
+  const toggleEditMode = (event) => {
+    event.preventDefault();
+    setEditMode(1 - editMode);
+  };
+
+  const submitChange = (event) => {
+    event.preventDefault();
+    console.log(editedSchedule);
+  };
 
   return (
     <div className="container align-items-center bg-light p-4">
@@ -24,18 +35,30 @@ const Schedule = () => {
       ) : (
         <>
           <div className="d-flex justify-content-center p-4">
-            <section>
-              <p className="text-left">
-                This is the aggregated view of the master schedule.
-              </p>
-              <p className="text-left">To make changes, go to Edit.</p>
-            </section>
+            {editMode === 0 ? (
+              <section>
+                <p className="text-left">
+                  This is the aggregated view of the master schedule.
+                </p>
+                <p className="text-left">To make changes, go to Edit.</p>
+              </section>
+            ) : (
+              <section>
+                <p className="text-left">
+                  This is the editable view of the master schedule.
+                </p>
+                <p className="text-left">
+                  Please communicate with the respective tutor before making
+                  changes.
+                </p>
+              </section>
+            )}
           </div>
 
           {/* pencil button */}
           <div className="d-flex justify-content-end pl-4 pr-4">
-            <a href="#">
-              <button className="btn btn-info">
+            {editMode === 0 ? (
+              <button className="btn btn-info" onClick={toggleEditMode}>
                 <span className="p-1"> Edit </span>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -52,49 +75,110 @@ const Schedule = () => {
                   />
                 </svg>
               </button>
-            </a>
+            ) : (
+              <button className="btn btn-info" onClick={toggleEditMode}>
+                Cancel
+              </button>
+            )}
           </div>
 
           {/* uneditable skeleton of master schedule */}
-          <div className="p-4 table-responsive" ref={componentRef}>
+          <div className="pr-4 pl-4 table-responsive" ref={componentRef}>
             <div class="p-3">
               <h5>Block 4 Drop-In Schedule</h5>
             </div>
             <table className="table table-bordered table-sm">
               <thead className="table-dark">
                 <tr>
-                  <th className="col-sm-2" scope="col"></th>
-                  <th className="col-sm-2" scope="col">
-                    Sunday
-                  </th>
-                  <th className="col-sm-2" scope="col">
-                    Monday
-                  </th>
-                  <th className="col-sm-2" scope="col">
-                    Tuesday
-                  </th>
-                  <th className="col-sm-2" scope="col">
-                    Wednesday
-                  </th>
-                  <th className="col-sm-2" scope="col">
-                    Thursday
-                  </th>
+                  <th scope="col"></th>
+                  <th scope="col">Sunday</th>
+                  <th scope="col">Monday</th>
+                  <th scope="col">Tuesday</th>
+                  <th scope="col">Wednesday</th>
+                  <th scope="col">Thursday</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
-                  <td scope="row">2-4 PM</td>
+                  <td>2-4 PM</td>
                   {[0, 1, 2, 3, 4]?.map((num) => (
                     <td key={num}>
                       <div class="d-flex flex-column">
-                        {masterSchedule[num]?.map((shift_tutor) => (
-                          <div class="m-1 text-left">
-                            <span class="text-success">
-                              {shift_tutor["discipline"]}
-                            </span>
-                            /{shift_tutor["other_disciplines"]}:{" "}
-                            {shift_tutor["tutor"].split(" ")[0]}
-                          </div>
+                        {masterSchedule[num]?.map((shift_tutor, index) => (
+                          <>
+                            {editMode === 0 ? (
+                              <>
+                                {shift_tutor["tutor"] && (
+                                  <div class="m-1 text-left">
+                                    <span class="text-success">
+                                      {shift_tutor["discipline"]}
+                                    </span>
+                                    /{shift_tutor["other_disciplines"]}:{" "}
+                                    {shift_tutor["tutor"].split(" ")[0]}
+                                  </div>
+                                )}
+                              </>
+                            ) : (
+                              <div class="m-1 text-left d-flex flex-row align-items-center">
+                                <div class="text-successs w-50">
+                                  {shift_tutor["discipline"]}
+                                </div>
+                                <div>
+                                  <input
+                                    class="form-control form-control-sm"
+                                    type="text"
+                                    value={
+                                      masterSchedule[num][index][
+                                        "email"
+                                      ]?.split("@")[0]
+                                    }
+                                    style={{
+                                      borderColor: isChanged[num + "," + index]
+                                        ? "red"
+                                        : "",
+                                    }}
+                                    onChange={(e) => {
+                                      let new_email = e.target.value;
+                                      let master_schedule_copy = {
+                                        ...masterSchedule,
+                                      };
+                                      master_schedule_copy[num][index][
+                                        "email"
+                                      ] = new_email;
+                                      setMasterSchedule(master_schedule_copy);
+
+                                      let d_key =
+                                        num + "," + shift_tutor["discipline"];
+                                      let d_copy = { ...editedSchedule };
+                                      d_copy[d_key] = e.target.value;
+                                      setEdittedSchedule(d_copy);
+
+                                      let isChanged_copy = { ...isChanged };
+                                      isChanged_copy[num + "," + index] = true;
+
+                                      // console.log(
+                                      //   masterSchedule[num][index]["email"]
+                                      // );
+                                      // console.log(
+                                      //   "this shdnt change: ",
+                                      //   unChangedMasterSchedule[num][index][
+                                      //     "email"
+                                      //   ]
+                                      // );
+                                      // console.log(
+                                      //   "is the current value equal to the original one ",
+                                      //   masterSchedule[num][index]["email"] ===
+                                      //     unChangedMasterSchedule[num][index][
+                                      //       "email"
+                                      //     ]
+                                      // );
+                                      setIsChanged(isChanged_copy);
+                                    }}
+                                  />
+                                </div>
+                              </div>
+                            )}
+                          </>
                         ))}
                       </div>
                     </td>
@@ -102,54 +186,177 @@ const Schedule = () => {
                 </tr>
 
                 <tr>
-                  <td scope="row">4-6 PM</td>
+                  <td>4-6 PM</td>
                   {[5, 6, 7, 8, 9]?.map((num) => (
                     <td key={num}>
                       <div class="d-flex flex-column">
-                        {masterSchedule[num]?.map((shift_tutor) => (
-                          <div class="m-1 text-left">
-                            <span class="text-success">
-                              {shift_tutor["discipline"]}
-                            </span>
-                            /{shift_tutor["other_disciplines"]}:{" "}
-                            {shift_tutor["tutor"].split(" ")[0]}
-                          </div>
+                        {masterSchedule[num]?.map((shift_tutor, index) => (
+                          <>
+                            {editMode === 0 ? (
+                              <>
+                                {shift_tutor["tutor"] && (
+                                  <div class="m-1 text-left">
+                                    <span class="text-success">
+                                      {shift_tutor["discipline"]}
+                                    </span>
+                                    /{shift_tutor["other_disciplines"]}:{" "}
+                                    {shift_tutor["tutor"].split(" ")[0]}
+                                  </div>
+                                )}
+                              </>
+                            ) : (
+                              <div class="m-1 text-left d-flex flex-row align-items-center">
+                                <div class="text-successs w-50">
+                                  {shift_tutor["discipline"]}
+                                </div>
+                                <div>
+                                  <input
+                                    class="form-control form-control-sm"
+                                    type="text"
+                                    value={
+                                      masterSchedule[num][index][
+                                        "email"
+                                      ]?.split("@")[0]
+                                    }
+                                    onChange={(e) => {
+                                      let new_email = e.target.value;
+                                      let master_schedule_copy = {
+                                        ...masterSchedule,
+                                      };
+                                      master_schedule_copy[num][index][
+                                        "email"
+                                      ] = new_email;
+                                      setMasterSchedule(master_schedule_copy);
+
+                                      let d_key =
+                                        num + "," + shift_tutor["discipline"];
+                                      let d_copy = { ...editedSchedule };
+                                      d_copy[d_key] = e.target.value;
+                                      setEdittedSchedule(d_copy);
+                                    }}
+                                  />
+                                </div>
+                              </div>
+                            )}
+                          </>
                         ))}
                       </div>
                     </td>
                   ))}
                 </tr>
                 <tr>
-                  <td scope="row">6-8 PM</td>
+                  <td>6-8 PM</td>
                   {[10, 11, 12, 13, 14]?.map((num) => (
                     <td key={num}>
                       <div class="d-flex flex-column">
-                        {masterSchedule[num]?.map((shift_tutor) => (
-                          <div class="m-1 text-left">
-                            <span class="text-success">
-                              {shift_tutor["discipline"]}
-                            </span>
-                            /{shift_tutor["other_disciplines"]}:{" "}
-                            {shift_tutor["tutor"].split(" ")[0]}
-                          </div>
+                        {masterSchedule[num]?.map((shift_tutor, index) => (
+                          <>
+                            {editMode === 0 ? (
+                              <>
+                                {shift_tutor["tutor"] && (
+                                  <div class="m-1 text-left">
+                                    <span class="text-success">
+                                      {shift_tutor["discipline"]}
+                                    </span>
+                                    /{shift_tutor["other_disciplines"]}:{" "}
+                                    {shift_tutor["tutor"].split(" ")[0]}
+                                  </div>
+                                )}
+                              </>
+                            ) : (
+                              <div class="m-1 text-left d-flex flex-row align-items-center">
+                                <div class="text-successs w-50">
+                                  {shift_tutor["discipline"]}
+                                </div>
+                                <div>
+                                  <input
+                                    class="form-control form-control-sm"
+                                    type="text"
+                                    value={
+                                      masterSchedule[num][index][
+                                        "email"
+                                      ]?.split("@")[0]
+                                    }
+                                    onChange={(e) => {
+                                      let new_email = e.target.value;
+                                      let master_schedule_copy = {
+                                        ...masterSchedule,
+                                      };
+                                      master_schedule_copy[num][index][
+                                        "email"
+                                      ] = new_email;
+                                      setMasterSchedule(master_schedule_copy);
+
+                                      let d_key =
+                                        num + "," + shift_tutor["discipline"];
+                                      let d_copy = { ...editedSchedule };
+                                      d_copy[d_key] = e.target.value;
+                                      setEdittedSchedule(d_copy);
+                                    }}
+                                  />
+                                </div>
+                              </div>
+                            )}
+                          </>
                         ))}
                       </div>
                     </td>
                   ))}
                 </tr>
                 <tr>
-                  <td scope="row">8-10 PM</td>
+                  <td>8-10 PM</td>
                   {[15, 16, 17, 18, 19]?.map((num) => (
                     <td key={num}>
                       <div class="d-flex flex-column">
-                        {masterSchedule[num]?.map((shift_tutor) => (
-                          <div class="m-1 text-left">
-                            <span class="text-success">
-                              {shift_tutor["discipline"]}
-                            </span>
-                            /{shift_tutor["other_disciplines"]}:{" "}
-                            {shift_tutor["tutor"].split(" ")[0]}
-                          </div>
+                        {masterSchedule[num]?.map((shift_tutor, index) => (
+                          <>
+                            {editMode === 0 ? (
+                              <>
+                                {shift_tutor["tutor"] && (
+                                  <div class="m-1 text-left">
+                                    <span class="text-success">
+                                      {shift_tutor["discipline"]}
+                                    </span>
+                                    /{shift_tutor["other_disciplines"]}:{" "}
+                                    {shift_tutor["tutor"].split(" ")[0]}
+                                  </div>
+                                )}
+                              </>
+                            ) : (
+                              <div class="m-1 text-left d-flex flex-row align-items-center">
+                                <div class="text-successs w-50">
+                                  {shift_tutor["discipline"]}
+                                </div>
+                                <div>
+                                  <input
+                                    class="form-control form-control-sm"
+                                    type="text"
+                                    value={
+                                      masterSchedule[num][index][
+                                        "email"
+                                      ]?.split("@")[0]
+                                    }
+                                    onChange={(e) => {
+                                      let new_email = e.target.value;
+                                      let master_schedule_copy = {
+                                        ...masterSchedule,
+                                      };
+                                      master_schedule_copy[num][index][
+                                        "email"
+                                      ] = new_email;
+                                      setMasterSchedule(master_schedule_copy);
+
+                                      let d_key =
+                                        num + "," + shift_tutor["discipline"];
+                                      let d_copy = { ...editedSchedule };
+                                      d_copy[d_key] = e.target.value;
+                                      setEdittedSchedule(d_copy);
+                                    }}
+                                  />
+                                </div>
+                              </div>
+                            )}
+                          </>
                         ))}
                       </div>
                     </td>
@@ -159,16 +366,26 @@ const Schedule = () => {
             </table>
           </div>
 
-          <div className="p-4">
-            <button
-              type="button"
-              className="btn btn-secondary"
-              onClick={() => {
-                exportComponentAsJPEG(componentRef);
-              }}
-            >
-              Export schedule
-            </button>
+          <div className="p-2">
+            {editMode === 0 ? (
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={() => {
+                  exportComponentAsJPEG(componentRef);
+                }}
+              >
+                Export schedule
+              </button>
+            ) : (
+              <button
+                type="button"
+                className="btn btn-info"
+                onClick={submitChange}
+              >
+                Save
+              </button>
+            )}
           </div>
         </>
       )}
