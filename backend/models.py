@@ -4,7 +4,7 @@ from databaseTest import create_tables, add_tutor
 
 class User:
     def __init__(self, email, group=None):
-        self.email = email
+        self.id = email
         self.group = group
 
     def __repr__(self):

@@ -8,6 +8,8 @@ import os
 from models import read_roster, User
 from werkzeug.utils import secure_filename
 from utility import replace_chars 
+from flask_jwt import JWT, jwt_required, current_identity
+from security import authenticate, identity
 
 UPLOAD_FOLDER = '.'
 ALLOWED_EXTENSIONS = {'xls', 'xlsx', 'xlsm', 'xlsb', 'odf', 'ods', 'odt'}
@@ -34,6 +36,7 @@ cas_client = CASClient(
     service_url='http://52.12.35.11:8080/',
     server_url='https://cas.coloradocollege.edu/cas/'
 )
+jwt = JWT(application, authenticate, identity)
 
 def allowed_file(filename):
     return '.' in filename and \
@@ -245,6 +248,13 @@ def get_disciplines_abbreviations():
         discipline_schedule_with_abv.append([discipline, abbreviation])
 
     return discipline_schedule_with_abv
+
+
+@application.route('/protected')
+@jwt_required()
+def protected():
+    return '%s' % current_identity
+
     
 
 # # run the app.
