@@ -3,9 +3,16 @@ import traceback
 from databaseTest import create_tables, add_tutor
 
 class User:
-    def __init__(self, email, group=None):
+    def __init__(self, email, group=None, status = 0, shift_capacity=1, tutoring_disciplines=[],\
+        this_block_la=0, next_block_la=0, individual_tutor=0):
         self.id = email
         self.group = group
+        self.status = status
+        self.shift_capacity = shift_capacity
+        self.disciplines = tutoring_disciplines
+        self.this_block_la = this_block_la
+        self.next_block_la = next_block_la
+        self.individual_tutor = individual_tutor
 
     def __repr__(self):
         return "User (email=%s, group=%s)"%(self.email, str(self.group))

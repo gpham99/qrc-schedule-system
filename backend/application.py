@@ -266,12 +266,16 @@ def update_tutors_in_master_schedule():
             result += "Shift removed successfully\n"
         else:
             user = authenticate(new_tutor_username, "")
-            if user != None:
-                print(user.id, shift_index, discipline_abbreviation)
-                update_master_schedule_single_discipline(shift_index, disciplines[abbreviations.index(discipline_abbreviation)], user.id)
-                result += "Shift for " + user.id + " added successfully\n"
+            if user != None and user.group == "tutor":
+                #print(user.id, shift_index, discipline_abbreviation)
+                discipline_to_change = disciplines[abbreviations.index(discipline_abbreviation)]
+                if discipline_to_change in user.disciplines:
+                    update_master_schedule_single_discipline(shift_index, discipline_to_change, user.id)
+                    result += "Shift for " + user.id + " added successfully\n"
+                else:
+                    result += "Error: Tutor " + user.id + " is not eligible to tutor " + replace_chars(discipline_to_change)
             else:
-                result += user.id + " not found in database, please check your spelling\n"
+                result += "Error: " + user.id + " not found in database, please check your spelling\n"
     return result
         
     
