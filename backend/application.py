@@ -268,11 +268,10 @@ def update_tutors_in_master_schedule():
     for key in result.keys():
         shift_index, discipline_abbreviation = key.split(',')
         new_tutor_username = result[key]
-        email = new_tutor_username+"@coloradocollege.edu"
-        user = authenticate(email, "")
+        user = authenticate(new_tutor_username, "")
         if user != None:
             print(user.id, shift_index, discipline_abbreviation)
-            update_master_schedule_single_discipline(shift_index, get_disciplines, user.id)
+            update_master_schedule_single_discipline(shift_index, disciplines[abbreviations.index(discipline_abbreviation)], user.id)
 
     
 @application.route('/api/add_discipline', methods=['POST'])
