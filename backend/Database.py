@@ -40,7 +40,9 @@ import sqlite3 as sql
 # get_master_schedule_info(discipline_number)
 # get_roster()
 # get_disciplines()
-# get_discipline_shifts_offered()
+# get_abbreviations()
+# get_discipline_shifts_offered(discipline)
+# get_discipline_abbreviation(discipline)
 # get_time_window(block)
 
 # 7. The ability to check if a user exits in the database
@@ -57,7 +59,6 @@ import sqlite3 as sql
 # update_master_schedule(shift_number,all_disciplines, new_assignments)
 # update_time_window(block, start_time, end_time)
 # update_discipline_abbreviation(discipline, abbreviation)
-#
 
 # 9 Other functions to help with the basic keeping of the database
 # reconfigure_database(new_disciplines_list)
@@ -282,7 +283,7 @@ def delete_tutors(email):
         con.close()
 
 
-# function that will delete tutors
+# function that will delete admins
 def delete_admins(email):
     try:
         with sql.connect("database.db") as con:
@@ -295,7 +296,7 @@ def delete_admins(email):
         con.close()
 
 
-# function that will delete tutors
+# function that will delete superusers
 def delete_superusers(email):
     try:
         with sql.connect("database.db") as con:
@@ -308,7 +309,7 @@ def delete_superusers(email):
         con.close()
 
 
-# clears every row in the master schedule
+# clears every row in a table
 def clear_table(table):
     try:
         with sql.connect("database.db") as con:
@@ -492,6 +493,7 @@ def get_abbreviations():
         con.rollback()
     finally:
         con.close()
+
 
 # Function that will return which shifts a particular discipline is available for
 def get_discipline_shifts_offered(discipline):
@@ -906,6 +908,8 @@ if __name__ == '__main__':
     reboot_database(discipline_list, 'No')
     update_discipline_abbreviation('Math', 'M')
     print(get_abbreviations())
+    print(get_master_schedule_columns())
+    print(list_all_tables('No'))
 
 
 # update master_schedule for a single discipline
