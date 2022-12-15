@@ -263,19 +263,6 @@ def add_discipline():
     print("SDFSDFDS", discipline_abbreviation)
     add_discipline(discipline_name, discipline_abbreviation, [])
 
-@application.route('/api/add_remove_disciplines')
-def get_disciplines_abbreviations():
-    disciplines = get_disciplines()
-    discipline_schedule_with_abv = []
-    for discipline in disciplines:
-        abbreviation = get_discipline_abbreviation(discipline)
-        abbreviation = replace_chars(abbreviation)
-        discipline_schedule_with_abv.append([discipline, abbreviation])
-
-    return discipline_schedule_with_abv
-
-    
-
 # # run the app.
 # if __name__ == "__main__":
 #     # Setting debug to True enables debug output. This line should be
