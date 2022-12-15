@@ -23,6 +23,7 @@ const Schedule = () => {
     setEditMode(1 - editMode);
     setIsChanged({});
     setMasterSchedule(structuredClone(unChangedMasterSchedule));
+    setEdittedSchedule({});
   };
 
   const submitChange = (event) => {
@@ -154,12 +155,6 @@ const Schedule = () => {
                                       ] = new_email;
                                       setMasterSchedule(master_schedule_copy);
 
-                                      let d_key =
-                                        num + "," + shift_tutor["discipline"];
-                                      let d_copy = { ...editedSchedule };
-                                      d_copy[d_key] = e.target.value;
-                                      setEdittedSchedule(d_copy);
-
                                       let isChanged_copy = { ...isChanged };
                                       let isSame =
                                         (unChangedMasterSchedule[num][index][
@@ -175,6 +170,17 @@ const Schedule = () => {
                                       isChanged_copy[num + "," + index] =
                                         !isSame;
                                       setIsChanged(isChanged_copy);
+
+                                      let d_key =
+                                        num + "," + shift_tutor["discipline"];
+                                      let d_copy = { ...editedSchedule };
+                                      if (isSame === false) {
+                                        d_copy[d_key] = e.target.value;
+                                        setEdittedSchedule(d_copy);
+                                      } else {
+                                        delete d_copy[d_key];
+                                        setEdittedSchedule(d_copy);
+                                      }
                                     }}
                                   />
                                 </div>
@@ -238,12 +244,6 @@ const Schedule = () => {
                                       ] = new_email;
                                       setMasterSchedule(master_schedule_copy);
 
-                                      let d_key =
-                                        num + "," + shift_tutor["discipline"];
-                                      let d_copy = { ...editedSchedule };
-                                      d_copy[d_key] = e.target.value;
-                                      setEdittedSchedule(d_copy);
-
                                       let isChanged_copy = { ...isChanged };
                                       let isSame =
                                         (unChangedMasterSchedule[num][index][
@@ -259,6 +259,17 @@ const Schedule = () => {
                                       isChanged_copy[num + "," + index] =
                                         !isSame;
                                       setIsChanged(isChanged_copy);
+
+                                      let d_key =
+                                        num + "," + shift_tutor["discipline"];
+                                      let d_copy = { ...editedSchedule };
+                                      if (isSame === false) {
+                                        d_copy[d_key] = e.target.value;
+                                        setEdittedSchedule(d_copy);
+                                      } else {
+                                        delete d_copy[d_key];
+                                        setEdittedSchedule(d_copy);
+                                      }
                                     }}
                                   />
                                 </div>
@@ -321,12 +332,6 @@ const Schedule = () => {
                                       ] = new_email;
                                       setMasterSchedule(master_schedule_copy);
 
-                                      let d_key =
-                                        num + "," + shift_tutor["discipline"];
-                                      let d_copy = { ...editedSchedule };
-                                      d_copy[d_key] = e.target.value;
-                                      setEdittedSchedule(d_copy);
-
                                       let isChanged_copy = { ...isChanged };
                                       let isSame =
                                         (unChangedMasterSchedule[num][index][
@@ -342,6 +347,17 @@ const Schedule = () => {
                                       isChanged_copy[num + "," + index] =
                                         !isSame;
                                       setIsChanged(isChanged_copy);
+
+                                      let d_key =
+                                        num + "," + shift_tutor["discipline"];
+                                      let d_copy = { ...editedSchedule };
+                                      if (isSame === false) {
+                                        d_copy[d_key] = e.target.value;
+                                        setEdittedSchedule(d_copy);
+                                      } else {
+                                        delete d_copy[d_key];
+                                        setEdittedSchedule(d_copy);
+                                      }
                                     }}
                                   />
                                 </div>
@@ -404,12 +420,6 @@ const Schedule = () => {
                                       ] = new_email;
                                       setMasterSchedule(master_schedule_copy);
 
-                                      let d_key =
-                                        num + "," + shift_tutor["discipline"];
-                                      let d_copy = { ...editedSchedule };
-                                      d_copy[d_key] = e.target.value;
-                                      setEdittedSchedule(d_copy);
-
                                       let isChanged_copy = { ...isChanged };
                                       let isSame =
                                         (unChangedMasterSchedule[num][index][
@@ -425,6 +435,17 @@ const Schedule = () => {
                                       isChanged_copy[num + "," + index] =
                                         !isSame;
                                       setIsChanged(isChanged_copy);
+
+                                      let d_key =
+                                        num + "," + shift_tutor["discipline"];
+                                      let d_copy = { ...editedSchedule };
+                                      if (isSame === false) {
+                                        d_copy[d_key] = e.target.value;
+                                        setEdittedSchedule(d_copy);
+                                      } else {
+                                        delete d_copy[d_key];
+                                        setEdittedSchedule(d_copy);
+                                      }
                                     }}
                                   />
                                 </div>
