@@ -257,8 +257,8 @@ def protected():
 
 @application.route('/api/add_discipline', methods=['POST'])
 def add_discipline():
-    discipline_name = request.body['Name']
-    discipline_abbreviation = request.body['Abv']
+    discipline_name = request.data['Name']
+    discipline_abbreviation = request.data['Abv']
     print("DSDLFSFDS", discipline_name)
     print("SDFSDFDS", discipline_abbreviation)
     add_discipline(discipline_name, discipline_abbreviation, [])
