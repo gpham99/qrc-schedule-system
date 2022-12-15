@@ -14,24 +14,47 @@ const Discipline = () => {
       });
   }, []);
 
-  var Name = "";
-  var Abv = "";
+  var Discipline_Name = "";
+  var Abbreviation = "";
 
   function HandleName(event) {
     event.preventDefault();
-    Name = event.target.value;
+    Discipline_Name = event.target.value;
   }
 
   function HandleAbv(event) {
     event.preventDefault();
-    Abv = event.target.value;
+    Abbreviation = event.target.value;
   }
 
-  function OnSubmit(event) {
-    event.preventDefault();
-    console.log(Name);
-    console.log(Abv);
-  }
+  const handleClick = async () => {
+    try {
+      const response = await fetch(
+        "http://52.12.35.11:8080/api/add_discipline",
+        {
+          method: "POST",
+          body: JSON.stringify({
+            name: Discipline_Name,
+            Abv: Abbreviation,
+          }),
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`Error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+
+      console.log("result is: ", JSON.stringify(result, null, 4));
+    } catch (err) {
+      console.log(err.message);
+    }
+  };
 
   return (
     <div class="container align-items-center bg-light">
@@ -45,7 +68,7 @@ const Discipline = () => {
           data-toggle="modal"
           data-target="#exampleModal"
         >
-          <span class="p-1"> Add a new discipline </span>
+          <span class="p-1">Add a new discipline</span>
         </button>
         <div
           class="modal fade"
@@ -93,7 +116,7 @@ const Discipline = () => {
                     class="btn btn-info"
                     data-dismiss="modal"
                     aria-label="Close"
-                    onClick={OnSubmit}
+                    onClick={handleClick}
                   >
                     Submit
                   </button>
