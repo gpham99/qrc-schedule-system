@@ -777,6 +777,19 @@ def update_master_schedule(shift_number, disciplines, new_assignments):
         con.close()
 
 
+# Function that will update a single discipline in a shift
+def update_master_schedule_single_discipline(shift_number, discipline, new_assignment):
+    try:
+        with sql.connect("database.db") as con:
+            cur = con.cursor()
+            sql_update_query = 'UPDATE master_schedule SET ' + discipline + ' = ? WHERE shift_number = ? '
+            cur.execute(sql_update_query, (new_assignment, shift_number))
+    except:
+        con.rollback()
+    finally:
+        con.close()
+
+
 # Function to update the time window
 def update_time_window(block, start_time, end_time):
     try:
@@ -871,12 +884,15 @@ def reboot_database(all_disciplines, exceptions):
 
 if __name__ == '__main__':
     discipline_list = ["CS", "Math", "Econ", "Physics", "CHBC"]
+    tutors = ['Joe', 'James', None, None, None]
     reboot_database(discipline_list, 'No')
     print(get_master_schedule_columns())
-    add_discipline('Cosmic_studies', 'CMS', [])
-    print(get_master_schedule_columns())
-    add_discipline('Gender_studies', 'GS', [])
-    print(get_master_schedule_columns())
+
+    add_to_master_schedule(0, discipline_list, tutors)
+    print(get_master_schedule_info(0))
+    update_master_schedule_single_discipline(0, 'Econ', 'James')
+    print(get_master_schedule_info(0))
 
 
-# update master_schedule for a single discipline 
+
+# update master_schedule for a single discipline
