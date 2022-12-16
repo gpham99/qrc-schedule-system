@@ -333,7 +333,7 @@ def add_new_admin():
     add_admin(admin_name, admin_email)
 
 
-@application.route('/api/remove_admin')
+@application.route('/api/remove_admin', methods=['POST'])
 def remove_admin():
     admin_name = request.get_json()
     delete_admins(admin_name)
