@@ -1,4 +1,4 @@
-from Database import get_roster, get_master_schedule_info, get_disciplines, check_user, get_discipline_abbreviation, update_master_schedule_single_discipline, get_abbreviations, add_discipline
+from Database import get_roster, get_master_schedule_info, get_disciplines, check_user, get_discipline_abbreviation, update_master_schedule_single_discipline, get_abbreviations, add_discipline, delete_discipline
 import time
 from flask import Flask, request, session, redirect, url_for, jsonify
 from cas import CASClient
@@ -289,6 +289,13 @@ def add_new_discipline():
     discipline_abbreviation = req["abv"]
     add_discipline(discipline_name, discipline_abbreviation, [])
     return "Things should be added"
+
+@application.route('/api/remove_discipline', methods=['POST'])
+def remove_discipline():
+    discipline_name = request.get_json()
+    #discipline_name = req['name']
+    delete_discipline(discipline_name)
+    return "Discipline deleted if it exists"
 
 # # run the app.
 # if __name__ == "__main__":
