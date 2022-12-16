@@ -330,6 +330,10 @@ def add_new_admin():
     admin_email = request.get_json()["email"]
     add_admin(admin_name, admin_email)
 
+@application.route('/api/get_username')
+def get_username():
+    return session['username']
+
 # # run the app.
 # if __name__ == "__main__":
 #     # Setting debug to True enables debug output. This line should be
