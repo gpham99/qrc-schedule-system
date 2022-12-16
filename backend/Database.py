@@ -47,8 +47,9 @@ import sqlite3 as sql
 # get_discipline_abbreviation(discipline)
 # get_time_window(block)
 
-# 7. The ability to check if a user exits in the database
-# check_user(email)              `
+# 7. The ability to check if elements in the database
+# check_user(email)
+# check_abbreviation(abbreviation)
 
 # 8. The updating of rows in tables
 # update_tutor_status(email)
@@ -203,7 +204,6 @@ def add_discipline(discipline, abbreviation, shifts):
             else:
                 update_query = 'UPDATE disciplines SET abbreviation = ?, available_shifts = ? WHERE discipline = ?'
                 cur.execute(update_query, (abbreviation, str(shifts), discipline))
-                print("updated stuff")
 
 
 # Function to add rows to a specific discipline table
@@ -512,7 +512,6 @@ def get_abbreviations():
 def get_discipline_from_abbreviation(abbreviation):
     try:
         with sql.connect("database.db") as conn:
-            disciplines_list = []
             cur = conn.cursor()
             sql_search_query = 'SELECT * FROM disciplines where abbreviation = ?'
             cur.execute(sql_search_query, (abbreviation, ))
@@ -603,14 +602,14 @@ def check_user(user):
             rows = cur.fetchall()
             for row in rows:
                 if row[0] == user:
-                    return True, "admins"
+                    return True, "admin"
 
             # Checks to see if the user is a tutor
             cur.execute("select * from tutors")
             rows = cur.fetchall()
             for row in rows:
                 if row[0] == user:
-                    return True, "tutors"
+                    return True, "tutor"
             return False, "None"
     except:
         conn.rollback()
@@ -620,10 +619,10 @@ def check_user(user):
 
 # Function to see if an abbreviation exists
 def check_abbreviation(abbreviation):
-        abbreviation_list = get_abbreviations()
-        if abbreviation in abbreviation_list:
-            return True
-        return False
+    abbreviation_list = get_abbreviations()
+    if abbreviation in abbreviation_list:
+        return True
+    return False
 
 
 # Functions that will be used to update different Tutor columns
@@ -940,53 +939,139 @@ def reboot_database(all_disciplines, exceptions):
 
 
 # Experiment to copy information from one table to another
-def test_copy_table_info():
+def reconfigure_when_adding():
     if True:
         with sql.connect("database.db") as conn:
+            cur = conn.cursor()
 
             # create a temporary table
             discipline_list = get_disciplines()
+            print(discipline_list)
             current_disciplines = get_master_schedule_columns()
+            print(current_disciplines)
             sql_query = 'CREATE TABLE master_schedule_copy(shift_number INTEGER, '
             for discipline in current_disciplines:
                 sql_query = sql_query + discipline + ' TEXT, '
             sql_query = sql_query + 'PRIMARY KEY (shift_number))'
-            conn.execute(sql_query)
+            cur.execute(sql_query)
+            print(sql_query)
             print('Step 1 Passed')
-            # # copy information from the master_schedule into the temporary table
-            sql_copy_query = 'INSERT INTO master_schedule_copy ('
-            columns_string = ''
-            for discipline in current_disciplines:
-                columns_string = discipline + ', '
-            sql_copy_query = sql_copy_query + columns_string + ') SELECT '
-            sql_copy_query = sql_copy_query + columns_string  + ' FROM master_schedule'
 
-            print(sql_copy_query)
-            conn.execute(sql_copy_query)
+            sql_query = 'INSERT INTO master_schedule_copy(shift_number, '
+            subjects_string = ''
+            for index, discipline in enumerate(current_disciplines):
+                if index != len(current_disciplines) - 1:
+                    subjects_string = subjects_string + discipline + ", "
+                else:
+                    subjects_string = subjects_string + discipline
+            sql_query = sql_query + subjects_string + ') SELECT shift_number, ' + subjects_string + ' FROM master_schedule'
+            print(sql_query)
+            cur.execute(sql_query)
             print('Step 2 Passed')
-            # # drop the master_schedule
-            # sql_drop_query = 'DROP TABLE master_schedule'
-            # conn.execute(sql_drop_query)
-            # print('Step 2 Passed')
-            # # # create new master schedule
-            # sql_create_query = 'CREATE TABLE IF NOT EXISTS master_schedule(shift_number INTEGER, '
-            # for discipline in discipline_list:
-            #     sql_create_query = sql_create_query + discipline + ' TEXT, '
-            # sql_create_query = sql_create_query + 'PRIMARY KEY (shift_number))'
-            # conn.execute(sql_create_query)
-            # # # copy contents of copy of master_schedule into the real master_schedule
-            # sql_copy_query = 'INSERT INTO master_schedule('
-            # columns_string = ''
-            # for discipline in current_disciplines:
-            #     columns_string = discipline + ', '
-            # sql_copy_query = sql_copy_query + columns_string + ') SELECT '
-            # sql_copy_query = sql_copy_query + columns_string + ' FROM #master_schedule_copy'
-            # conn.execute(sql_copy_query)
-            # print('Step 3 Passed')
+
+            # drop the master_schedule
+            sql_drop_query = 'DROP TABLE master_schedule'
+            print(sql_drop_query)
+            conn.execute(sql_drop_query)
+            print('Step 3 Passed')
+
+            # create new master schedule
+            sql_create_query = 'CREATE TABLE IF NOT EXISTS master_schedule(shift_number INTEGER, '
+            for discipline in discipline_list:
+                sql_create_query = sql_create_query + discipline + ' TEXT, '
+            sql_create_query = sql_create_query + 'PRIMARY KEY (shift_number))'
+            print(sql_create_query)
+            conn.execute(sql_create_query)
+            print('Step 4 Passed')
+
+            print(get_master_schedule_columns())
+            # # copy contents of copy of master_schedule into the real master_schedule
+            sql_copy_query = 'INSERT INTO master_schedule(shift_number, '
+            subjects_string = ''
+            for index, discipline in enumerate(current_disciplines):
+                if index != len(current_disciplines) - 1:
+                    subjects_string = subjects_string + discipline + ", "
+                else:
+                    subjects_string = subjects_string + discipline
+            sql_copy_query = sql_copy_query + subjects_string + ') SELECT shift_number, ' + subjects_string + ' FROM master_schedule_copy'
+            print(sql_copy_query)
+            cur.execute(sql_copy_query)
+            print('Step 5 Passed')
+
             # # drop the master_schedule_copy
             sql_drop_query = 'DROP TABLE master_schedule_copy'
             conn.execute(sql_drop_query)
+            print(sql_drop_query)
+            print('Step 6 Passed')
+            # commit
+            conn.commit()
+
+
+# Function to reconfigure the database when aa discipline has been deleted
+def reconfigure_when_deleting():
+    if True:
+        with sql.connect("database.db") as conn:
+            cur = conn.cursor()
+
+            # create a temporary table
+            discipline_list = get_disciplines()
+            print(discipline_list)
+            current_disciplines = get_master_schedule_columns()
+            print(current_disciplines)
+            sql_query = 'CREATE TABLE master_schedule_copy(shift_number INTEGER, '
+            for discipline in discipline_list:
+                sql_query = sql_query + discipline + ' TEXT, '
+            sql_query = sql_query + 'PRIMARY KEY (shift_number))'
+            cur.execute(sql_query)
+            print(sql_query)
+            print('Step 1 Passed')
+
+            sql_query = 'INSERT INTO master_schedule_copy(shift_number, '
+            subjects_string = ''
+            for index, discipline in enumerate(current_disciplines):
+                if index != len(current_disciplines) - 1:
+                    subjects_string = subjects_string + discipline + ", "
+                else:
+                    subjects_string = subjects_string + discipline
+            sql_query = sql_query + subjects_string + ') SELECT shift_number, ' + subjects_string + ' FROM master_schedule'
+            print(sql_query)
+            cur.execute(sql_query)
+            print('Step 2 Passed')
+
+            # drop the master_schedule
+            sql_drop_query = 'DROP TABLE master_schedule'
+            print(sql_drop_query)
+            conn.execute(sql_drop_query)
+            print('Step 3 Passed')
+
+            # create new master schedule
+            sql_create_query = 'CREATE TABLE IF NOT EXISTS master_schedule(shift_number INTEGER, '
+            for discipline in discipline_list:
+                sql_create_query = sql_create_query + discipline + ' TEXT, '
+            sql_create_query = sql_create_query + 'PRIMARY KEY (shift_number))'
+            print(sql_create_query)
+            conn.execute(sql_create_query)
             print('Step 4 Passed')
+
+            print(get_master_schedule_columns())
+            # # copy contents of copy of master_schedule into the real master_schedule
+            sql_copy_query = 'INSERT INTO master_schedule(shift_number, '
+            subjects_string = ''
+            for index, discipline in enumerate(current_disciplines):
+                if index != len(current_disciplines) - 1:
+                    subjects_string = subjects_string + discipline + ", "
+                else:
+                    subjects_string = subjects_string + discipline
+            sql_copy_query = sql_copy_query + subjects_string + ') SELECT shift_number, ' + subjects_string + ' FROM master_schedule_copy'
+            print(sql_copy_query)
+            cur.execute(sql_copy_query)
+            print('Step 5 Passed')
+
+            # # drop the master_schedule_copy
+            sql_drop_query = 'DROP TABLE master_schedule_copy'
+            conn.execute(sql_drop_query)
+            print(sql_drop_query)
+            print('Step 6 Passed')
             # commit
             conn.commit()
 
@@ -997,17 +1082,22 @@ if __name__ == '__main__':
     tutors2 = ['Joe', None, None, None, None]
     tutors3 = [None, 'James', None, None, None]
     create_tables(discipline_list)
+    add_admin('Joe', 'Joe email')
+    print(get_admin_roster())
     reboot_database(discipline_list, 'No')
     add_to_master_schedule(0,discipline_list, tutors1)
     add_to_master_schedule(1, discipline_list, tutors2)
     add_to_master_schedule(2, discipline_list, tutors3)
 
     add_discipline("Cosmic_Studies", 'CSS', [])
-    print(check_abbreviation('CS'))
+    add_discipline('Culinary_Arts', 'CA', [])
+    # reconfigure_when_adding()
+    delete_discipline('Culinary_Arts')
+    reconfigure_when_deleting()
+    print(get_master_schedule_columns())
 
 # copy master_schedule info into new table
 # delete discipline will create a new table except without that column
 
-# remove discipline from all places where they exist
+# remove discipline from all places where they exist`
 # get a check to see if an abbreviation exist
-
