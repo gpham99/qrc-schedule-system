@@ -333,7 +333,8 @@ def add_new_admin():
 
 @application.route('/api/get_username')
 def get_username():
-    return session['username']
+    if 'username' in session:
+        return session['username']
 
 # # run the app.
 # if __name__ == "__main__":
