@@ -1,5 +1,4 @@
-from Database import get_roster, get_master_schedule_info, get_disciplines, check_user, get_discipline_abbreviation,\
-        update_master_schedule_single_discipline, get_abbreviations, add_discipline, delete_discipline, get_admin_roster, add_admin
+from Database import *
 import time
 from flask import Flask, request, session, redirect, url_for, jsonify
 from cas import CASClient
@@ -100,6 +99,7 @@ def login():
 
     if 'username' in session:
         in_system, group = check_login()
+
         # Already logged in
         return redirect('http://52.12.35.11:80/'+group)
 
@@ -373,6 +373,10 @@ def get_username():
        # response = flask.jsonify({'username': 'Oh well you run into else statement, meaning username is not in session'})
         # response.headers.add('Access-Control-Allow-Origin', '*')
         # return response
+    in_system, group = check_login()
+    if in_system:
+        return session['username']
+
 
 # # run the app.
 # if __name__ == "__main__":
