@@ -7,7 +7,7 @@ import ast
 import os
 from models import read_roster, User
 from werkzeug.utils import secure_filename
-from utility import replace_chars 
+from utility import display, sanitize 
 from flask_jwt import JWT, jwt_required, current_identity
 from security import authenticate, identity
 import json
@@ -144,7 +144,7 @@ def get_master_schedule():
     disciplines = get_disciplines()
     abbreviations = get_abbreviations()
     for i in range(len(abbreviations)):
-        abbreviations[i] = replace_chars(abbreviations[i])
+        abbreviations[i] = display(abbreviations[i])
     roster = get_roster()
     master_schedule = []
     master_schedule_with_disciplines = {}
@@ -241,10 +241,11 @@ def unauthorized_login():
 def get_disciplines_abbreviations():
     disciplines = get_disciplines()
     discipline_schedule_with_abv = []
-    for discipline in disciplines:
-        abbreviation = get_discipline_abbreviation(discipline)
-        abbreviation = replace_chars(abbreviation)
-        discipline_schedule_with_abv.append([discipline, abbreviation])
+    for i in range(len(disciplines)):
+        abbreviation = get_discipline_abbreviation(disciplines[i])
+        abbreviation = display(abbreviation)
+        disciplines[i] = display(disciplines[i])
+        discipline_schedule_with_abv.append([disciplines[i], abbreviation])
 
     return discipline_schedule_with_abv
 
@@ -259,7 +260,7 @@ def update_tutors_in_master_schedule():
     disciplines = get_disciplines()
     abbreviations = get_abbreviations()
     for i in range(len(abbreviations)):
-        abbreviations[i] = replace_chars(abbreviations[i])
+        abbreviations[i] = display(abbreviations[i])
     result = request.get_json()
     output = ""
     for key in result.keys():
@@ -277,7 +278,7 @@ def update_tutors_in_master_schedule():
                     update_master_schedule_single_discipline(shift_index, discipline_to_change, user.id)
                     output += "Shift for " + user.id + " added successfully\n"
                 else:
-                    output += "Error: Tutor " + user.id + " is not eligible to tutor " + replace_chars(discipline_to_change)
+                    output += "Error: Tutor " + user.id + " is not eligible to tutor " + display(discipline_to_change) + "\n"
             else:
                 output += "Error: " + user.id + " not found in database, please check your spelling\n"
     return output
@@ -287,7 +288,7 @@ def add_new_discipline():
     req = request.get_json()
     discipline_name = req['name']
     discipline_abbreviation = req["abv"]
-    add_discipline(discipline_name, discipline_abbreviation, [])
+    add_discipline(sanitize(discipline_name), sanitize(discipline_abbreviation), [])
     return "Things should be added"
 
 # # run the app.
