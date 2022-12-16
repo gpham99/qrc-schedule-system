@@ -5,6 +5,8 @@ import { Route, Routes } from "react-router-dom";
 import Home from "./Components/Home";
 import Admin from "./Components/Admin";
 import Tutor from "./Components/Tutor";
+import FileNotFound from "./ErrorPages/FileNotFound";
+import Unauthorized from "./ErrorPages/Unauthorized";
 
 function App() {
   const [currentTime, setCurrentTime] = useState(0);
@@ -26,6 +28,8 @@ function App() {
           <Route path="/admin/*" element={<Admin />}></Route>
           <Route path="/tutor/*" element={<Tutor></Tutor>}></Route>
           <Route path="/" element={<Home></Home>}></Route>
+          <Route path="/404" element={<FileNotFound></FileNotFound>}></Route>
+          <Route path="/401" element={<Unauthorized></Unauthorized>}></Route>
         </Routes>
       </div>
     </div>
