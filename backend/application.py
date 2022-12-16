@@ -295,8 +295,8 @@ def add_new_discipline():
 def remove_discipline():
     discipline_name = request.get_json()
     #discipline_name = req['name']
-    delete_discipline(discipline_name)
-    return "Discipline deleted if it exists"
+    delete_discipline(sanitize(discipline_name))
+    return "Discipline deleted"
 
 # # run the app.
 # if __name__ == "__main__":
