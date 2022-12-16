@@ -314,7 +314,7 @@ def remove_discipline():
     return "Discipline deleted"
 
 @application.route('/api/get_admins')
-def get_disciplines_abbreviations():
+def get_email_admins():
     email_admin = get_admin_roster()
     discipline_schedule_with_email = []
     for admin, email in email_admin:
