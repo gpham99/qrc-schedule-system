@@ -26,6 +26,7 @@ import sqlite3 as sql
 # delete_tutors(email)
 # delete_admins(email)
 # delete_superusers(email)
+# delete_discipline(discipline)
 # clear_table(table)
 # delete_time_window(block)
 
@@ -41,6 +42,7 @@ import sqlite3 as sql
 # get_roster()
 # get_disciplines()
 # get_abbreviations()
+# get_discipline_from_abbreviation(discipline)
 # get_discipline_shifts_offered(discipline)
 # get_discipline_abbreviation(discipline)
 # get_time_window(block)
@@ -121,7 +123,6 @@ def create_tables(all_disciplines):
     create_discipline_tables(all_disciplines)
 
 
-
 # Function that will add tutors to the tutors table
 # if the tutor already exists than it will check if the name matches
 # if it doesn't then it will update the name to the new one, else nothing happens
@@ -197,11 +198,12 @@ def add_discipline(discipline, abbreviation, shifts):
                 cur.execute('INSERT OR IGNORE INTO disciplines (discipline, abbreviation,  available_shifts) '
                             'VALUES(?, ?, ?)', (discipline, abbreviation, str(shifts)))
                 con.commit()
-                reconfigure_database()
+                # reconfigure_database()
             # else update
             else:
                 update_query = 'UPDATE disciplines SET abbreviation = ?, available_shifts = ? WHERE discipline = ?'
                 cur.execute(update_query, (abbreviation, str(shifts), discipline))
+                print("updated stuff")
 
 
 
@@ -301,6 +303,19 @@ def delete_superusers(email):
         with sql.connect("database.db") as con:
             cur = con.cursor()
             cur.execute('DELETE FROM superuser WHERE email = ?', (email,))
+            con.commit()
+    except:
+        con.rollback()
+    finally:
+        con.close()
+
+
+# Function to delete a discipline from the disciplines table
+def delete_discipline(discipline):
+    try:
+        with sql.connect("database.db") as con:
+            cur = con.cursor()
+            cur.execute('DELETE FROM disciplines WHERE discipline = ?', (discipline,))
             con.commit()
     except:
         con.rollback()
@@ -488,6 +503,22 @@ def get_abbreviations():
             for record in records:
                 disciplines_list.append(record[1])
             return disciplines_list
+    except:
+        con.rollback()
+    finally:
+        con.close()
+
+
+# Function to return discipline names from abbreviations
+def get_discipline_from_abbreviation(abbreviation):
+    try:
+        with sql.connect("database.db") as con:
+            disciplines_list = []
+            cur = con.cursor()
+            sql_search_query = 'SELECT * FROM disciplines where abbreviation = ?'
+            cur.execute(sql_search_query, (abbreviation, ))
+            record = cur.fetchone()
+            return record
     except:
         con.rollback()
     finally:
@@ -905,12 +936,11 @@ if __name__ == '__main__':
     discipline_list = ["CS", "Math", "Econ", "Physics", "CHBC"]
     tutors = ['Joe', 'James', None, None, None]
     create_tables(discipline_list)
-    update_discipline_abbreviation('Math', 'M')
-    print(get_abbreviations())
-    add_discipline('Econ', 'E', [])
-    add_discipline('New_stuff', 'NS', ['Joe'])
-    print(get_abbreviations())
-    print(get_disciplines())
+    add_discipline('Math', 'M', [])
+    add_discipline("James", "J", [])
 
 
 # update master_schedule for a single discipline
+# add_discipline
+# reconfigure_table
+# add_new_discipline_table
