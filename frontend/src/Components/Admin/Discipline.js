@@ -2,40 +2,48 @@ import React from "react";
 import { useEffect, useState } from "react";
 
 const Discipline = () => {
-  // disciplines contains the disciplines and abbreviations
-  const [disciplines, setDiscipline] = useState({});
+  // disciplines contains both the full name and the abbreviation of every discipline
+  const [submitMessage, setSubmitMessage] = useState("");
+  const [disciplines, setDisciplines] = useState({});
+  const [disciplineName, setDisciplineName] = useState("");
+  const [disciplineAbv, setDisciplineAbv] = useState("");
 
   useEffect(() => {
     fetch("http://52.12.35.11:8080/api/add_remove_disciplines")
       .then((res) => res.json())
       .then((data) => {
-        setDiscipline(data);
-        console.log(data);
+        setDisciplines(data);
       });
   }, [disciplines]);
 
-  var DisciplineName = "";
-  var Abbreviation = "";
+  const handleClick = (e) => {
+    console.log(disciplineName);
+    console.log(disciplineAbv);
 
-  function HandleName(event) {
-    event.preventDefault();
-    DisciplineName = event.target.value;
-  }
-
-  function HandleAbv(event) {
-    event.preventDefault();
-    Abbreviation = event.target.value;
-  }
-
-  const handleClick = () => {
-    const response = fetch("http://52.12.35.11:8080/api/add_discipline", {
+    fetch("http://52.12.35.11:8080/api/add_discipline", {
       method: "POST",
-      mode: "no-cors",
+      headers: {
+        "Content-Type": "application/json",
+      },
       body: JSON.stringify({
-        name: DisciplineName,
-        abv: Abbreviation,
+        name: disciplineName,
+        abv: disciplineAbv,
       }),
+    }).then((response) => {
+      let res = response.json();
+      if (200 <= res.status <= 299) {
+        console.log("Discipline added successfully");
+        setSubmitMessage("Success");
+      } else {
+        console.log("Failed to add discipline");
+        setSubmitMessage("Fail");
+      }
     });
+  };
+
+  const handleCancel = (e) => {
+    setDisciplineAbv("");
+    setDisciplineName("");
   };
 
   return (
@@ -71,6 +79,7 @@ const Discipline = () => {
                   class="close"
                   data-dismiss="modal"
                   aria-label="Close"
+                  onClick={handleCancel}
                 >
                   <span aria-hidden="true">&times;</span>
                 </button>
@@ -78,26 +87,31 @@ const Discipline = () => {
               <div class="modal-body">
                 <form>
                   <div class="form-group">
-                    <label>Name</label>
+                    <label>Discipline Name</label>
                     <input
                       class="form-control"
-                      name="NameInput"
-                      onChange={HandleName}
+                      value={disciplineName}
+                      placeholder="Ex: Mathematics"
+                      onChange={(e) => {
+                        setDisciplineName(e.target.value);
+                      }}
                     />
                   </div>
                   <div class="form-group">
-                    <label>Abbreviation</label>
+                    <label>Discipline Abbreviation</label>
                     <input
                       class="form-control"
-                      name="AbvInput"
-                      onChange={HandleAbv}
+                      value={disciplineAbv}
+                      placeholder="Ex: M"
+                      onChange={(e) => {
+                        setDisciplineAbv(e.target.value);
+                      }}
                     />
                   </div>
                   <div class="form-check"></div>
                   <button
                     class="btn btn-info"
                     data-dismiss="modal"
-                    aria-label="Close"
                     onClick={handleClick}
                   >
                     Submit
@@ -108,6 +122,40 @@ const Discipline = () => {
           </div>
         </div>
       </div>
+
+      {submitMessage === "Success" && (
+        <div
+          class="alert alert-success m-4 alert-dismissible fade show"
+          role="alert"
+        >
+          Discipline added successfully!
+          <button
+            type="button"
+            class="close"
+            data-dismiss="alert"
+            aria-label="Close"
+          >
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+      )}
+
+      {submitMessage === "Fail" && (
+        <div
+          class="alert alert-warning m-4 alert-dismissible fade show"
+          role="alert"
+        >
+          Failed to add discipline.
+          <button
+            type="button"
+            class="close"
+            data-dismiss="alert"
+            aria-label="Close"
+          >
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+      )}
 
       {/* a table to show all the current disciplines */}
       {/* table */}

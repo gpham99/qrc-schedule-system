@@ -18,11 +18,59 @@ const Internal = () => {
 
       {/* add an admin buton */}
       <div class="d-flex justify-content-end p-4">
-        <a href="#">
-          <button class="btn btn-info">
-            <span class="p-1"> Add a new administrator </span>
-          </button>
-        </a>
+        <button
+          type="button"
+          class="btn btn-info"
+          data-toggle="modal"
+          data-target="#exampleModal"
+        >
+          <span class="p-1">Add an administrator</span>
+        </button>
+        <div
+          class="modal fade"
+          id="exampleModal"
+          tabindex="-1"
+          role="dialog"
+          aria-labelledby="exampleModalLabel"
+          aria-hidden="true"
+        >
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <p5 class="align-self-center w-100">
+                  Please fill out the form to add an administrator
+                </p5>
+                <button
+                  type="button"
+                  class="close"
+                  data-dismiss="modal"
+                  aria-label="Close"
+                >
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                <form>
+                  <div class="form-group">
+                    <label>Administrator Name</label>
+                    <input class="form-control" placeholder="Ex: Steve Getty" />
+                  </div>
+                  <div class="form-group">
+                    <label>Administrator's Email</label>
+                    <input
+                      class="form-control"
+                      placeholder="Ex: sgetty@coloradocollege.edu"
+                    />
+                  </div>
+                  <div class="form-check"></div>
+                  <button class="btn btn-info" data-dismiss="modal">
+                    Submit
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* a table to show all the current qrc admins */}

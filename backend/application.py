@@ -1,4 +1,4 @@
-from Database import add_discipline, get_roster, get_master_schedule_info, get_disciplines, check_user, get_discipline_abbreviation, update_master_schedule_single_discipline
+from Database import add_admin, get_admin_roster, add_discipline, get_roster, get_master_schedule_info, get_disciplines, check_user, get_discipline_abbreviation, update_master_schedule_single_discipline
 import time
 from flask import Flask, request, session, redirect, url_for, jsonify
 from cas import CASClient
@@ -97,7 +97,7 @@ def profile(method=['GET']):
 def login():
     application.logger.debug('session when you hit login: %s', session)
 
-    if 'username' in session:
+    if 'username' in session:  
         # Already logged in
         return redirect(url_for('profile'))
 
@@ -279,10 +279,28 @@ def add_new_discipline():
     discipline_name = request.get_json()["Name"]
     discipline_abbreviation = request.get_json()['Abv']
     add_discipline(discipline_name, discipline_abbreviation, [])
-    
-# run the app.
-if __name__ == "__main__":
-    # Setting debug to True enables debug output. This line should be
-    # removed before deploying a production app.
-    application.debug = True
-    application.run()
+
+@application.route('/api/get_admins')
+def get_disciplines_abbreviations():
+    email_admin = get_admin_roster()
+    discipline_schedule_with_email = []
+    for admin, email in email_admin:
+        sanitized_email = replace_chars(email)
+        sanitized_admin = replace_chars(admin)
+        discipline_schedule_with_email.append([sanitized_admin, sanitized_email])
+
+    return discipline_schedule_with_email
+
+@application.route('/api/add_admin')
+def add_new_admin():
+    admin_name = request.get_json()["name"]
+    admin_email = request.get_json()['email']
+    add_discipline(admin_name, admin_email)
+
+
+# # run the app.
+# if __name__ == "__main__":
+#     # Setting debug to True enables debug output. This line should be
+#     # removed before deploying a production app.
+#     application.debug = True
+#     application.run()
