@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { exportComponentAsJPEG } from "react-component-export-image";
 
 const Schedule = () => {
+  const [submitMessage, setSubmitMessage] = useState("");
   const [unChangedMasterSchedule, setUnchangedMasterSchedule] = useState({});
   const [isChanged, setIsChanged] = useState({});
   const [masterSchedule, setMasterSchedule] = useState({});
@@ -29,6 +30,22 @@ const Schedule = () => {
   const submitChange = (event) => {
     event.preventDefault();
     console.log(editedSchedule);
+
+    fetch("http://52.12.35.11:8080/api/update_master_schedule", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(editedSchedule),
+    })
+      .then(function (response) {
+        return response.json();
+      })
+      .then(function (data) {
+        setSubmitMessage(data);
+      });
+
+    setEditMode(1 - editMode);
   };
 
   return (
@@ -86,6 +103,50 @@ const Schedule = () => {
               </button>
             )}
           </div>
+
+          {submitMessage.length > 0 && (
+            <div
+              class="alert alert-danger m-4 alert-dismissible fade show"
+              role="alert"
+            >
+              <div className="m-3 text-left">
+                {Array.from(new Set(submitMessage)).map((msg) => (
+                  <p>{msg}</p>
+                ))}
+                <p>
+                  If you made any other changes that are not shown in the error
+                  message above, please reload the page to see them.
+                </p>
+              </div>
+              <button
+                type="button"
+                class="close"
+                data-dismiss="alert"
+                aria-label="Close"
+              >
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+          )}
+
+          {submitMessage !== "" && submitMessage.length === 0 && (
+            <div
+              class="alert alert-success m-4 alert-dismissible fade show"
+              role="alert"
+            >
+              <div className="m-3 text-left">
+                Please reload the page to see the changes you've made.
+              </div>
+              <button
+                type="button"
+                class="close"
+                data-dismiss="alert"
+                aria-label="Close"
+              >
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+          )}
 
           {/* uneditable skeleton of master schedule */}
           <div className="pr-4 pl-4 table-responsive" ref={componentRef}>
