@@ -316,19 +316,22 @@ def remove_discipline():
 @application.route('/api/get_admins')
 def get_email_admins():
     email_admin = get_admin_roster()
-    discipline_schedule_with_email = []
-    for admin, email in email_admin:
+    admin_list_with_email = []
+    for email, admin in email_admin:
         sanitized_email = sanitize(email)
         sanitized_admin = sanitize(admin)
-        discipline_schedule_with_email.append([sanitized_admin, sanitized_email])
+        admin_list_with_email.append([sanitized_admin, sanitized_email])
 
     return discipline_schedule_with_email
 
 @application.route('/api/add_admin')
 def add_new_admin():
-    admin_name = request.get_json()["name"]
-    admin_email = request.get_json()['email']
-    add_discipline(admin_name, admin_email)
+    admin_data = request.get_json()
+    admin_name = admin_data["name"]
+    admin_email = admin_data['email']
+    sanitized_name = sanitize(admin_name)
+    sanitized_email = sanitize(admin_email)
+    add_admin(admin_name, admin_email)
 
 # # run the app.
 # if __name__ == "__main__":
