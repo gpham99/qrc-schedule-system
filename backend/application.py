@@ -80,7 +80,7 @@ def index():
         session['username'] = user
         session['email'] = attributes['email']
         if not next:
-            return redirect(url_for('profile'))
+            return redirect(url_for('/api/tutor/<username>'))
         return redirect(next)
 
 @application.route('/profile')
