@@ -1,4 +1,5 @@
 import React from "react";
+import { useState } from "react";
 
 // list of the adminstrators and their emails
 const admins = [
@@ -7,6 +8,19 @@ const admins = [
 ];
 
 const Internal = () => {
+  // const [submitMessage, setSubmitMessage] = useState("");
+  const [admins, setAdmins] = useState({});
+  // const [disciplineName, setDisciplineName] = useState("");
+  // const [disciplineAbv, setDisciplineAbv] = useState("");
+
+  // useEffect(() => {
+  //   fetch("http://52.12.35.11:8080/api/add_remove_disciplines")
+  //     .then((res) => res.json())
+  //     .then((data) => {
+  //       setDisciplines(data);
+  //     });
+  // }, [disciplines]);
+
   return (
     <div class="container align-items-center bg-light">
       <div class="row p-4 justify-content-center">
@@ -84,18 +98,7 @@ const Internal = () => {
               <th class="col-sm-4">Action</th>
             </tr>
           </thead>
-          <tbody>
-            {admins.map((admin) => (
-              <tr>
-                {admin.map((admin_info) => (
-                  <td class="text-left">{admin_info}</td>
-                ))}
-                <td>
-                  <a href="#">Remove</a>
-                </td>
-              </tr>
-            ))}
-          </tbody>
+          <tbody></tbody>
         </table>
       </div>
     </div>
