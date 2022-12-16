@@ -1,6 +1,18 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 
 const Profile = () => {
+  const [username, setUsername] = useState(0);
+
+  useEffect(() => {
+    fetch("http://52.12.35.11:8080/api/get_username").then((res) => {
+      console.log("res: ", res);
+      res.json();
+    });
+    // .then((data) => {
+    //   (data.time);
+    // });
+  }, []);
+
   return (
     <div class="bg-light p-4 d-flex flex-column align-items-center justify-content-center">
       {/* Your personal information table */}

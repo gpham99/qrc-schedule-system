@@ -325,14 +325,54 @@ def get_email_admins():
 
     return discipline_schedule_with_email
 
-@application.route('/api/add_admin')
+@application.route('/api/add_admin', methods=['POST'])
 def add_new_admin():
-    admin_name = request.get_json()["name"]
-    admin_email = request.get_json()["email"]
+    admin_data = request.get_json()
+    admin_name = admin_data["name"]
+    admin_email = admin_data["email"]
     add_admin(admin_name, admin_email)
 
-@application.route('/api/get_username')
+
+@application.route('/api/remove_admin', methods=['POST'])
+def remove_admin():
+    admin_name = request.get_json()
+    delete_admins(admin_name)
+
+
+@application.route('/api/get_username', methods=['GET'])
 def get_username():
+    application.logger.debug("session: %s", session)
+  #  if 'username' in session:
+   #     application.logger.debug('username is  %s', session['username'])
+    #    return "Success"
+   # else:
+    #    application.logger.debug('username is not in session')
+     #   return "Cannot get username"
+    if 'username' in session:
+        # response = flask.jsonify({'username': session['username']})
+        # response.headers.add('Access-Control-Allow-Origin', '*')
+        # return response
+        return {
+                'statusCode': 200,
+                'headers': {
+                    'Access-Control-Allow-Origin': 'http://52.12.35.11',
+                    'Access-Control-Allow-Methods': 'OPTIONS, POST, GET'
+                },
+                'body': json.dumps(session["username"])
+        }
+    else:
+        return {
+                'statusCode': 200,
+                'headers': {
+                    'Access-Control-Allow-Origin': 'http://52.12.35.11',
+                    'Access-Control-Allow-Methods': 'OPTIONS, POST, GET'
+                },
+                'body': json.dumps("username not in session")
+        }
+         
+       # response = flask.jsonify({'username': 'Oh well you run into else statement, meaning username is not in session'})
+        # response.headers.add('Access-Control-Allow-Origin', '*')
+        # return response
     in_system, group = check_login()
     if in_system:
         return session['username']
