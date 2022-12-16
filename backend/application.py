@@ -1,5 +1,5 @@
 from Database import get_roster, get_master_schedule_info, get_disciplines, check_user, get_discipline_abbreviation,\
-     update_master_schedule_single_discipline, get_abbreviations, add_discipline, delete_discipline, get_admin_roster
+        update_master_schedule_single_discipline, get_abbreviations, add_discipline, delete_discipline, get_admin_roster, add_admin
 import time
 from flask import Flask, request, session, redirect, url_for, jsonify
 from cas import CASClient
@@ -317,7 +317,7 @@ def remove_discipline():
 def get_email_admins():
     email_admin = get_admin_roster()
     discipline_schedule_with_email = []
-    for admin, email in email_admin:
+    for email, admin in email_admin:
         sanitized_email = sanitize(email)
         sanitized_admin = sanitize(admin)
         discipline_schedule_with_email.append([sanitized_admin, sanitized_email])
@@ -327,8 +327,8 @@ def get_email_admins():
 @application.route('/api/add_admin')
 def add_new_admin():
     admin_name = request.get_json()["name"]
-    admin_email = request.get_json()['email']
-    add_discipline(admin_name, admin_email)
+    admin_email = request.get_json()["email"]
+    add_admin(admin_name, admin_email)
 
 # # run the app.
 # if __name__ == "__main__":
