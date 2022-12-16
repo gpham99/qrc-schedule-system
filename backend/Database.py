@@ -1028,8 +1028,8 @@ def reconfigure_when_deleting():
 
             sql_query = 'INSERT INTO master_schedule_copy(shift_number, '
             subjects_string = ''
-            for index, discipline in enumerate(current_disciplines):
-                if index != len(current_disciplines) - 1:
+            for index, discipline in enumerate(discipline_list):
+                if index != len(discipline_list) - 1:
                     subjects_string = subjects_string + discipline + ", "
                 else:
                     subjects_string = subjects_string + discipline
@@ -1057,8 +1057,8 @@ def reconfigure_when_deleting():
             # # copy contents of copy of master_schedule into the real master_schedule
             sql_copy_query = 'INSERT INTO master_schedule(shift_number, '
             subjects_string = ''
-            for index, discipline in enumerate(current_disciplines):
-                if index != len(current_disciplines) - 1:
+            for index, discipline in enumerate(discipline_list):
+                if index != len(discipline_list) - 1:
                     subjects_string = subjects_string + discipline + ", "
                 else:
                     subjects_string = subjects_string + discipline
@@ -1091,10 +1091,14 @@ if __name__ == '__main__':
 
     add_discipline("Cosmic_Studies", 'CSS', [])
     add_discipline('Culinary_Arts', 'CA', [])
-    # reconfigure_when_adding()
-    delete_discipline('Culinary_Arts')
+    reconfigure_when_adding()
+    print(get_master_schedule_columns())
+    delete_discipline('Math')
     reconfigure_when_deleting()
     print(get_master_schedule_columns())
+    print(get_master_schedule_info(0))
+
+
 
 # copy master_schedule info into new table
 # delete discipline will create a new table except without that column
