@@ -325,7 +325,7 @@ def get_email_admins():
 
     return discipline_schedule_with_email
 
-@application.route('/api/add_admin')
+@application.route('/api/add_admin', methods=['POST'])
 def add_new_admin():
     admin_data = request.get_json()
     admin_name = admin_data["name"]
