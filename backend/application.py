@@ -99,7 +99,7 @@ def login():
 
     if 'username' in session:
         # Already logged in
-        return redirect(url_for('profile'))
+        return redirect(url_for('/api/tutor/<username>'))
 
     next = request.args.get('next')
     ticket = request.args.get('ticket')
