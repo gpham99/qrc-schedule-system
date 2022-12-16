@@ -9,10 +9,10 @@ const Discipline = () => {
     fetch("http://52.12.35.11:8080/api/add_remove_disciplines")
       .then((res) => res.json())
       .then((data) => {
-        setDisciplineAbbv(data);
+        setDiscipline(data);
         console.log(data);
       });
-  }, [DisciplinesAbbvs]);
+  }, [disciplines]);
 
   var DisciplineName = "";
   var Abbreviation = "";
@@ -121,7 +121,7 @@ const Discipline = () => {
             </tr>
           </thead>
           <tbody>
-            {Object.values(DisciplinesAbbvs).map((val) => (
+            {Object.values(disciplines).map((val) => (
               <tr>
                 <td>{val[0]}</td>
                 <td>{val[1]}</td>
