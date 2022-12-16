@@ -80,7 +80,7 @@ def index():
         session['username'] = user
         session['email'] = attributes['email']
         if not next:
-            return redirect(url_for('/api/tutor/<username>'))
+            return redirect(url_for('/api/tutor/' + session['username']))
         return redirect(next)
 
 @application.route('/profile')
@@ -99,7 +99,7 @@ def login():
 
     if 'username' in session:
         # Already logged in
-        return redirect(url_for('/api/tutor/<username>'))
+        return redirect(url_for('/api/tutor/' + session['username']))
 
     next = request.args.get('next')
     ticket = request.args.get('ticket')
