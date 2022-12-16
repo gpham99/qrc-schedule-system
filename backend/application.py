@@ -1,4 +1,4 @@
-from Database import get_roster, get_master_schedule_info, get_disciplines, check_user, get_discipline_abbreviation
+from Database import add_discipline, get_roster, get_master_schedule_info, get_disciplines, check_user, get_discipline_abbreviation, update_master_schedule_single_discipline
 import time
 from flask import Flask, request, session, redirect, url_for, jsonify
 from cas import CASClient
@@ -7,6 +7,10 @@ import ast
 import os
 from models import read_roster, User
 from werkzeug.utils import secure_filename
+from utility import replace_chars 
+from flask_jwt import JWT, jwt_required, current_identity
+from security import authenticate, identity
+import json
 
 UPLOAD_FOLDER = '.'
 ALLOWED_EXTENSIONS = {'xls', 'xlsx', 'xlsm', 'xlsb', 'odf', 'ods', 'odt'}
@@ -133,6 +137,8 @@ def get_login_status():
     else:
         return {"login_status": "0"}
 
+
+
 @application.route('/api/master_schedule')
 def get_master_schedule():
     disciplines = get_disciplines()
@@ -158,13 +164,30 @@ def get_master_schedule():
                         if tutor_entry[0] == email: #find the tutor in the roster
                             tutor_found = True
                             discipline_list = ast.literal_eval(tutor_entry[4])
-                            for i in range(len(discipline_list)): 
-                                if discipline_list[i] == 'CHMB':
-                                    discipline_list[i] = 'CH/MB'
-                            output_str = "/".join(discipline_list) + ": " + str(tutor_entry[1])
-                            master_schedule_with_disciplines[str(shift_num)+disciplines[d]] = output_str
+                            discipline_list.remove(disciplines[d]) #ensure there is no redundant information
+                            #get abbreviations for each discipline
+                            for i in range(len(discipline_list)):
+                                discipline_list[i] = abbreviations[disciplines.index(discipline_list[i])]
+                            #output_str = "/".join(discipline_list) + ": " + str(tutor_entry[1])
+                            output_dict = {"tutor": tutor_entry[1],
+                                    "email": email,
+                                    "discipline": abbreviations[d],
+                                    "other_disciplines": "/".join(discipline_list)}
+                            shift_list.append(output_dict)
                     if not tutor_found:
                         print("Warning: One tutor (", email, ") not found in database. Omitting corresponding shift.")
+                        output_dict = {"tutor": None,
+                                "email": None,
+                                "discipline": abbreviations[d],
+                                "other_disciplines": None}
+                        shift_list.append(output_dict)
+                else: #if email == None, implying no tutor signed up
+                    output_dict = {"tutor": None,
+                            "email": None,
+                            "discipline": abbreviations[d],
+                            "other_disciplines": None}
+                    shift_list.append(output_dict)
+            master_schedule_with_disciplines[shift_num] = shift_list
         shift_num += 1
     return master_schedule_with_disciplines
 
@@ -210,11 +233,34 @@ def upload_roster():
         result = read_roster(filename)
         print(result)
         return result
-    return "File format not accepted"""
+    return "File format not accepted"
 
 @application.route('/unauthorized_login')
 def unauthorized_login():
     return "You have successfully logged in to Colorado College, but your account is not part of the QRC database. \n Please contact QRC administrators if you believe this is an error. " + logout_link
+
+
+@application.route('/protected')
+@jwt_required()
+def protected():
+    return '%s' % current_identity
+
+@application.route('/api/update_master_schedule', methods=['POST'])
+def update_tutors_in_master_schedule():
+    disciplines = get_disciplines()
+    abbreviations = []
+    for discipline in disciplines:
+        abbreviation = get_discipline_abbreviation(discipline)
+        abbreviation = replace_chars(abbreviation)
+        abbreviations.append(abbreviation) 
+    result = json.load(request.get_json())
+    for key in result.keys():
+        shift_index, discipline_abbreviation = key.split(',')
+        new_tutor_username = result[key]
+        user = authenticate(new_tutor_username, "")
+        if user != None:
+            print(user.id, shift_index, discipline_abbreviation)
+            update_master_schedule_single_discipline(shift_index, disciplines[abbreviations.index(discipline_abbreviation)], user.id)
 
 @application.route('/api/add_remove_disciplines')
 def get_disciplines_abbreviations():
@@ -223,27 +269,20 @@ def get_disciplines_abbreviations():
     for discipline in disciplines:
         abbreviation = get_discipline_abbreviation(discipline)
         abbreviation = replace_chars(abbreviation)
+        discipline = replace_chars(discipline)
         discipline_schedule_with_abv.append([discipline, abbreviation])
 
     return discipline_schedule_with_abv
-
-
-@application.route('/protected')
-@jwt_required()
-def protected():
-    return '%s' % current_identity
-
+    
 @application.route('/api/add_discipline', methods=['POST'])
-def add_discipline():
-    discipline_name = request.body['Name']
-    discipline_abbreviation = request.body['Abv']
-    print("DSDLFSFDS", discipline_name)
-    print("SDFSDFDS", discipline_abbreviation)
+def add_new_discipline():
+    discipline_name = request.get_json()["Name"]
+    discipline_abbreviation = request.get_json()['Abv']
     add_discipline(discipline_name, discipline_abbreviation, [])
-
-# # run the app.
-# if __name__ == "__main__":
-#     # Setting debug to True enables debug output. This line should be
-#     # removed before deploying a production app.
-#     application.debug = True
-#     application.run()
+    
+# run the app.
+if __name__ == "__main__":
+    # Setting debug to True enables debug output. This line should be
+    # removed before deploying a production app.
+    application.debug = True
+    application.run()
