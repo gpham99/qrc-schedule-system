@@ -330,7 +330,9 @@ def add_new_admin():
     admin_data = request.get_json()
     admin_name = admin_data["name"]
     admin_email = admin_data["email"]
+    return ([admin_email, admin_name])
     add_admin(admin_name, admin_email)
+   
 
 
 @application.route('/api/remove_admin', methods=['POST'])
