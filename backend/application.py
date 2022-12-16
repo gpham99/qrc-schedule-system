@@ -5,7 +5,7 @@ from cas import CASClient
 from flask_cors import CORS
 import ast
 import os
-from models import read_roster, User
+from models import read_roster, User, prepare_excel_file
 from werkzeug.utils import secure_filename
 from utility import display, sanitize 
 from flask_jwt import JWT, jwt_required, current_identity
@@ -336,6 +336,15 @@ def get_username():
     in_system, group = check_login()
     if in_system:
         return session['username']
+
+
+@application.route('/api/last_excel_file')
+def last_excel_file():
+    if 'ROSTER' in application.config:
+        filepath = application.config['ROSTER']
+        return prepare_excel_file(filepath)
+    else:
+        return None
 
 
 # # run the app.
