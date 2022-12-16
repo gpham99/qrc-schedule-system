@@ -162,7 +162,10 @@ def get_master_schedule():
                         if tutor_entry[0] == email: #find the tutor in the roster
                             tutor_found = True
                             discipline_list = ast.literal_eval(tutor_entry[4])
-                            discipline_list.remove(disciplines[d]) #ensure there is no redundant information
+                            try:
+                                discipline_list.remove(disciplines[d]) #ensure there is no redundant information
+                            except:
+                                print("ERROR: Discipline " + disciplines[d] + " not in tutorable disciplines for tutor " + email)
                             #get abbreviations for each discipline
                             for i in range(len(discipline_list)):
                                 discipline_list[i] = abbreviations[disciplines.index(discipline_list[i])]
