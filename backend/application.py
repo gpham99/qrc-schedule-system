@@ -81,7 +81,7 @@ def index():
         session['username'] = user
         session['email'] = attributes['email']
         if not next:
-            return redirect(url_for('/api/tutor/' + session['username']))
+            return redirect('http://52.12.35.11:80/'+group)
         return redirect(next)
 
 @application.route('/profile')
@@ -99,8 +99,9 @@ def login():
     application.logger.debug('session when you hit login: %s', session)
 
     if 'username' in session:
+        in_system, group = check_login()
         # Already logged in
-        return redirect(url_for('/api/tutor/' + session['username']))
+        return redirect('http://52.12.35.11:80/'+group)
 
     next = request.args.get('next')
     ticket = request.args.get('ticket')

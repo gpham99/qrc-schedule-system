@@ -611,7 +611,7 @@ def check_user(user):
             rows = cur.fetchall()
             for row in rows:
                 if row[0] == user:
-                    return True, "tutors"
+                    return True, "tutor"
             return False, "None"
     except:
         con.rollback()
