@@ -2,7 +2,8 @@ import React from "react";
 import { useEffect, useState } from "react";
 
 const Discipline = () => {
-  const [DisciplinesAbbvs, setDisciplineAbbv] = useState({});
+  // disciplines contains the disciplines and abbreviations
+  const [disciplines, setDiscipline] = useState({});
 
   useEffect(() => {
     fetch("http://52.12.35.11:8080/api/add_remove_disciplines")
@@ -11,7 +12,7 @@ const Discipline = () => {
         setDisciplineAbbv(data);
         console.log(data);
       });
-  }, []);
+  }, [DisciplinesAbbvs]);
 
   var DisciplineName = "";
   var Abbreviation = "";
@@ -26,30 +27,15 @@ const Discipline = () => {
     Abbreviation = event.target.value;
   }
 
-  const handleClick = async () => {
-    try {
-      const response = await fetch(
-        "http://52.12.35.11:8080/api/add_discipline",
-        {
-          method: "POST",
-          mode: "no-cors",
-          body: JSON.stringify({
-            name: DisciplineName,
-            abv: Abbreviation,
-          }),
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error(`Error! dsjfksdflskjfdslk: ${response.status}`);
-      }
-
-      const result = await response.json();
-
-      console.log("result is: ", JSON.stringify(result, null, 4));
-    } catch (err) {
-      console.log(err.message);
-    }
+  const handleClick = () => {
+    const response = fetch("http://52.12.35.11:8080/api/add_discipline", {
+      method: "POST",
+      mode: "no-cors",
+      body: JSON.stringify({
+        name: DisciplineName,
+        abv: Abbreviation,
+      }),
+    });
   };
 
   return (
