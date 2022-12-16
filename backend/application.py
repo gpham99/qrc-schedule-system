@@ -327,10 +327,11 @@ def get_email_admins():
 def add_new_admin():
     admin_data = request.get_json()
     admin_name = admin_data["name"]
-    admin_email = admin_data['email']
+    admin_email = admin_data["email"]
     sanitized_name = sanitize(admin_name)
     sanitized_email = sanitize(admin_email)
-    add_admin(admin_name, admin_email)
+    add_admin(sanitized_name, sanitized_email)
+    return "Admin has been added"
 
 # # run the app.
 # if __name__ == "__main__":
