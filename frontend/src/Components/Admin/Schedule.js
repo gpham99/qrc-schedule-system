@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from "react";
 import { exportComponentAsJPEG } from "react-component-export-image";
 
 const Schedule = () => {
+  const [submitMessage, setSubmitMessage] = useState("");
+  const [unChangedMasterSchedule, setUnchangedMasterSchedule] = useState({});
   const [isChanged, setIsChanged] = useState({});
   const [masterSchedule, setMasterSchedule] = useState({});
   const [editedSchedule, setEdittedSchedule] = useState({});
@@ -13,17 +15,37 @@ const Schedule = () => {
       .then((res) => res.json())
       .then((data) => {
         setMasterSchedule(data);
+        setUnchangedMasterSchedule(structuredClone(data));
       });
   }, []);
 
   const toggleEditMode = (event) => {
     event.preventDefault();
     setEditMode(1 - editMode);
+    setIsChanged({});
+    setMasterSchedule(structuredClone(unChangedMasterSchedule));
+    setEdittedSchedule({});
   };
 
   const submitChange = (event) => {
     event.preventDefault();
     console.log(editedSchedule);
+
+    fetch("http://52.12.35.11:8080/api/update_master_schedule", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(editedSchedule),
+    })
+      .then(function (response) {
+        return response.json();
+      })
+      .then(function (data) {
+        setSubmitMessage(data);
+      });
+
+    setEditMode(1 - editMode);
   };
 
   return (
@@ -82,6 +104,50 @@ const Schedule = () => {
             )}
           </div>
 
+          {submitMessage.length > 0 && (
+            <div
+              class="alert alert-danger m-4 alert-dismissible fade show"
+              role="alert"
+            >
+              <div className="m-3 text-left">
+                {Array.from(new Set(submitMessage)).map((msg) => (
+                  <p>{msg}</p>
+                ))}
+                <p>
+                  If you made any other changes that are not shown in the error
+                  message above, please reload the page to see them.
+                </p>
+              </div>
+              <button
+                type="button"
+                class="close"
+                data-dismiss="alert"
+                aria-label="Close"
+              >
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+          )}
+
+          {submitMessage !== "" && submitMessage.length === 0 && (
+            <div
+              class="alert alert-success m-4 alert-dismissible fade show"
+              role="alert"
+            >
+              <div className="m-3 text-left">
+                Please reload the page to see the changes you've made.
+              </div>
+              <button
+                type="button"
+                class="close"
+                data-dismiss="alert"
+                aria-label="Close"
+              >
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+          )}
+
           {/* uneditable skeleton of master schedule */}
           <div className="pr-4 pl-4 table-responsive" ref={componentRef}>
             <div class="p-3">
@@ -134,7 +200,10 @@ const Schedule = () => {
                                     }
                                     style={{
                                       borderColor: isChanged[num + "," + index]
-                                        ? "red"
+                                        ? "green"
+                                        : "",
+                                      borderWidth: isChanged[num + "," + index]
+                                        ? "medium"
                                         : "",
                                     }}
                                     onChange={(e) => {
@@ -147,32 +216,32 @@ const Schedule = () => {
                                       ] = new_email;
                                       setMasterSchedule(master_schedule_copy);
 
+                                      let isChanged_copy = { ...isChanged };
+                                      let isSame =
+                                        (unChangedMasterSchedule[num][index][
+                                          "email"
+                                        ] === null &&
+                                          masterSchedule[num][index][
+                                            "email"
+                                          ] === "") ||
+                                        masterSchedule[num][index]["email"] ===
+                                          unChangedMasterSchedule[num][index][
+                                            "email"
+                                          ]?.split("@")[0];
+                                      isChanged_copy[num + "," + index] =
+                                        !isSame;
+                                      setIsChanged(isChanged_copy);
+
                                       let d_key =
                                         num + "," + shift_tutor["discipline"];
                                       let d_copy = { ...editedSchedule };
-                                      d_copy[d_key] = e.target.value;
-                                      setEdittedSchedule(d_copy);
-
-                                      let isChanged_copy = { ...isChanged };
-                                      isChanged_copy[num + "," + index] = true;
-
-                                      // console.log(
-                                      //   masterSchedule[num][index]["email"]
-                                      // );
-                                      // console.log(
-                                      //   "this shdnt change: ",
-                                      //   unChangedMasterSchedule[num][index][
-                                      //     "email"
-                                      //   ]
-                                      // );
-                                      // console.log(
-                                      //   "is the current value equal to the original one ",
-                                      //   masterSchedule[num][index]["email"] ===
-                                      //     unChangedMasterSchedule[num][index][
-                                      //       "email"
-                                      //     ]
-                                      // );
-                                      setIsChanged(isChanged_copy);
+                                      if (isSame === false) {
+                                        d_copy[d_key] = e.target.value;
+                                        setEdittedSchedule(d_copy);
+                                      } else {
+                                        delete d_copy[d_key];
+                                        setEdittedSchedule(d_copy);
+                                      }
                                     }}
                                   />
                                 </div>
@@ -218,6 +287,14 @@ const Schedule = () => {
                                         "email"
                                       ]?.split("@")[0]
                                     }
+                                    style={{
+                                      borderColor: isChanged[num + "," + index]
+                                        ? "green"
+                                        : "",
+                                      borderWidth: isChanged[num + "," + index]
+                                        ? "medium"
+                                        : "",
+                                    }}
                                     onChange={(e) => {
                                       let new_email = e.target.value;
                                       let master_schedule_copy = {
@@ -228,11 +305,32 @@ const Schedule = () => {
                                       ] = new_email;
                                       setMasterSchedule(master_schedule_copy);
 
+                                      let isChanged_copy = { ...isChanged };
+                                      let isSame =
+                                        (unChangedMasterSchedule[num][index][
+                                          "email"
+                                        ] === null &&
+                                          masterSchedule[num][index][
+                                            "email"
+                                          ] === "") ||
+                                        masterSchedule[num][index]["email"] ===
+                                          unChangedMasterSchedule[num][index][
+                                            "email"
+                                          ]?.split("@")[0];
+                                      isChanged_copy[num + "," + index] =
+                                        !isSame;
+                                      setIsChanged(isChanged_copy);
+
                                       let d_key =
                                         num + "," + shift_tutor["discipline"];
                                       let d_copy = { ...editedSchedule };
-                                      d_copy[d_key] = e.target.value;
-                                      setEdittedSchedule(d_copy);
+                                      if (isSame === false) {
+                                        d_copy[d_key] = e.target.value;
+                                        setEdittedSchedule(d_copy);
+                                      } else {
+                                        delete d_copy[d_key];
+                                        setEdittedSchedule(d_copy);
+                                      }
                                     }}
                                   />
                                 </div>
@@ -277,6 +375,14 @@ const Schedule = () => {
                                         "email"
                                       ]?.split("@")[0]
                                     }
+                                    style={{
+                                      borderColor: isChanged[num + "," + index]
+                                        ? "green"
+                                        : "",
+                                      borderWidth: isChanged[num + "," + index]
+                                        ? "medium"
+                                        : "",
+                                    }}
                                     onChange={(e) => {
                                       let new_email = e.target.value;
                                       let master_schedule_copy = {
@@ -287,11 +393,32 @@ const Schedule = () => {
                                       ] = new_email;
                                       setMasterSchedule(master_schedule_copy);
 
+                                      let isChanged_copy = { ...isChanged };
+                                      let isSame =
+                                        (unChangedMasterSchedule[num][index][
+                                          "email"
+                                        ] === null &&
+                                          masterSchedule[num][index][
+                                            "email"
+                                          ] === "") ||
+                                        masterSchedule[num][index]["email"] ===
+                                          unChangedMasterSchedule[num][index][
+                                            "email"
+                                          ]?.split("@")[0];
+                                      isChanged_copy[num + "," + index] =
+                                        !isSame;
+                                      setIsChanged(isChanged_copy);
+
                                       let d_key =
                                         num + "," + shift_tutor["discipline"];
                                       let d_copy = { ...editedSchedule };
-                                      d_copy[d_key] = e.target.value;
-                                      setEdittedSchedule(d_copy);
+                                      if (isSame === false) {
+                                        d_copy[d_key] = e.target.value;
+                                        setEdittedSchedule(d_copy);
+                                      } else {
+                                        delete d_copy[d_key];
+                                        setEdittedSchedule(d_copy);
+                                      }
                                     }}
                                   />
                                 </div>
@@ -336,6 +463,14 @@ const Schedule = () => {
                                         "email"
                                       ]?.split("@")[0]
                                     }
+                                    style={{
+                                      borderColor: isChanged[num + "," + index]
+                                        ? "green"
+                                        : "",
+                                      borderWidth: isChanged[num + "," + index]
+                                        ? "medium"
+                                        : "",
+                                    }}
                                     onChange={(e) => {
                                       let new_email = e.target.value;
                                       let master_schedule_copy = {
@@ -346,11 +481,32 @@ const Schedule = () => {
                                       ] = new_email;
                                       setMasterSchedule(master_schedule_copy);
 
+                                      let isChanged_copy = { ...isChanged };
+                                      let isSame =
+                                        (unChangedMasterSchedule[num][index][
+                                          "email"
+                                        ] === null &&
+                                          masterSchedule[num][index][
+                                            "email"
+                                          ] === "") ||
+                                        masterSchedule[num][index]["email"] ===
+                                          unChangedMasterSchedule[num][index][
+                                            "email"
+                                          ]?.split("@")[0];
+                                      isChanged_copy[num + "," + index] =
+                                        !isSame;
+                                      setIsChanged(isChanged_copy);
+
                                       let d_key =
                                         num + "," + shift_tutor["discipline"];
                                       let d_copy = { ...editedSchedule };
-                                      d_copy[d_key] = e.target.value;
-                                      setEdittedSchedule(d_copy);
+                                      if (isSame === false) {
+                                        d_copy[d_key] = e.target.value;
+                                        setEdittedSchedule(d_copy);
+                                      } else {
+                                        delete d_copy[d_key];
+                                        setEdittedSchedule(d_copy);
+                                      }
                                     }}
                                   />
                                 </div>

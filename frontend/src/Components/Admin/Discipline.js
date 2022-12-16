@@ -1,59 +1,100 @@
 import React from "react";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 
 const Discipline = () => {
-  const [DisciplinesAbbvs, setDisciplineAbbv] = useState({});
+  // disciplines contains both the full name and the abbreviation of every discipline
+  const [sanitizeCheck, setSanitizeCheck] = useState(true);
+  const [submitMessage, setSubmitMessage] = useState("");
+  const [disciplines, setDisciplines] = useState({});
+  const [disciplineName, setDisciplineName] = useState("");
+  const [disciplineAbv, setDisciplineAbv] = useState("");
 
   useEffect(() => {
     fetch("http://52.12.35.11:8080/api/add_remove_disciplines")
       .then((res) => res.json())
       .then((data) => {
-        console.log("data: ", data);
-        setDisciplineAbbv(data);
-        console.log("ms: ", DisciplinesAbbvs);
+        setDisciplines(data);
       });
-  }, []);
+  }, [disciplines]);
 
-  var Discipline_Name = "";
-  var Abbreviation = "";
+  const removeDiscipline = (disciplineName) => {
+    fetch("http://52.12.35.11:8080/api/remove_discipline", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(disciplineName),
+    });
+  };
 
-  function HandleName(event) {
-    event.preventDefault();
-    Discipline_Name = event.target.value;
-  }
+  const sanitizeInput = (disciplineName, disciplineAbv) => {
+    disciplineName = disciplineName.trim();
+    disciplineAbv = disciplineAbv.trim();
 
-  function HandleAbv(event) {
-    event.preventDefault();
-    Abbreviation = event.target.value;
-  }
-
-  const handleClick = async () => {
-    try {
-      const response = await fetch(
-        "http://52.12.35.11:8080/api/add_discipline",
-        {
-          method: "POST",
-          body: JSON.stringify({
-            name: Discipline_Name,
-            Abv: Abbreviation,
-          }),
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          },
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error(`Error! status: ${response.status}`);
+    for (let i = 0; i < disciplineName.length; i++) {
+      if (
+        !(
+          (disciplineName[i].charCodeAt() >= 65 &&
+            disciplineName[i].charCodeAt() <= 90) ||
+          (disciplineName[i].charCodeAt() >= 97 &&
+            disciplineName[i].charCodeAt() <= 122) ||
+          disciplineName[i].charCodeAt() === 32 ||
+          disciplineName[i].charCodeAt() === 47
+        )
+      ) {
+        return false;
       }
-
-      const result = await response.json();
-
-      console.log("result is: ", JSON.stringify(result, null, 4));
-    } catch (err) {
-      console.log(err.message);
     }
+
+    for (let i = 0; i < disciplineAbv.length; i++) {
+      if (
+        !(
+          (disciplineAbv[i].charCodeAt() >= 65 &&
+            disciplineAbv[i].charCodeAt() <= 90) ||
+          (disciplineAbv[i].charCodeAt() >= 97 &&
+            disciplineAbv[i].charCodeAt() <= 122) ||
+          disciplineAbv[i].charCodeAt() === 32 ||
+          disciplineAbv[i].charCodeAt() === 47
+        )
+      ) {
+        return false;
+      }
+    }
+
+    return true;
+  };
+
+  const handleClick = (e) => {
+    let isSanitized = sanitizeInput(disciplineName, disciplineAbv);
+    console.log("is it sanitized?: ", isSanitized);
+    setSanitizeCheck(isSanitized);
+
+    if (isSanitized === true) {
+      fetch("http://52.12.35.11:8080/api/add_discipline", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: disciplineName,
+          abv: disciplineAbv,
+        }),
+      }).then((response) => {
+        let res = response.json();
+        if (200 <= res.status <= 299) {
+          console.log("Discipline added successfully");
+          setSubmitMessage("Success");
+        } else {
+          console.log("Failed to add discipline");
+          setSubmitMessage("Fail");
+        }
+      });
+    }
+  };
+
+  const handleCancel = (e) => {
+    setDisciplineAbv("");
+    setDisciplineName("");
   };
 
   return (
@@ -81,14 +122,13 @@ const Discipline = () => {
           <div class="modal-dialog" role="document">
             <div class="modal-content">
               <div class="modal-header">
-                <p5 class="align-self-center w-100">
-                  Please fill out the form to add a discipline
-                </p5>
+                <p5 class="align-self-center w-100">Add a discipline</p5>
                 <button
                   type="button"
                   class="close"
                   data-dismiss="modal"
                   aria-label="Close"
+                  onClick={handleCancel}
                 >
                   <span aria-hidden="true">&times;</span>
                 </button>
@@ -96,26 +136,30 @@ const Discipline = () => {
               <div class="modal-body">
                 <form>
                   <div class="form-group">
-                    <label>Name</label>
+                    <label>Discipline Name</label>
                     <input
                       class="form-control"
-                      name="NameInput"
-                      onChange={HandleName}
+                      value={disciplineName}
+                      placeholder="Ex: Mathematics"
+                      onChange={(e) => {
+                        setDisciplineName(e.target.value);
+                      }}
                     />
                   </div>
                   <div class="form-group">
-                    <label>Abbreviation</label>
+                    <label>Discipline Abbreviation</label>
                     <input
                       class="form-control"
-                      name="AbvInput"
-                      onChange={HandleAbv}
+                      value={disciplineAbv}
+                      placeholder="Ex: M"
+                      onChange={(e) => {
+                        setDisciplineAbv(e.target.value);
+                      }}
                     />
                   </div>
-                  <div class="form-check"></div>
                   <button
                     class="btn btn-info"
                     data-dismiss="modal"
-                    aria-label="Close"
                     onClick={handleClick}
                   >
                     Submit
@@ -126,6 +170,65 @@ const Discipline = () => {
           </div>
         </div>
       </div>
+
+      {submitMessage === "Success" && (
+        <div
+          class="alert alert-success m-4 alert-dismissible fade show"
+          role="alert"
+        >
+          Discipline added successfully!
+          <button
+            type="button"
+            class="close"
+            data-dismiss="alert"
+            aria-label="Close"
+          >
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+      )}
+
+      {submitMessage === "Fail" && (
+        <div
+          class="alert alert-warning m-4 alert-dismissible fade show"
+          role="alert"
+        >
+          Failed to add discipline.
+          <button
+            type="button"
+            class="close"
+            data-dismiss="alert"
+            aria-label="Close"
+          >
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+      )}
+
+      {sanitizeCheck === false && (
+        <div class="alert alert-warning fade show m-4" role="alert">
+          <div class="justify-content-end">
+            <button
+              type="button"
+              class="close"
+              data-dismiss="alert"
+              aria-label="Close"
+            >
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+
+          <div class="pt-3 text-center">
+            <p>
+              <strong>Error: Discipline not added.</strong>
+            </p>
+            <p>
+              You may only use alphabetical characters, slash "/", or space " "
+              for the discipline name and its abbreviation.
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* a table to show all the current disciplines */}
       {/* table */}
@@ -139,17 +242,21 @@ const Discipline = () => {
             </tr>
           </thead>
           <tbody>
-            {Object.values(DisciplinesAbbvs).map((val) => (
+            {Object.values(disciplines).map((val) => (
               <tr>
                 <td>{val[0]}</td>
                 <td>{val[1]}</td>
                 <td>
-                  <a href="#" class="p-2">
-                    Edit
-                  </a>
-                  <a href="#" class="p-2">
+                  <button class="btn btn-link">Edit</button>
+                  <button
+                    class="btn btn-link"
+                    onClick={(e) => {
+                      let dName = val[0];
+                      removeDiscipline(dName);
+                    }}
+                  >
                     Remove
-                  </a>
+                  </button>
                 </td>
               </tr>
             ))}
