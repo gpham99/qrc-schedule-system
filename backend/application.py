@@ -1,4 +1,5 @@
-from Database import get_roster, get_master_schedule_info, get_disciplines, check_user, get_discipline_abbreviation, update_master_schedule_single_discipline, get_abbreviations, add_discipline, delete_discipline
+from Database import get_roster, get_master_schedule_info, get_disciplines, check_user, get_discipline_abbreviation,\
+     update_master_schedule_single_discipline, get_abbreviations, add_discipline, delete_discipline, get_admin_roster
 import time
 from flask import Flask, request, session, redirect, url_for, jsonify
 from cas import CASClient
@@ -211,6 +212,17 @@ def get_tutor_schedule(username):
                 tutor_schedule[shift_num] = None
             shift_num += 1
     return tutor_schedule
+
+
+@application.route('/api/get_tutor_info')
+@jwt_required()
+def tutor_info():
+    result = {}
+    result['username'] = current_identity.id
+    result['name'] = current_identity.name
+    result['disciplines'] = current_identity.disciplines
+    result['shift_capacity'] = current_identity.shift_capacity
+    return result
     
     
 @application.route('/api/upload_roster', methods=['POST'])
@@ -300,6 +312,23 @@ def remove_discipline():
     #discipline_name = req['name']
     delete_discipline(sanitize(discipline_name))
     return "Discipline deleted"
+
+@application.route('/api/get_admins')
+def get_disciplines_abbreviations():
+    email_admin = get_admin_roster()
+    discipline_schedule_with_email = []
+    for admin, email in email_admin:
+        sanitized_email = sanitize(email)
+        sanitized_admin = sanitize(admin)
+        discipline_schedule_with_email.append([sanitized_admin, sanitized_email])
+
+    return discipline_schedule_with_email
+
+@application.route('/api/add_admin')
+def add_new_admin():
+    admin_name = request.get_json()["name"]
+    admin_email = request.get_json()['email']
+    add_discipline(admin_name, admin_email)
 
 # # run the app.
 # if __name__ == "__main__":
