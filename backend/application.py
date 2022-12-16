@@ -262,13 +262,13 @@ def update_tutors_in_master_schedule():
     for i in range(len(abbreviations)):
         abbreviations[i] = display(abbreviations[i])
     result = request.get_json()
-    output = ""
+    output = []
     for key in result.keys():
         shift_index, discipline_abbreviation = key.split(',')
         new_tutor_username = result[key]
         if new_tutor_username == "":
             update_master_schedule_single_discipline(shift_index, disciplines[abbreviations.index(discipline_abbreviation)], None)
-            output += "Shift removed successfully\n"
+            #output += "Shift removed successfully\n"
         else:
             user = authenticate(new_tutor_username, "")
             if user != None:
@@ -276,11 +276,11 @@ def update_tutors_in_master_schedule():
                 discipline_to_change = disciplines[abbreviations.index(discipline_abbreviation)]
                 if discipline_to_change in user.disciplines:
                     update_master_schedule_single_discipline(shift_index, discipline_to_change, user.id)
-                    output += "Shift for " + user.id + " added successfully\n"
+                    #output += "Shift for " + user.id + " added successfully\n"
                 else:
-                    output += "Error: Tutor " + user.id + " is not eligible to tutor " + display(discipline_to_change) + "\n"
+                    output.append("Error: Tutor " + user.id + " is not eligible to tutor " + display(discipline_to_change) + "\n")
             else:
-                output += "Error: " + user.id + " not found in database, please check your spelling\n"
+                output.append("Error: " + user.id + " not found in database, please check your spelling\n")
     return output
     
 @application.route('/api/add_discipline', methods=['POST'])
