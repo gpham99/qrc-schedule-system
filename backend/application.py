@@ -100,6 +100,7 @@ def login():
 
     if 'username' in session:
         in_system, group = check_login()
+
         # Already logged in
         return redirect('http://52.12.35.11:80/'+group)
 
@@ -333,7 +334,10 @@ def add_new_admin():
 
 @application.route('/api/get_username')
 def get_username():
-    return session['username']
+    in_system, group = check_login()
+    if in_system:
+        return session['username']
+
 
 # # run the app.
 # if __name__ == "__main__":
