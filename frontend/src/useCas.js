@@ -7,7 +7,11 @@ const useCas = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const casEndpoint = "cas.coloradocollege.edu";
-  const casOptions = { version: constant.CAS_VERSION_3_0, protocol: "https:" };
+  const casOptions = {
+    version: constant.CAS_VERSION_3_0,
+    protocol: "https:",
+    validation_proxy_path: "/cas_proxy",
+  };
   const casClient = new CasClient(casEndpoint, casOptions);
   const casUserContext = useContext(UserContext); // this line needs to be changed later -> look up all the blabla
 
