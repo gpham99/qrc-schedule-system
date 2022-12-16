@@ -13,35 +13,50 @@ const useCas = () => {
 
   useEffect(() => {
     if (!casUserContext.user) {
-      (async function () {
-        try {
-          await attemptCasLogin();
-        } catch (error) {
-          console.error(error);
-        }
-      })();
+      //   (async function () {
+      //     try {
+      //       await attemptCasLogin();
+      //     } catch (error) {
+      //       console.error(error);
+      //     }
+      //   })();
+      attemptCasLogin();
     }
   }, []);
 
   const attemptCasLogin = () => {
-    return new Promise((resolve, reject) => {
-      casClient
-        .auth()
-        .then((successRes) => {
-          // Login user in state / locationStorage ()
-          // eg. loginUser(response.user);
-          casUserContext.setUser(successRes.user);
-          // Update current path to trim any extra params in url
-          // eg. this.props.history.replace(response.currentPath); -> used to be history.replace(errorRes.currentPath) -> change to navigate
-          setIsLoading(false);
-          navigate(successRes.currentPath, { replace: true });
-        })
-        .catch((errorRes) => {
-          setIsLoading(false);
-          navigate(errorRes.currentPath, { replace: true });
-          reject(errorRes);
-        });
-    });
+    // return new Promise((resolve, reject) => {
+    //   casClient
+    //     .auth()
+    //     .then((successRes) => {
+    //       // Login user in state / locationStorage ()
+    //       // eg. loginUser(response.user);
+    //       casUserContext.setUser(successRes.user);
+    //       // Update current path to trim any extra params in url
+    //       // eg. this.props.history.replace(response.currentPath); -> used to be history.replace(errorRes.currentPath) -> change to navigate
+    //       setIsLoading(false);
+    //       navigate(successRes.currentPath, { replace: true });
+    //     })
+    //     .catch((errorRes) => {
+    //       setIsLoading(false);
+    //       navigate(errorRes.currentPath, { replace: true });
+    //       reject(errorRes);
+    //     });
+    // });
+    // Basic usage
+
+    casClient
+      .auth()
+      .then((successRes) => {
+        console.log(successRes);
+        casUserContext.setUser(successRes.user);
+        setIsLoading(false);
+        navigate(successRes.currentPath, { replace: true });
+      })
+      .catch((errorRes) => {
+        setIsLoading(false);
+        navigate(errorRes.currentPath, { replace: true });
+      });
   };
 
   const logout = (path = "/") => {
