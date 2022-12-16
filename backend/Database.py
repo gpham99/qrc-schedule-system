@@ -604,7 +604,7 @@ def check_user(user):
             rows = cur.fetchall()
             for row in rows:
                 if row[0] == user:
-                    return True, "admins"
+                    return True, "admin"
 
             # Checks to see if the user is a tutor
             cur.execute("select * from tutors")
