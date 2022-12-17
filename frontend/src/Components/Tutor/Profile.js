@@ -1,33 +1,33 @@
 import React, { useState, useEffect } from "react";
 
 const Profile = () => {
-  const [jwt, setJwt] = useState("");
+  // const [jwt, setJwt] = useState("");
 
-  useEffect(() => {
-    const requestOptions = {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username: "pass", password: "pass" }),
-    };
-    fetch("http://52.12.35.11:8080/auth", requestOptions)
-      .then(function (response) {
-        console.log("res hehe: ", response.json());
-        return response.json();
-      })
-      .then(function (data) {
-        console.log(data);
-      });
-  }, []);
+  // useEffect(() => {
+  //   const requestOptions = {
+  //     method: "POST",
+  //     headers: { "Content-Type": "application/json" },
+  //     body: JSON.stringify({ username: "pass", password: "pass" }),
+  //   };
+  //   fetch("http://52.12.35.11:8080/auth", requestOptions)
+  //     .then(function (response) {
+  //       console.log("res hehe: ", response.json());
+  //       return response.json();
+  //     })
+  //     .then(function (data) {
+  //       console.log(data);
+  //     });
+  // }, []);
 
-  useEffect(() => {
-    fetch("http://52.12.35.11:8080/api/get_username").then((res) => {
-      console.log("res: ", res);
-      res.json();
-    });
-    // .then((data) => {
-    //   (data.time);
-    // });
-  }, []);
+  // useEffect(() => {
+  //   fetch("http://52.12.35.11:8080/api/get_username").then((res) => {
+  //     console.log("res: ", res);
+  //     res.json();
+  //   });
+  //   // .then((data) => {
+  //   //   (data.time);
+  //   // });
+  // }, []);
 
   return (
     <div class="bg-light p-4 d-flex flex-column align-items-center justify-content-center">
