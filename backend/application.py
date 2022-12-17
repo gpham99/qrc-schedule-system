@@ -40,9 +40,8 @@ cas_client = CASClient(
     server_url='https://cas.coloradocollege.edu/cas/'
 )
 def authenticate(username, password):
-    print('username' in session)
-    if 'username' in session:
-        username = session['username']
+    if 'username' not in session:
+        session['username'] = username
     email = username + "@coloradocollege.edu"
     in_system, group = check_user(username+"@coloradocollege.edu")
     if in_system:
@@ -99,7 +98,7 @@ def index():
         session['email'] = attributes['email']
         in_system, group = check_login()
         if not next:
-            return redirect('http://52.12.35.11:80/'+group+'/'+session['username'])
+            return redirect('http://52.12.35.11:80/'+group+'?username='+session['username'])
         return redirect(next)
 
 @application.route('/profile')
@@ -120,7 +119,7 @@ def login():
         in_system, group = check_login()
 
         # Already logged in
-        return redirect('http://52.12.35.11:80/'+group+'/'+session['username'])
+        return redirect('http://52.12.35.11:80/'+group+'?username='+session['username'])
 
     next = request.args.get('next')
     ticket = request.args.get('ticket')
@@ -411,6 +410,7 @@ def last_excel_file():
 
 @application.route('/api/set_time_window', methods=['POST'])
 def set_time_window():
+    print("Received call to set_time_window")
     time_data = request.get_json()
     start_time = time_data['start_time']
     end_time = time_data['end_time']
@@ -422,6 +422,15 @@ def set_time_window():
     add_time_window(current_block, start_time, end_time)
     
 
+@application.route('/api/get_disciplines')
+def get_discipline_list():
+    sanitized_disciplines = []
+    fetched_disciplines =  get_disciplines() 
+    for discipline in fetched_disciplines:
+        discipline = sanitize(discipline)
+        sanitized_disciplines.append(discipline)
+
+    return sanitized_disciplines
 
 
 # # run the app.
