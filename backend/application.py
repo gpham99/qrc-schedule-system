@@ -97,7 +97,7 @@ def index():
         session['email'] = attributes['email']
         in_system, group = check_login()
         if not next:
-            return redirect('http://52.12.35.11:80/'+group+'/'+session['username'])
+            return redirect('http://52.12.35.11:80/'+group+'?username='+session['username'])
         return redirect(next)
 
 @application.route('/profile')
@@ -118,7 +118,7 @@ def login():
         in_system, group = check_login()
 
         # Already logged in
-        return redirect('http://52.12.35.11:80/'+group+'/'+session['username'])
+        return redirect('http://52.12.35.11:80/'+group+'?username='+session['username'])
 
     next = request.args.get('next')
     ticket = request.args.get('ticket')
