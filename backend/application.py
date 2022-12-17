@@ -40,9 +40,8 @@ cas_client = CASClient(
     server_url='https://cas.coloradocollege.edu/cas/'
 )
 def authenticate(username, password):
-    print('username' in session)
-    if 'username' in session:
-        username = session['username']
+    if 'username' not in session:
+        session['username'] = username
     email = username + "@coloradocollege.edu"
     in_system, group = check_user(username+"@coloradocollege.edu")
     if in_system:
@@ -422,6 +421,9 @@ def set_time_window():
     add_time_window(current_block, start_time, end_time)
     
 
+@application.route('/api/get_disciplines')
+def get_discipline_list():
+    return get_disciplines()
 
 
 # # run the app.
