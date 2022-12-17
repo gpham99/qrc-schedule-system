@@ -11,7 +11,6 @@ const TimeWindow = () => {
   const createTimeWindow = () => {
     fetch("http://52.12.35.11:5000/api/set_time_window", {
       method: "POST",
-      mode: "no-cors",
       headers: {
         "Content-Type": "application/json",
       },
@@ -79,9 +78,17 @@ const TimeWindow = () => {
       <div class="pb-4 d-flex justify-content-center">
         <button type="button" class="btn btn-secondary mr-3 ml-3">
           Update the time window
+          onClick={() => {
+                  setNewBlock(false);
+                  createTimeWindow();
+                }}
         </button>
         <button type="button" class="btn btn-info mr-3 ml-3">
           Create a new time window
+          onClick={() => {
+                  setNewBlock(true);
+                  createTimeWindow();
+                }}
         </button>
       </div>
     </div>
