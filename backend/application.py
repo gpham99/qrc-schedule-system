@@ -10,7 +10,8 @@ from models import read_roster, User, prepare_excel_file
 from werkzeug.utils import secure_filename
 from utility import display, sanitize 
 from flask_jwt import JWT, jwt_required, current_identity
-from security import authenticate, identity
+#from security import authenticate, identity
+from security import identity
 import json
 
 UPLOAD_FOLDER = '.'
@@ -40,6 +41,16 @@ cas_client = CASClient(
     service_url='http://52.12.35.11:8080/',
     server_url='https://cas.coloradocollege.edu/cas/'
 )
+def authenticate(username, password):
+    print('username' in session)
+    if 'username' in session:
+        username = session['username']
+    email = username + "@coloradocollege.edu"
+    in_system, group = check_user(username+"@coloradocollege.edu")
+    if in_system:
+        tutor_entry = get_single_tutor_info(email)
+        return User(email, tutor_entry[1], group, tutor_entry[2], tutor_entry[3], tutor_entry[4], tutor_entry[5], tutor_entry[6],
+        tutor_entry[7])
 jwt = JWT(application, authenticate, identity)
 
 def allowed_file(filename):
@@ -48,8 +59,14 @@ def allowed_file(filename):
 
 def check_login():
     if 'username' in session:
-        in_system, group = check_user(session['username']+"@coloradocollege.edu")
+        try:
+            application.logger.debug("try")
+            in_system, group = check_user(session['username']+"@coloradocollege.edu")
+        except:
+            print(session['username'] + " not in system")
+            return False, "Logged out"
     else:
+        application.logger.debug("else")
         in_system, group = False, "Logged out"
     return in_system, group
 
@@ -82,8 +99,9 @@ def index():
     else:  # Login successfully, redirect according `next` query parameter.
         session['username'] = user
         session['email'] = attributes['email']
+        in_system, group = check_login()
         if not next:
-            return redirect('http://52.12.35.11:80/'+group)
+            return redirect('http://52.12.35.11:80/'+group+'/'+session['username'])
         return redirect(next)
 
 @application.route('/profile')
@@ -104,7 +122,7 @@ def login():
         in_system, group = check_login()
 
         # Already logged in
-        return redirect('http://52.12.35.11:80/'+group)
+        return redirect('http://52.12.35.11:80/'+group+'/'+session['username'])
 
     next = request.args.get('next')
     ticket = request.args.get('ticket')
@@ -256,6 +274,13 @@ def upload_roster():
 def unauthorized_login():
     return "You have successfully logged in to Colorado College, but your account is not part of the QRC database. \n Please contact QRC administrators if you believe this is an error. " + logout_link
 
+
+@application.route('/protected')
+@jwt_required()
+def protected():
+    return '%s' % current_identity
+
+
 @application.route('/api/add_remove_disciplines')
 def get_disciplines_abbreviations():
     disciplines = get_disciplines()
@@ -268,11 +293,6 @@ def get_disciplines_abbreviations():
 
     return discipline_schedule_with_abv
 
-
-@application.route('/protected')
-@jwt_required()
-def protected():
-    return '%s' % current_identity
 
 @application.route('/api/update_master_schedule', methods=['POST'])
 def update_tutors_in_master_schedule():
@@ -403,6 +423,7 @@ def set_time_window():
         update_current_block(current_block)
     add_time_window(current_block, start_time, end_time)
     
+
 
 
 # # run the app.

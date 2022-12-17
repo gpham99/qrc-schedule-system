@@ -249,7 +249,7 @@ def delete_tutors(email):
         con.close()
 
 
-# function that will delete tutors
+# function that will delete admins
 def delete_admins(email):
     try:
         with sql.connect("database.db") as con:
@@ -263,7 +263,7 @@ def delete_admins(email):
         con.close()
 
 
-# function that will delete tutors
+# function that will delete superusers
 def delete_superusers(email):
     try:
         with sql.connect("database.db") as con:
@@ -428,7 +428,6 @@ def get_disciplines():
         con.rollback()
     finally:
         con.close()
-
 
 # Function that will return which shifts a particular discipline is available for
 def get_discipline_shifts_offered(discipline):
