@@ -409,6 +409,7 @@ def last_excel_file():
 
 @application.route('/api/set_time_window', methods=['POST'])
 def set_time_window():
+    print("Received call to set_time_window")
     time_data = request.get_json()
     start_time = time_data['start_time']
     end_time = time_data['end_time']
@@ -422,7 +423,13 @@ def set_time_window():
 
 @application.route('/api/get_disciplines')
 def get_discipline_list():
-    return get_disciplines()
+    sanitized_disciplines = []
+    fetched_disciplines =  get_disciplines() 
+    for discipline in fetched_disciplines:
+        discipline = sanitize(discipline)
+        sanitized_disciplines.append(discipline)
+
+    return sanitized_disciplines
 
 
 # # run the app.
