@@ -4,6 +4,24 @@ import "react-datepicker/dist/react-datepicker.css";
 
 const TimeWindow = () => {
   const [startDate, setStartDate] = useState(new Date());
+  const [endDate, setEndDate] = useState(new Date());
+  const [newBlock, setNewBlock] = useState(false);
+
+  // func to post to database
+  const createTimeWindow = () => {
+    fetch("http://52.12.35.11:5000/api/set_time_window", {
+      method: "POST",
+      mode: "no-cors",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        sTime: startDate,
+        eTime: endDate,
+        nBlock: newBlock,
+      }),
+    });
+  };
 
   return (
     <div class="container bg-light">
@@ -33,7 +51,9 @@ const TimeWindow = () => {
           <div>
             <DatePicker
               selected={startDate}
-              onChange={(date) => setStartDate(date)}
+              onChange={(date) => {
+                setStartDate(date);
+              }}
               timeInputLabel="Time:"
               dateFormat="MM/dd/yyyy h:mm aa"
               showTimeInput
@@ -45,8 +65,10 @@ const TimeWindow = () => {
           <p class="pr-3">End date: </p>
           <div>
             <DatePicker
-              selected={startDate}
-              onChange={(date) => setStartDate(date)}
+              selected={endDate}
+              onChange={(date) => {
+                setEndDate(date);
+              }}
               timeInputLabel="Time:"
               dateFormat="MM/dd/yyyy h:mm aa"
               showTimeInput
@@ -54,7 +76,6 @@ const TimeWindow = () => {
           </div>
         </div>
       </div>
-
       <div class="pb-4 d-flex justify-content-center">
         <button type="button" class="btn btn-secondary mr-3 ml-3">
           Update the time window

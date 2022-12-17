@@ -97,9 +97,13 @@ def profile(method=['GET']):
 def login():
     application.logger.debug('session when you hit login: %s', session)
 
+<<<<<<< HEAD
     if 'username' in session:
         in_system, group = check_login()
 
+=======
+    if 'username' in session:  
+>>>>>>> pralad
         # Already logged in
         return redirect('http://52.12.35.11:80/'+group)
 
@@ -253,6 +257,29 @@ def upload_roster():
 def unauthorized_login():
     return "You have successfully logged in to Colorado College, but your account is not part of the QRC database. \n Please contact QRC administrators if you believe this is an error. " + logout_link
 
+
+@application.route('/protected')
+@jwt_required()
+def protected():
+    return '%s' % current_identity
+
+@application.route('/api/update_master_schedule', methods=['POST'])
+def update_tutors_in_master_schedule():
+    disciplines = get_disciplines()
+    abbreviations = []
+    for discipline in disciplines:
+        abbreviation = get_discipline_abbreviation(discipline)
+        abbreviation = replace_chars(abbreviation)
+        abbreviations.append(abbreviation) 
+    result = json.load(request.get_json())
+    for key in result.keys():
+        shift_index, discipline_abbreviation = key.split(',')
+        new_tutor_username = result[key]
+        user = authenticate(new_tutor_username, "")
+        if user != None:
+            print(user.id, shift_index, discipline_abbreviation)
+            update_master_schedule_single_discipline(shift_index, disciplines[abbreviations.index(discipline_abbreviation)], user.id)
+
 @application.route('/api/add_remove_disciplines')
 def get_disciplines_abbreviations():
     disciplines = get_disciplines()
@@ -400,6 +427,23 @@ def set_time_window():
         update_current_block(current_block)
     add_time_window(current_block, start_time, end_time)
     
+
+@application.route('/api/get_admins')
+def get_disciplines_abbreviations():
+    email_admin = get_admin_roster()
+    discipline_schedule_with_email = []
+    for admin, email in email_admin:
+        sanitized_email = replace_chars(email)
+        sanitized_admin = replace_chars(admin)
+        discipline_schedule_with_email.append([sanitized_admin, sanitized_email])
+
+    return discipline_schedule_with_email
+
+@application.route('/api/add_admin')
+def add_new_admin():
+    admin_name = request.get_json()["name"]
+    admin_email = request.get_json()['email']
+    add_discipline(admin_name, admin_email)
 
 
 # # run the app.

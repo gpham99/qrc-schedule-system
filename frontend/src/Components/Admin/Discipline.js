@@ -10,7 +10,7 @@ const Discipline = () => {
   const [disciplineAbv, setDisciplineAbv] = useState("");
 
   useEffect(() => {
-    fetch("http://52.12.35.11:8080/api/add_remove_disciplines")
+    fetch("http://52.12.35.11:5000/api/add_remove_disciplines")
       .then((res) => res.json())
       .then((data) => {
         setDisciplines(data);
@@ -18,8 +18,9 @@ const Discipline = () => {
   }, [disciplines]);
 
   const removeDiscipline = (disciplineName) => {
-    fetch("http://52.12.35.11:8080/api/remove_discipline", {
+    fetch("http://52.12.35.11:5000/api/remove_discipline", {
       method: "POST",
+      mode: "no-cors",
       headers: {
         "Content-Type": "application/json",
       },
@@ -70,8 +71,9 @@ const Discipline = () => {
     setSanitizeCheck(isSanitized);
 
     if (isSanitized === true) {
-      fetch("http://52.12.35.11:8080/api/add_discipline", {
+      fetch("http://52.12.35.11:5000/api/add_discipline", {
         method: "POST",
+        mode: "no-cors",
         headers: {
           "Content-Type": "application/json",
         },

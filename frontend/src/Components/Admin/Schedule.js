@@ -22,6 +22,7 @@ const Schedule = () => {
   const toggleEditMode = (event) => {
     event.preventDefault();
     setEditMode(1 - editMode);
+
     setIsChanged({});
     setMasterSchedule(structuredClone(unChangedMasterSchedule));
     setEdittedSchedule({});
