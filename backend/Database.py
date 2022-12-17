@@ -18,6 +18,7 @@ import sqlite3 as sql
 # add_to_master_schedule(shift_number, assignments)
 # update_master_schedule_single_discipline(shift_number, discipline, new_assignment)
 # add_time_window(block, start_time, end_time)
+# add_block(block)
 
 # 3. The updating of tables should new information be added ex. more disciplines
 # create_new_master_schedule(new_disciplines)
@@ -29,6 +30,7 @@ import sqlite3 as sql
 # delete_discipline(discipline)
 # clear_table(table)
 # delete_time_window(block)
+# delete_block(block)
 
 # 5. The deletion of tables should we need to make new tables
 # delete_table(table)
@@ -46,6 +48,7 @@ import sqlite3 as sql
 # get_discipline_shifts_offered(discipline)
 # get_discipline_abbreviation(discipline)
 # get_time_window(block)
+# get_block()
 
 # 7. The ability to check if elements in the database
 # check_user(email)
@@ -118,6 +121,8 @@ def create_tables(all_disciplines):
     # create the times table
     conn.execute('CREATE TABLE IF NOT EXISTS time_window(block INTEGER, start_time BIGINT, end_time BIGINT,'
                  'PRIMARY KEY (block))')
+    # create the block table
+    conn.execute('CREATE TABLE IF NOT EXISTS block_number(block INTEGER, PRIMARY KEY(block))')
     # close connection to database
     conn.close()
     # creates the remaining tables (disciplines, and master_schedule)
@@ -261,6 +266,32 @@ def add_time_window(block, start_date, end_date):
         conn.close()
 
 
+# Function to add a block
+def add_block(block):
+    try:
+        with sql.connect("database.db") as conn:
+            cur = conn.cursor()
+            sql_select_query = 'SELECT * FROM block'
+            cur.execute(sql_select_query)
+            data = cur.fetchone()
+            # If the user doesn't exist add the discipline
+            if data is None:
+                sql_query = 'INSERT OR IGNORE INTO block_number(block) VALUES (?)'
+                cur.execute(sql_query, (block,))
+            else:
+                sql_clear_query = 'DELETE FROM block_number'
+                cur.execute((sql_clear_query))
+                sql_query = 'INSERT OR IGNORE INTO block_number(block) VALUES (?)'
+                cur.execute(sql_query, (block,))
+                
+            conn.commit()
+            print('inserted')
+    except:
+        conn.rollback()
+    finally:
+        conn.close()
+
+
 # update the master schedule after the discipline list has been updated
 # drops the old master schedule and creates a new one
 def create_new_master_schedule(new_disciplines):
@@ -349,6 +380,19 @@ def delete_time_window(block):
         with sql.connect("database.db") as conn:
             cur = conn.cursor()
             cur.execute('DELETE FROM time_window WHERE block = ?', (block,))
+            conn.commit()
+    except:
+        conn.rollback()
+    finally:
+        conn.close()
+
+
+# Function to delete block from block_number table
+def delete_block(block):
+    try:
+        with sql.connect("database.db") as conn:
+            cur = conn.cursor()
+            cur.execute('DELETE FROM block_number WHERE block = ?', (block,))
             conn.commit()
     except:
         conn.rollback()
@@ -583,6 +627,21 @@ def get_master_schedule_columns():
                 if number != 0:
                     name_list.append(name)
             return name_list
+
+
+# Function to get the block number
+def get_block_number():
+    try:
+        with sql.connect("database.db") as conn:
+            cur = conn.cursor()
+            sql_search_query = 'SELECT * FROM block_number'
+            cur.execute(sql_search_query)
+            record = cur.fetchone()
+            return record
+    except:
+        conn.rollback()
+    finally:
+        conn.close()
 
 
 # function to check if the user is in the system
@@ -894,20 +953,6 @@ def list_all_tables(exceptions):
         conn.rollback()
     finally:
         conn.close()
-
-
-# Function to reset the master_schedule and create all the appropriate tables once a new discipline has been added
-def reconfigure_database():
-    disciplines_list = get_disciplines()
-    tables_list = list_all_tables('No')
-    allowed_list = []
-    # iterates through the new discipline list
-    for discipline in disciplines_list:
-        if discipline not in tables_list:
-            add_new_discipline_table(discipline)
-        allowed_list.append(discipline)
-    create_new_master_schedule(allowed_list)
-    print("Reconfiguration Process Complete")
 
 
 # Function that will compare current_time to the times saved in the time_window for a particular block
