@@ -1,25 +1,72 @@
 import React from "react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 // list of the adminstrators and their emails
-const admins = [
-  ["Steph Gettiburg", "s_gettiburg@coloradocollege.edu"],
-  ["Karenina Le", "k_le@coloradocollege.edu"],
-];
+// const admins = [
+//   ["Steph Gettiburg", "s_gettiburg@coloradocollege.edu"],
+//   ["Karenina Le", "k_le@coloradocollege.edu"],
+// ];
 
 const Internal = () => {
   // const [submitMessage, setSubmitMessage] = useState("");
   const [admins, setAdmins] = useState({});
-  // const [disciplineName, setDisciplineName] = useState("");
-  // const [disciplineAbv, setDisciplineAbv] = useState("");
+  const [adminName, setAdminName] = useState("");
+  const [adminEmail, setEmail] = useState("");
 
   // useEffect(() => {
-  //   fetch("http://52.12.35.11:8080/api/add_remove_disciplines")
+  //   fetch("http://52.12.35.11:5000/api/get_admins")
   //     .then((res) => res.json())
   //     .then((data) => {
-  //       setDisciplines(data);
+  //       console.log("This is the data", data);
+  //       setAdmins(data);
+  //       console.log(data);
   //     });
-  // }, [disciplines]);
+  // }, []);
+
+  const handleCancel = (e) => {
+    setAdminName("");
+    setEmail("");
+  };
+
+  // const removeAdmin = (adminEmail) => {
+  //   fetch("http://52.12.35.11:5000/api/remove_admin", {
+  //     method: "POST",
+  //     mode: "no-cors",
+  //     headers: {
+  //       "Content-Type": "application/json",
+  //     },
+  //     body: JSON.stringify(adminEmail),
+  //   });
+  // };
+
+  const handleClick = (e) => {
+    // let isSanitized = sanitizeInput(disciplineName, disciplineAbv);
+    // console.log("is it sanitized?: ", isSanitized);
+    // setSanitizeCheck(isSanitized);
+
+    // if (isSanitized === true) {
+    fetch("http://52.12.35.11:5000/api/add_admin", {
+      method: "POST",
+      // mode: "no-cors",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        name: adminName,
+        email: adminEmail,
+      }),
+    }).then((response) => {
+      let res = response.json();
+      console.log(res);
+      // if (200 <= response.status && response.status <= 299) {
+      //   console.log("Admin added successfully");
+      //   // setSubmitMessage("Success");
+      // } else {
+      //   console.log("Failed to add admin");
+      //   // setSubmitMessage("Fail");
+      // }
+    });
+  };
 
   return (
     <div class="container align-items-center bg-light">
@@ -59,6 +106,7 @@ const Internal = () => {
                   class="close"
                   data-dismiss="modal"
                   aria-label="Close"
+                  onClick={handleCancel}
                 >
                   <span aria-hidden="true">&times;</span>
                 </button>
@@ -67,17 +115,34 @@ const Internal = () => {
                 <form>
                   <div class="form-group">
                     <label>Administrator Name</label>
-                    <input class="form-control" placeholder="Ex: Steve Getty" />
+                    <input
+                      class="form-control"
+                      placeholder="Ex: Steve Getty"
+                      value={adminName}
+                      onChange={(e) => {
+                        setAdminName(e.target.value);
+                        console.log(adminName);
+                      }}
+                    />
                   </div>
                   <div class="form-group">
                     <label>Administrator's Email</label>
                     <input
                       class="form-control"
                       placeholder="Ex: sgetty@coloradocollege.edu"
+                      value={adminEmail}
+                      onChange={(e) => {
+                        setEmail(e.target.value);
+                        console.log(adminEmail);
+                      }}
                     />
                   </div>
                   <div class="form-check"></div>
-                  <button class="btn btn-info" data-dismiss="modal">
+                  <button
+                    class="btn btn-info"
+                    data-dismiss="modal"
+                    onClick={handleClick}
+                  >
                     Submit
                   </button>
                 </form>
@@ -98,7 +163,26 @@ const Internal = () => {
               <th class="col-sm-4">Action</th>
             </tr>
           </thead>
-          <tbody></tbody>
+          <tbody>
+            {Object.values(admins).map((val) => (
+              <tr>
+                <td>{val[0]}</td>
+                <td>{val[1]}</td>
+                <td>
+                  <button
+                    class="btn btn-link"
+                    // onClick={(e) => {
+                    //   let aEmail = val[0];
+                    //   //console.log(aEmail);
+                    //   removeAdmin(aEmail);
+                    // }}
+                  >
+                    Remove
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
         </table>
       </div>
     </div>
