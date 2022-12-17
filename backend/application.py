@@ -1,7 +1,6 @@
 from Database import *
 import time
 from flask import Flask, request, session, redirect, url_for
-from flask.ext.session import Session
 from cas import CASClient
 from flask_cors import CORS
 import ast
@@ -34,7 +33,6 @@ application = Flask(__name__)
 CORS(application)
 application.secret_key = ';sufhiagr3yugfjcnkdlmsx0-w9u4fhbuewiejfigehbjrs'
 application.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-Session(application)
 
 cas_client = CASClient(
     version=3,    
