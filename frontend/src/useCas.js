@@ -9,8 +9,8 @@ const useCas = () => {
   const casEndpoint = "cas.coloradocollege.edu";
   const casOptions = {
     version: constant.CAS_VERSION_3_0,
-    // protocol: "https:",
-    // validation_proxy_path: "/cas_proxy",
+    protocol: "http:",
+    validation_proxy_path: "/cas_proxy",
   };
   const casClient = new CasClient(casEndpoint, casOptions);
   const casUserContext = useContext(UserContext); // this line needs to be changed later -> look up all the blabla
@@ -38,11 +38,11 @@ const useCas = () => {
           // Update current path to trim any extra params in url
           // eg. this.props.history.replace(response.currentPath); -> used to be history.replace(errorRes.currentPath) -> change to navigate
           setIsLoading(false);
-          navigate(successRes.currentPath, { replace: true });
+          //navigate(successRes.currentPath, { replace: true });
         })
         .catch((errorRes) => {
           setIsLoading(false);
-          navigate(errorRes.currentPath, { replace: true });
+          //navigate(errorRes.currentPath, { replace: true });
           reject(errorRes);
         });
     });
