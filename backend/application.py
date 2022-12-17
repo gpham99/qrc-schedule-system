@@ -1,6 +1,7 @@
 from Database import *
 import time
-from flask import Flask, request, session, redirect, url_for, jsonify
+from flask import Flask, request, session, redirect, url_for
+from flask.ext.session import Session
 from cas import CASClient
 from flask_cors import CORS
 import ast
@@ -32,6 +33,8 @@ application = Flask(__name__)
 CORS(application)
 application.secret_key = ';sufhiagr3yugfjcnkdlmsx0-w9u4fhbuewiejfigehbjrs'
 application.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+Session(application)
+
 cas_client = CASClient(
     version=3,    
     service_url='http://52.12.35.11:8080/',
@@ -374,9 +377,9 @@ def get_username():
        # response = flask.jsonify({'username': 'Oh well you run into else statement, meaning username is not in session'})
         # response.headers.add('Access-Control-Allow-Origin', '*')
         # return response
-    in_system, group = check_login()
-    if in_system:
-        return session['username']
+    # in_system, group = check_login()
+    # if in_system:
+    #     return session['username']
 
 
 @application.route('/api/last_excel_file')

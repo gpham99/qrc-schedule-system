@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEff } from "react";
 
 const Profile = () => {
   const [username, setUsername] = useState(0);
