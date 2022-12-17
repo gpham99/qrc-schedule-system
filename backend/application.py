@@ -409,6 +409,7 @@ def last_excel_file():
 
 @application.route('/api/set_time_window', methods=['POST'])
 def set_time_window():
+    print("Received call to set_time_window")
     time_data = request.get_json()
     start_time = time_data['start_time']
     end_time = time_data['end_time']
