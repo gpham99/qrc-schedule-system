@@ -331,7 +331,7 @@ def add_new_admin():
     admin_name = admin_data["name"]
     admin_email = admin_data["email"]
     add_admin(admin_name, admin_email)
-   
+
 
 
 @application.route('/api/remove_admin', methods=['POST'])
@@ -386,6 +386,20 @@ def last_excel_file():
         return prepare_excel_file(filepath)
     else:
         return None
+
+
+@application.route('/api/set_time_window', methods=['POST'])
+def set_time_window():
+    time_data = request.get_json()
+    start_time = time_data['start_time']
+    end_time = time_data['end_time']
+    new_block = time_data['new_block']
+    current_block = get_current_block()
+    if new_block:
+        current_block = (current_block+1)%8
+        update_current_block(current_block)
+    add_time_window(current_block, start_time, end_time)
+    
 
 
 # # run the app.
