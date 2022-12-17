@@ -1,7 +1,23 @@
 import React, { useState, useEffect } from "react";
 
 const Profile = () => {
-  const [username, setUsername] = useState(0);
+  const [jwt, setJwt] = useState("");
+
+  useEffect(() => {
+    const requestOptions = {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username: "pass", password: "pass" }),
+    };
+    fetch("http://52.12.35.11:8080/auth", requestOptions)
+      .then(function (response) {
+        console.log("res hehe: ", response.json());
+        return response.json();
+      })
+      .then(function (data) {
+        console.log(data);
+      });
+  }, []);
 
   useEffect(() => {
     fetch("http://52.12.35.11:8080/api/get_username").then((res) => {
