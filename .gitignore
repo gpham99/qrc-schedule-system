@@ -1,3 +1,7 @@
+backend/__pycache__/*
+__pycache__
+venv
+backend/venv
 backend/venv/pyvenv.cfg
 backend/venv/bin/activate
 backend/venv/bin/activate.csh
@@ -7120,3 +7124,8 @@ backend/venv/lib/python3.11/site-packages/werkzeug/wrappers/response.py
 backend/venv/lib/python3.11/site-packages/werkzeug/wrappers/__pycache__/__init__.cpython-311.pyc
 backend/venv/lib/python3.11/site-packages/werkzeug/wrappers/__pycache__/request.cpython-311.pyc
 backend/venv/lib/python3.11/site-packages/werkzeug/wrappers/__pycache__/response.cpython-311.pyc
+backend/__pycache__/Database.cpython-311.pckend/__pycache__/databaseTest.cpython-311.pyc
+backend/__pycache__/models.cpython-311.pyc
+backend/__pycache__/security.cpython-311.pyc
+backend/__pycache__/utility.cpython-311.pyc
+
