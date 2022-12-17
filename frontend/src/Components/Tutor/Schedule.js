@@ -1,6 +1,12 @@
 import React from "react";
 
 const Schedule = () => {
+  const [searchParams] = useSearchParams();
+  console.log(
+    "username extracted from search param: ",
+    searchParams.get("username")
+  );
+
   return (
     <div class="container align-items-center bg-light">
       <div class="d-flex justify-content-center p-4">
