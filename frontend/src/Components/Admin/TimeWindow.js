@@ -9,7 +9,6 @@ const TimeWindow = () => {
 
   // func to post to database
   const createTimeWindow = (event) => {
-    event.preventDefault();
    // console.log(newBlock);
     fetch("http://52.12.35.11:5000/api/set_time_window", {
       method: "POST",
@@ -23,8 +22,6 @@ const TimeWindow = () => {
       }),
     });
   };
-
-  const submitChange = (event) => {
 
   return (
     <div class="container bg-light">
