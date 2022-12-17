@@ -2,7 +2,6 @@ import React from "react";
 import Schedule from "./Tutor/Schedule";
 import Profile from "./Tutor/Profile";
 import { Route, Routes } from "react-router-dom";
-import PersonalizedView from "./Tutor/PersonalizedView";
 
 const Tutor = () => {
   return (
@@ -46,10 +45,6 @@ const Tutor = () => {
           <Route path="" element={<Schedule></Schedule>}></Route>
           <Route path="schedule" element={<Schedule></Schedule>}></Route>
           <Route path="profile" element={<Profile></Profile>}></Route>
-          <Route
-            path=":username"
-            element={<PersonalizedView></PersonalizedView>}
-          ></Route>
         </Routes>
       </div>
     </div>
