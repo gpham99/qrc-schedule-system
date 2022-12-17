@@ -41,23 +41,31 @@ const Profile = () => {
           </p>
         </div>
         <div class="p-4 w-50">
-          <table class="table table-borderless">
+          <table class="table table-borderless responsive">
             <tbody class="text-left">
               <tr>
-                <td>Name: </td>
-                <td>John Doe</td>
+                <td>Name:</td>
+                <td>
+                  <input class="flex-row" />
+                </td>
               </tr>
               <tr>
                 <td>Email address: </td>
-                <td>j_doe@coloradocollege.edu</td>
+                <td>
+                  <input class="flex-row" />
+                </td>
               </tr>
               <tr>
                 <td>Availablility status this block: </td>
-                <td>True</td>
+                <td>
+                  <input type="checkbox" data-toggle="toggle" data-size="lg" />
+                </td>
               </tr>
               <tr>
                 <td>LA status this block: </td>
-                <td>True</td>
+                <td>
+                  <input type="checkbox" data-toggle="toggle" data-size="lg" />
+                </td>
               </tr>
             </tbody>
           </table>
@@ -151,7 +159,6 @@ const Profile = () => {
             </tbody>
           </table>
         </div>
-
         <div>
           <button type="button" class="btn btn-info">
             Update
@@ -159,89 +166,6 @@ const Profile = () => {
         </div>
       </div>
     </div>
-
-    // <div
-    //   class="d-flex flex-column align-items-center justify-content-center responsive p-5"
-    //   style={{ height: "100vh", width: "100vw" }}
-    // >
-    //   <h1 class="m-5">Tutor's Profile</h1>
-    //   <div
-    //     class="bg-secondary p-4 d-flex justify-content-center flex-column"
-    //     style={{ height: "60%", width: "60%" }}
-    //   >
-    //     <p1 class="text-white m-5">
-    //       Please select the maximum number of shifts you'd like to take along
-    //       with the majors that you can tutor for.
-    //     </p1>
-    //     <div class="d-flex justify-content-center">
-    //       <h3 class="text-white m-3">Maximum Shift Capacity:</h3>
-    //       <form class=" m-3" style={{ width: "15%" }}>
-    //         <input type="text" class="form-control" placeholder="#" />
-    //       </form>
-    //     </div>
-
-    //     <div class="d-flex justify-content-center">
-    //       <h3 class="text-white m-5">Disciplines:</h3>
-    //       <div class="d-flex p-5 flex-column">
-    //         <div class="form-check">
-    //           <input
-    //             class="form-check-input"
-    //             type="checkbox"
-    //             value=""
-    //             id="flexCheckDefault"
-    //           />
-    //           <label class="form-check-label" for="flexCheckDefault">
-    //             Math
-    //           </label>
-    //         </div>
-    //         <div class="form-check">
-    //           <input
-    //             class="form-check-input"
-    //             type="checkbox"
-    //             value=""
-    //             id="flexCheckDefault"
-    //           />
-    //           <label class="form-check-label" for="flexCheckDefault">
-    //             CS
-    //           </label>
-    //         </div>
-    //         <div class="form-check">
-    //           <input
-    //             class="form-check-input"
-    //             type="checkbox"
-    //             value=""
-    //             id="flexCheckDefault"
-    //           />
-    //           <label class="form-check-label" for="flexCheckDefault">
-    //             Econ
-    //           </label>
-    //         </div>
-    //         <div class="form-check">
-    //           <input
-    //             class="form-check-input"
-    //             type="checkbox"
-    //             value=""
-    //             id="flexCheckDefault"
-    //           />
-    //           <label class="form-check-label" for="flexCheckDefault">
-    //             CH/MB
-    //           </label>
-    //         </div>
-    //         <div class="form-check">
-    //           <input
-    //             class="form-check-input"
-    //             type="checkbox"
-    //             value=""
-    //             id="flexCheckDefault"
-    //           />
-    //           <label class="form-check-label" for="flexCheckDefault">
-    //             Physics
-    //           </label>
-    //         </div>
-    //       </div>
-    //     </div>
-    //   </div>
-    // </div>
   );
 };
 

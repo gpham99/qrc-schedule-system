@@ -14,13 +14,17 @@ const Schedule = () => {
     fetch("http://52.12.35.11:8080/api/master_schedule")
       .then((res) => res.json())
       .then((data) => {
+        // this set master schedule sets the data of the master schedule after fetching it
         setMasterSchedule(data);
+        // we set the unchanged master schedule to a deep clone of the current master schedule
         setUnchangedMasterSchedule(structuredClone(data));
       });
   }, []);
 
+  // This method shifts between the editable and non editable view of the schedule
   const toggleEditMode = (event) => {
     event.preventDefault();
+    // edit mode is either 0 or 1
     setEditMode(1 - editMode);
 
     setIsChanged({});
@@ -105,6 +109,7 @@ const Schedule = () => {
             )}
           </div>
 
+          {/* This is where the submit message is set and alert is shown somehow */}
           {submitMessage.length > 0 && (
             <div
               class="alert alert-danger m-4 alert-dismissible fade show"
@@ -130,6 +135,7 @@ const Schedule = () => {
             </div>
           )}
 
+          {/* This is when the submit message is length 0 but not an empty string */}
           {submitMessage !== "" && submitMessage.length === 0 && (
             <div
               class="alert alert-success m-4 alert-dismissible fade show"
@@ -173,6 +179,10 @@ const Schedule = () => {
                       <div class="d-flex flex-column">
                         {masterSchedule[num]?.map((shift_tutor, index) => (
                           <>
+                            {console.log(
+                              "THIS IS THE SCHEDULE THING: ",
+                              shift_tutor
+                            )}
                             {editMode === 0 ? (
                               <>
                                 {shift_tutor["tutor"] && (
@@ -180,7 +190,7 @@ const Schedule = () => {
                                     <span class="text-success">
                                       {shift_tutor["discipline"]}
                                     </span>
-                                    /{shift_tutor["other_disciplines"]}:{" "}
+                                    /{shift_tutor["other_disciplines"]}:
                                     {shift_tutor["tutor"].split(" ")[0]}
                                   </div>
                                 )}
@@ -523,6 +533,7 @@ const Schedule = () => {
             </table>
           </div>
 
+          {/* This is to make the export as JPEG button download it as a JPEG */}
           <div className="p-2">
             {editMode === 0 ? (
               <button
