@@ -10,7 +10,7 @@ const TimeWindow = () => {
   // func to post to database
   const createTimeWindow = (event) => {
    // console.log(newBlock);
-    fetch("http://52.12.35.11:5000/api/set_time_window", {
+    fetch("http://52.12.35.11:8080/api/set_time_window", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -80,14 +80,14 @@ const TimeWindow = () => {
         <button type="button" class="btn btn-secondary mr-3 ml-3" 
         onClick={() => {
           setNewBlock(false);
-          createTimeWindow();
+          createTimeWindow;
         }}>
           Update the time window
         </button>
         <button type="button" class="btn btn-info mr-3 ml-3"
         onClick={() => {
           setNewBlock(true);
-          createTimeWindow();
+          createTimeWindow;
         }}>
           Create a new time window
         </button>
