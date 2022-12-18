@@ -1,24 +1,6 @@
-import React, { useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import React from "react";
 
 const Schedule = () => {
-  const [searchParams, setSearchParams] = useSearchParams();
-
-  const [name, setName] = useState(() => {
-    const saved = localStorage.getItem("name");
-    const param = searchParams.get("username");
-    if (saved === "null" || saved === null) {
-      return param;
-    } else {
-      return saved;
-    }
-  });
-
-  useEffect(() => {
-    console.log("name: ", name);
-    localStorage.setItem("name", name);
-  }, [name]);
-
   return (
     <div class="container align-items-center bg-light">
       <div class="d-flex justify-content-center p-4">

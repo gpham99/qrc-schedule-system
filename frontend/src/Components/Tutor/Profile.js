@@ -46,25 +46,35 @@ const Profile = () => {
               <tr>
                 <td>Name:</td>
                 <td>
-                  <input class="flex-row" />
+                  <p>John Doe</p>
                 </td>
               </tr>
               <tr>
                 <td>Email address: </td>
                 <td>
-                  <input class="flex-row" />
+                  <p>j_doe@coloradocollege.edu</p>
                 </td>
               </tr>
               <tr>
                 <td>Availablility status this block: </td>
                 <td>
-                  <input type="checkbox" data-toggle="toggle" data-size="lg" />
+                  <input
+                    type="checkbox"
+                    data-toggle="toggle"
+                    data-size="lg"
+                    disabled
+                  />
                 </td>
               </tr>
               <tr>
                 <td>LA status this block: </td>
                 <td>
-                  <input type="checkbox" data-toggle="toggle" data-size="lg" />
+                  <input
+                    type="checkbox"
+                    data-toggle="toggle"
+                    data-size="lg"
+                    disabled
+                  />
                 </td>
               </tr>
             </tbody>
