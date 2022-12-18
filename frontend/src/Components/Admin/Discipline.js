@@ -66,9 +66,12 @@ const Discipline = () => {
   };
 
   const handleClick = (e) => {
+    console.log("this is the disciplineName: ", disciplineName);
+    console.log("this is the disciplineAbv: ", disciplineAbv);
     let isSanitized = sanitizeInput(disciplineName, disciplineAbv);
     console.log("is it sanitized?: ", isSanitized);
     setSanitizeCheck(isSanitized);
+    console.log("after using setSanitizedCheck: ", setSanitizeCheck);
 
     if (isSanitized === true) {
       fetch("http://52.12.35.11:8080/api/add_discipline", {
@@ -82,8 +85,9 @@ const Discipline = () => {
           abv: disciplineAbv,
         }),
       }).then((response) => {
+        console.log("response.json(): ", response.json());
         let res = response.json();
-        if (200 <= res.status <= 299) {
+        if (200 <= res.status && res.status <= 299) {
           console.log("Discipline added successfully");
           setSubmitMessage("Success");
         } else {
