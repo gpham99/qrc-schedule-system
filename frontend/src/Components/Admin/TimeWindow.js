@@ -80,14 +80,14 @@ const TimeWindow = () => {
         <button type="button" class="btn btn-secondary mr-3 ml-3" 
         onClick={() => {
           setNewBlock(false);
-          createTimeWindow;
+          createTimeWindow();
         }}>
           Update the time window
         </button>
         <button type="button" class="btn btn-info mr-3 ml-3"
         onClick={() => {
           setNewBlock(true);
-          createTimeWindow;
+          createTimeWindow();
         }}>
           Create a new time window
         </button>

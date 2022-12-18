@@ -321,8 +321,10 @@ def update_tutors_in_master_schedule():
 @application.route('/api/add_discipline', methods=['POST'])
 def add_new_discipline():
     req = request.get_json()
+    print(req)
     discipline_name = req['name']
     discipline_abbreviation = req["abv"]
+    print("Adding discipline: " + discipline_name)
     add_discipline(sanitize(discipline_name), sanitize(discipline_abbreviation), [])
     return "Things should be added"
 
