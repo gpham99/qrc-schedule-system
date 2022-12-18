@@ -23,7 +23,7 @@ const Tutor = () => {
           </a>
 
           <a
-            href="https://www.coloradocollege.edu/"
+            href="http://52.12.35.11:8080/cas_logout"
             onClick={() => {
               localStorage.clear();
             }}

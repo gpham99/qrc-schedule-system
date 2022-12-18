@@ -17,11 +17,24 @@ const Admin = () => {
         </div>
 
         <div class="d-flex flex-row justify-content-end pr-4">
-          <a href="http://52.12.35.11:8080/logout" class="p-3 text-white">
+          <a
+            href="http://52.12.35.11:8080/logout"
+            onClick={() => {
+              localStorage.clear();
+            }}
+            class="p-3 text-white"
+          >
             Exit
           </a>
-          <a href="http://52.12.35.11:8080/cas_logout" class="p-3 text-white">
-            CAS Log out
+
+          <a
+            href="http://52.12.35.11:8080/cas_logout"
+            onClick={() => {
+              localStorage.clear();
+            }}
+            class="p-3 text-white"
+          >
+            CAS Logout
           </a>
         </div>
       </div>
