@@ -71,12 +71,11 @@ const Discipline = () => {
     let isSanitized = sanitizeInput(disciplineName, disciplineAbv);
     console.log("is it sanitized?: ", isSanitized);
     setSanitizeCheck(isSanitized);
-    console.log("after using setSanitizedCheck: ", setSanitizeCheck);
+    console.log("after using setSanitizedCheck: ", isSanitized);
 
     if (isSanitized === true) {
       fetch("http://52.12.35.11:8080/api/add_discipline", {
         method: "POST",
-        mode: "no-cors",
         headers: {
           "Content-Type": "application/json",
         },
