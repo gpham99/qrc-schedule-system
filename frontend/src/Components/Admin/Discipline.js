@@ -83,17 +83,23 @@ const Discipline = () => {
           name: disciplineName,
           abv: disciplineAbv,
         }),
-      }).then((response) => {
-        console.log("response.json(): ", response.json());
-        let res = response.json();
-        if (200 <= res.status && res.status <= 299) {
-          console.log("Discipline added successfully");
-          setSubmitMessage("Success");
-        } else {
-          console.log("Failed to add discipline");
-          setSubmitMessage("Fail");
-        }
-      });
+      })
+        .then(function (response) {
+          console.log("this is response.json(): ", response.json());
+          return response.json();
+          // console.log("response.json(): ", response.json());
+          // let res = response.json();
+          // if (200 <= res.status && res.status <= 299) {
+          //   console.log("Discipline added successfully");
+          //   setSubmitMessage("Success");
+          // } else {
+          //   console.log("Failed to add discipline");
+          //   setSubmitMessage("Fail");
+          // }
+        })
+        .then(function (data) {
+          console.log("this is the data: ", data);
+        });
     }
   };
 
