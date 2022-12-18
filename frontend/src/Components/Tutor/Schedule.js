@@ -1,12 +1,23 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
 const Schedule = () => {
-  const [searchParams] = useSearchParams();
-  console.log(
-    "username extracted from search param: ",
-    searchParams.get("username")
-  );
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const [name, setName] = useState(() => {
+    const saved = localStorage.getItem("name");
+    const param = searchParams.get("username");
+    if (saved === "null" || saved === null) {
+      return param;
+    } else {
+      return saved;
+    }
+  });
+
+  useEffect(() => {
+    console.log("name: ", name);
+    localStorage.setItem("name", name);
+  }, [name]);
 
   return (
     <div class="container align-items-center bg-light">

@@ -12,11 +12,24 @@ const Tutor = () => {
         </div>
 
         <div class="d-flex flex-row justify-content-end pr-4">
-          <a href="http://52.12.35.11:8080/logout" class="p-3 text-white">
+          <a
+            href="http://52.12.35.11:8080/logout"
+            onClick={() => {
+              localStorage.clear();
+            }}
+            class="p-3 text-white"
+          >
             Exit
           </a>
-          <a href="http://52.12.35.11:8080/cas_logout" class="p-3 text-white">
-            CAS Log out
+
+          <a
+            href="https://www.coloradocollege.edu/"
+            onClick={() => {
+              localStorage.clear();
+            }}
+            class="p-3 text-white"
+          >
+            CAS Logout
           </a>
         </div>
       </div>
@@ -43,8 +56,8 @@ const Tutor = () => {
       <div class="p-5">
         <Routes>
           <Route path="" element={<Schedule></Schedule>}></Route>
-          <Route exact path="schedule" element={<Schedule></Schedule>}></Route>
-          <Route exact path="profile" element={<Profile></Profile>}></Route>
+          <Route path="schedule" element={<Schedule></Schedule>}></Route>
+          <Route path="profile" element={<Profile></Profile>}></Route>
         </Routes>
       </div>
     </div>
