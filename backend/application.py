@@ -432,6 +432,16 @@ def get_discipline_list():
     return sanitized_disciplines
 
 
+@application.route('/api/set_schedule_skeleton')
+def set_schedule_skeleton():
+    data = request.get_json()
+    disciplines = get_disciplines()
+    for discipline in disciplines:
+        shift_list = data[discipline]
+        update_discipline_shift_availability(discipline, shift_list)
+    return "Schedule skeleton updated"
+
+
 # # run the app.
 # if __name__ == "__main__":
 #     # Setting debug to True enables debug output. This line should be
