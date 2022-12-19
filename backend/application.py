@@ -462,12 +462,13 @@ def get_availability():
         shift_dict = {}
         for discipline in tutoring_disciplines:
             shifts_offered = get_discipline_shifts_offered(discipline)
-            if i in shifts_offered:
+            if str(i) in shifts_offered:
                 all_possible_disciplines.append(display(discipline))
+                print(discipline, i)
                 available_tutors = ast.literal_eval(get_discipline_shift(discipline, i))
                 if current_identity.id in available_tutors:
                     picked = discipline
-                    if i in current_identity.favorited_shifts:
+                    if str(i) in current_identity.favorited_shifts:
                         favorited = True
         shift_dict['all_possible_disciplines'] = all_possible_disciplines
         shift_dict['picked'] = picked
