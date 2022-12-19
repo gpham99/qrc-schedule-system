@@ -73,7 +73,6 @@ const Discipline = () => {
     if (isSanitized === true) {
       fetch("http://52.12.35.11:8080/api/add_discipline", {
         method: "POST",
-        mode: "no-cors",
         headers: {
           "Content-Type": "application/json",
         },
@@ -81,16 +80,15 @@ const Discipline = () => {
           name: disciplineName,
           abv: disciplineAbv,
         }),
-      }).then((response) => {
-        let res = response.json();
-        if (200 <= res.status <= 299) {
-          console.log("Discipline added successfully");
-          setSubmitMessage("Success");
-        } else {
-          console.log("Failed to add discipline");
-          setSubmitMessage("Fail");
-        }
-      });
+      })
+        .then((response) => {
+          let res = response.json();
+          console.log("This is the response", res);
+          return res;
+        })
+        .then((data) => {
+          console.log("This is the data ", data);
+        });
     }
   };
 

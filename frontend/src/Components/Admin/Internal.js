@@ -43,31 +43,34 @@ const Internal = () => {
           adminName[i].charCodeAt() === 47
         )
       ) {
+        //console.log("name ", adminName);
         return false;
       }
     }
 
-    for (let i = 0; i < adminEmail.length; i++) {
-      if (
-        !(
-          (adminEmail[i].charCodeAt() >= 65 &&
-            adminEmail[i].charCodeAt() <= 90) ||
-          (adminEmail[i].charCodeAt() >= 97 &&
-            adminEmail[i].charCodeAt() <= 122) ||
-          adminEmail[i].charCodeAt() === 32 ||
-          adminEmail[i].charCodeAt() === 47
-        )
-      ) {
-        return false;
-      }
+    // for (let i = 0; i < adminEmail.length; i++) {
+    //   if (
+    //     !(
+    //       (adminEmail[i].charCodeAt() >= 64 &&
+    //         adminEmail[i].charCodeAt() <= 90) ||
+    //       (adminEmail[i].charCodeAt() >= 97 &&
+    //         adminEmail[i].charCodeAt() <= 122) ||
+    //       adminEmail[i].charCodeAt() === 32 ||
+    //       adminEmail[i].charCodeAt() === 47
+    //     )
+    //   ) {
+    //     //console.log("email ", adminEmail);
+    //     return false;
+    //   }
+    // }
 
-      if (adminEmail.includes("@")) {
-        let split_email = adminEmail.split("@");
-        if (split_email[1] !== "coloradocollege.edu") {
-          return false;
-        }
-      }
-    }
+    //   if (adminEmail.includes("@")) {
+    //     let split_email = adminEmail.split("@");
+    //     if (split_email[1] !== "coloradocollege.edu") {
+    //       return false;
+    //     }
+    //   }
+    // }
 
     return true;
   };
