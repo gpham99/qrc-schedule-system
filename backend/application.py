@@ -10,7 +10,6 @@ from werkzeug.utils import secure_filename
 from utility import display, sanitize 
 from flask_jwt import JWT, jwt_required, current_identity
 #from security import authenticate, identity
-from security import identity
 import json
 from datetime import timedelta
 
@@ -43,14 +42,21 @@ cas_client = CASClient(
 
 def authenticate(username, password):
     print("In authenticate: " + username)
+    if not username.endswith("@coloradocollege.edu"):
+        username += "@coloradocollege.edu"
     if 'username' not in session:
         session['username'] = username
-    in_system, group = check_user(username+"@coloradocollege.edu")
+    in_system, group = check_user(username)
     print("in_system, group: ", in_system, group)
     if in_system:
-        tutor_entry = get_single_tutor_info(username+"@coloradocollege.edu")
-        return User(username+"@coloradocollege.edu", tutor_entry[1], group, tutor_entry[2], tutor_entry[3], tutor_entry[4], tutor_entry[5], tutor_entry[6],
+        tutor_entry = get_single_tutor_info(username)
+        return User(username, tutor_entry[1], group, tutor_entry[2], tutor_entry[3], tutor_entry[4], tutor_entry[5], tutor_entry[6],
         tutor_entry[7])
+
+def identity(payload):
+    email = payload['identity']
+    return authenticate(email, "")
+
 jwt = JWT(application, authenticate, identity)
 application.config["JWT_EXPIRATION_DELTA"] = timedelta(seconds=86400)
 
