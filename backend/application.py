@@ -417,16 +417,17 @@ def last_excel_file():
 
 @application.route('/api/set_time_window', methods=['POST'])
 def set_time_window():
-    print("Received call to set_time_window")
     time_data = request.get_json()
     start_time = time_data['start_time']
     end_time = time_data['end_time']
+    print(start_time, end_time)
     new_block = time_data['new_block']
-    current_block = get_block()
+    current_block = get_block_number()
     if new_block:
         current_block = (current_block+1)%8
         add_block(current_block)
     add_time_window(current_block, start_time, end_time)
+    return {"msg": "Time window successfully set"}
     
 
 @application.route('/api/get_disciplines')
