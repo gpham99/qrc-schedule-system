@@ -16,7 +16,7 @@ const Internal = () => {
       .then((data) => {
         setAdmins(data);
       });
-  }, []);
+  }, [admins]);
 
   const handleCancel = (e) => {
     setAdminName("");
@@ -68,6 +68,7 @@ const Internal = () => {
   };
 
   const removeAdmin = (cellAdminEmail) => {
+    console.log("the admin's email to be removed: ", cellAdminEmail);
     fetch("http://52.12.35.11:8080/api/remove_admin", {
       method: "POST",
       headers: {
@@ -76,7 +77,14 @@ const Internal = () => {
       body: JSON.stringify({
         email: cellAdminEmail,
       }),
-    });
+    })
+      .then((response) => {
+        let res = response.json();
+        return res;
+      })
+      .then((data) => {
+        console.log(data);
+      });
   };
 
   const handleClick = (e) => {
@@ -152,7 +160,7 @@ const Internal = () => {
                       value={adminName}
                       onChange={(e) => {
                         setAdminName(e.target.value);
-                        console.log(adminName);
+                        // console.log(adminName);
                       }}
                     />
                   </div>
@@ -164,7 +172,7 @@ const Internal = () => {
                       value={adminEmail}
                       onChange={(e) => {
                         setEmail(e.target.value);
-                        console.log(adminEmail);
+                        // console.log(adminEmail);
                       }}
                     />
                   </div>

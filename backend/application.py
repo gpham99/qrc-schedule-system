@@ -345,7 +345,7 @@ def get_admins():
     admin_info = get_admin_roster()
     admin_display_lst = []
     for email, name in admin_info:
-        display_email = display(email)
+        display_email = email
         display_name = display(name)
         admin_display_lst.append([display_name, display_email])
     return admin_display_lst
@@ -364,7 +364,6 @@ def remove_admin():
     admin_email = req['email']
     delete_admins(admin_email)
     return {"msg": "Removed successfully"}
-
 
 @application.route('/api/get_username', methods=['GET'])
 def get_username():
