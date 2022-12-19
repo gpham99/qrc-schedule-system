@@ -11,7 +11,10 @@ const Discipline = () => {
 
   useEffect(() => {
     fetch("http://52.12.35.11:8080/api/add_remove_disciplines")
-      .then((res) => res.json())
+      .then((response) => {
+        let res = response.json();
+        return res;
+      })
       .then((data) => {
         setDisciplines(data);
       });
