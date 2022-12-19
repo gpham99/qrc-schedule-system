@@ -1,6 +1,7 @@
 import pandas as pd
 import traceback
 from Database import create_tables, add_tutor
+from ast import literal_eval
 
 class User:
     def __init__(self, email, name, group=None, status = 0, shift_capacity=1, tutoring_disciplines=[],\
@@ -10,7 +11,10 @@ class User:
         self.name = name
         self.status = status
         self.shift_capacity = shift_capacity
-        self.disciplines = tutoring_disciplines
+        if isinstance(tutoring_disciplines, list):
+            self.disciplines = tutoring_disciplines
+        else:
+            self.disciplines = literal_eval(tutoring_disciplines)
         self.this_block_la = this_block_la
         self.next_block_la = next_block_la
         self.individual_tutor = individual_tutor
