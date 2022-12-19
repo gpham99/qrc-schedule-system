@@ -39,14 +39,14 @@ cas_client = CASClient(
     service_url='http://52.12.35.11:8080/',
     server_url='https://cas.coloradocollege.edu/cas/'
 )
+
 def authenticate(username, password):
     if 'username' not in session:
         session['username'] = username
-    email = username + "@coloradocollege.edu"
     in_system, group = check_user(username+"@coloradocollege.edu")
     if in_system:
-        tutor_entry = get_single_tutor_info(email)
-        return User(email, tutor_entry[1], group, tutor_entry[2], tutor_entry[3], tutor_entry[4], tutor_entry[5], tutor_entry[6],
+        tutor_entry = get_single_tutor_info(username+"@coloradocollege.edu")
+        return User(username+"@coloradocollege.edu", tutor_entry[1], group, tutor_entry[2], tutor_entry[3], tutor_entry[4], tutor_entry[5], tutor_entry[6],
         tutor_entry[7])
 jwt = JWT(application, authenticate, identity)
 
@@ -217,6 +217,7 @@ def get_master_schedule():
 @jwt_required()
 def get_tutor_schedule():
     email = current_identity.id
+    print(email)
     disciplines = get_disciplines()
     master_schedule = []
     tutor_schedule = {}
