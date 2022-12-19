@@ -3,7 +3,6 @@ import React, { useState, useEffect } from "react";
 const ScheduleSkeleton = () => {
   const [disciplineList, setDisciplineList] = useState([]);
   const [editMode, setEditMode] = useState(1);
-  const changedSchedule = {};
 
   const changeEditMode = () => {
     setEditMode(1 - editMode);
