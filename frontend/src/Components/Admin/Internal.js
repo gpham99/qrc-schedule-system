@@ -2,10 +2,11 @@ import React from "react";
 import { useState, useEffect } from "react";
 
 const Internal = () => {
-  //const [submitMessage, setSubmitMessage] = useState("");
   const [admins, setAdmins] = useState({});
   const [adminName, setAdminName] = useState("");
-  const [adminEmail, setEmail] = useState("");
+  const [adminEmail, setAdminEmail] = useState("");
+  var isEmailSanitized = null;
+  var isNameSanitized = null;
 
   useEffect(() => {
     fetch("http://52.12.35.11:8080/api/get_admins")
@@ -20,55 +21,62 @@ const Internal = () => {
 
   const handleCancel = (e) => {
     setAdminName("");
-    setEmail("");
+    setAdminEmail("");
   };
 
-  const sanitizeInput = (adminName, adminEmail) => {
-    // adminName = adminName.trim();
-    // adminEmail = adminEmail.trim();
+  const sanitizeNameInput = (adminName) => {
+    for (let i = 0; i < adminName.length; i++) {
+      if (
+        !(
+          (adminName[i].charCodeAt() >= 65 &&
+            adminName[i].charCodeAt() <= 90) ||
+          (adminName[i].charCodeAt() >= 97 &&
+            adminName[i].charCodeAt() <= 122) ||
+          adminName[i].charCodeAt() === 32 ||
+          adminName[i].charCodeAt() === 45 ||
+          adminName[i].charCodeAt() === 39
+        )
+      ) {
+        return false;
+      }
+    }
+    return true;
+  };
 
-    // for (let i = 0; i < adminName.length; i++) {
-    //   if (
-    //     !(
-    //       (adminName[i].charCodeAt() >= 65 &&
-    //         adminName[i].charCodeAt() <= 90) ||
-    //       (adminName[i].charCodeAt() >= 97 &&
-    //         adminName[i].charCodeAt() <= 122) ||
-    //       adminName[i].charCodeAt() === 32 ||
-    //       adminName[i].charCodeAt() === 47
-    //     )
-    //   ) {
-    //     return false;
-    //   }
-    // }
+  const sanitizeEmailInput = (adminEmail) => {
+    for (let i = 0; i < adminEmail.length; i++) {
+      if (
+        !(
+          (adminEmail[i].charCodeAt() >= 65 &&
+            adminEmail[i].charCodeAt() <= 90) ||
+          (adminEmail[i].charCodeAt() >= 97 &&
+            adminEmail[i].charCodeAt() <= 122) ||
+          (adminEmail[i].charCodeAt() >= 48 &&
+            adminEmail[i].charCodeAt() <= 57) ||
+          adminEmail[i].charCodeAt() === 95 ||
+          adminEmail[i].charCodeAt() === 32 ||
+          adminEmail[i].charCodeAt() === 64 ||
+          adminEmail[i].charCodeAt() === 45 ||
+          adminEmail[i].charCodeAt() === 46
+        )
+      ) {
+        return false;
+      }
+    }
 
-    // for (let i = 0; i < adminEmail.length; i++) {
-    //   if (
-    //     !(
-    //       (adminEmail[i].charCodeAt() >= 65 &&
-    //         adminEmail[i].charCodeAt() <= 90) ||
-    //       (adminEmail[i].charCodeAt() >= 97 &&
-    //         adminEmail[i].charCodeAt() <= 122) ||
-    //       adminEmail[i].charCodeAt() === 32 ||
-    //       adminEmail[i].charCodeAt() === 47
-    //     )
-    //   ) {
-    //     return false;
-    //   }
+    if (!adminEmail.includes("@")) {
+      return false;
+    }
 
-    //   if (adminEmail.includes("@")) {
-    //     let split_email = adminEmail.split("@");
-    //     if (split_email[1] !== "coloradocollege.edu") {
-    //       return false;
-    //     }
-    //   }
-    // }
+    let emailDomain = adminEmail.split("@")[1];
+    if (emailDomain !== "coloradocollege.edu") {
+      return false;
+    }
 
     return true;
   };
 
   const removeAdmin = (cellAdminEmail) => {
-    console.log("the admin's email to be removed: ", cellAdminEmail);
     fetch("http://52.12.35.11:8080/api/remove_admin", {
       method: "POST",
       headers: {
@@ -88,9 +96,15 @@ const Internal = () => {
   };
 
   const handleClick = (e) => {
-    let isSanitized = sanitizeInput(adminName, adminEmail);
-    console.log("SDFSDF: ", isSanitized);
-    if (isSanitized) {
+    setAdminName(adminName.trim());
+    setAdminEmail(adminEmail.trim());
+
+    isEmailSanitized = sanitizeEmailInput(adminEmail);
+    isNameSanitized = sanitizeNameInput(adminName);
+    // console.log("isEmailSanitized: ", isEmailSanitized);
+    // console.log("isNameSanitized: ", isNameSanitized);
+
+    if (isEmailSanitized && isNameSanitized) {
       fetch("http://52.12.35.11:8080/api/add_admin", {
         method: "POST",
         headers: {
@@ -102,9 +116,17 @@ const Internal = () => {
         }),
       }).then((response) => {
         let res = response.json();
-        console.log(res);
       });
+    } else if (isEmailSanitized) {
+      alert("the name is not sanitized");
+    } else if (isNameSanitized) {
+      alert("the email is not sanitized");
+    } else {
+      alert("both the name and email are not sanitized");
     }
+
+    setAdminName("");
+    setAdminEmail("");
   };
 
   return (
@@ -160,7 +182,6 @@ const Internal = () => {
                       value={adminName}
                       onChange={(e) => {
                         setAdminName(e.target.value);
-                        // console.log(adminName);
                       }}
                     />
                   </div>
@@ -171,8 +192,7 @@ const Internal = () => {
                       placeholder="Ex: sgetty@coloradocollege.edu"
                       value={adminEmail}
                       onChange={(e) => {
-                        setEmail(e.target.value);
-                        // console.log(adminEmail);
+                        setAdminEmail(e.target.value);
                       }}
                     />
                   </div>
@@ -190,6 +210,37 @@ const Internal = () => {
           </div>
         </div>
       </div>
+
+      {/* {
+        (isNameSanitized === false || isEmailSanitized === false) && (
+          <div
+            class="alert alert-warning m-4 alert-dismissible fade show text-left"
+            role="alert"
+          >
+            {isNameSanitized === false && (
+              <p>
+                Names can only contain upper or lowercase alphabetical letters,
+                space, dash "-", or apostrophe " ' "
+              </p>
+            )}
+            {isEmailSanitized === false && (
+              <p>
+                Emails can only contain upper or lowercase alphabetical letters,
+                numbers, underscore, space, dash "-", at symbol "@", and period "
+                . ". All emails must end in coloradocollege.edu
+              </p>
+            )}
+            <button
+              type="button"
+              class="close"
+              data-dismiss="alert"
+              aria-label="Close"
+            >
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+        )
+      } */}
 
       {/* a table to show all the current qrc admins */}
       {/* table */}
