@@ -16,7 +16,7 @@ class User:
         self.individual_tutor = individual_tutor
 
     def __repr__(self):
-        return "User (email=%s, group=%s)"%(self.id, str(self.group))
+        return "User (email=%s, group=%s)"%(self.email, str(self.group))
 
     #def asdict(self):
     #    return {
@@ -43,9 +43,14 @@ def read_roster(roster_file):
         traceback.print_exc()
     errors = ""
     if len(output) > 0:
+        ALLOWED_CHARS_NAME = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 -'"
+        ALLOWED_CHARS_EMAIL = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_@."
         for tutor in output:
             #print(tutor)
             if tutor[1].endswith("@coloradocollege.edu"):
+                for char in tutor[0]:
+                    if char not in ALLOWED_CHARS_NAME:
+                        errors += ""
                 add_tutor(tutor[0], tutor[1])
             else:
                 errors += ("Tutor " + tutor[1] + " not added to database, please ensure that their email ends in '@coloradocollege.edu'\n")
