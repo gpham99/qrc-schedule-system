@@ -214,8 +214,9 @@ def get_master_schedule():
 
 #Page where any individual tutor's schedule is stored: shift number and discipline they signed up for
 @application.route('/api/tutor/<username>')
+@jwt_required()
 def get_tutor_schedule(username):
-    email = username + "@coloradocollege.edu"
+    email = current_identity.id
     disciplines = get_disciplines()
     master_schedule = []
     tutor_schedule = {}
