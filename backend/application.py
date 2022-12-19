@@ -364,8 +364,10 @@ def add_new_admin():
 
 @application.route('/api/remove_admin', methods=['POST'])
 def remove_admin():
-    admin_name = request.get_json()
-    delete_admins(admin_name)
+    req = request.get_json()
+    admin_email = req['email']
+    delete_admins(admin_email)
+    return {"msg": "Removed successfully"}
 
 
 @application.route('/api/get_username', methods=['GET'])

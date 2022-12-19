@@ -1,12 +1,6 @@
 import React from "react";
 import { useState, useEffect } from "react";
 
-// list of the adminstrators and their emails
-// const admins = [
-//   ["Steph Gettiburg", "s_gettiburg@coloradocollege.edu"],
-//   ["Karenina Le", "k_le@coloradocollege.edu"],
-// ];
-
 const Internal = () => {
   //const [submitMessage, setSubmitMessage] = useState("");
   const [admins, setAdmins] = useState({});
@@ -15,11 +9,12 @@ const Internal = () => {
 
   useEffect(() => {
     fetch("http://52.12.35.11:8080/api/get_admins")
-      .then((res) => res.json())
+      .then((response) => {
+        let res = response.json();
+        return res;
+      })
       .then((data) => {
-        console.log("This is the data", data);
         setAdmins(data);
-        console.log(data);
       });
   }, []);
 
@@ -29,59 +24,60 @@ const Internal = () => {
   };
 
   const sanitizeInput = (adminName, adminEmail) => {
-    adminName = adminName.trim();
-    adminEmail = adminEmail.trim();
+    // adminName = adminName.trim();
+    // adminEmail = adminEmail.trim();
 
-    for (let i = 0; i < adminName.length; i++) {
-      if (
-        !(
-          (adminName[i].charCodeAt() >= 65 &&
-            adminName[i].charCodeAt() <= 90) ||
-          (adminName[i].charCodeAt() >= 97 &&
-            adminName[i].charCodeAt() <= 122) ||
-          adminName[i].charCodeAt() === 32 ||
-          adminName[i].charCodeAt() === 47
-        )
-      ) {
-        return false;
-      }
-    }
+    // for (let i = 0; i < adminName.length; i++) {
+    //   if (
+    //     !(
+    //       (adminName[i].charCodeAt() >= 65 &&
+    //         adminName[i].charCodeAt() <= 90) ||
+    //       (adminName[i].charCodeAt() >= 97 &&
+    //         adminName[i].charCodeAt() <= 122) ||
+    //       adminName[i].charCodeAt() === 32 ||
+    //       adminName[i].charCodeAt() === 47
+    //     )
+    //   ) {
+    //     return false;
+    //   }
+    // }
 
-    for (let i = 0; i < adminEmail.length; i++) {
-      if (
-        !(
-          (adminEmail[i].charCodeAt() >= 65 &&
-            adminEmail[i].charCodeAt() <= 90) ||
-          (adminEmail[i].charCodeAt() >= 97 &&
-            adminEmail[i].charCodeAt() <= 122) ||
-          adminEmail[i].charCodeAt() === 32 ||
-          adminEmail[i].charCodeAt() === 47
-        )
-      ) {
-        return false;
-      }
+    // for (let i = 0; i < adminEmail.length; i++) {
+    //   if (
+    //     !(
+    //       (adminEmail[i].charCodeAt() >= 65 &&
+    //         adminEmail[i].charCodeAt() <= 90) ||
+    //       (adminEmail[i].charCodeAt() >= 97 &&
+    //         adminEmail[i].charCodeAt() <= 122) ||
+    //       adminEmail[i].charCodeAt() === 32 ||
+    //       adminEmail[i].charCodeAt() === 47
+    //     )
+    //   ) {
+    //     return false;
+    //   }
 
-      if (adminEmail.includes("@")) {
-        let split_email = adminEmail.split("@");
-        if (split_email[1] !== "coloradocollege.edu") {
-          return false;
-        }
-      }
-    }
+    //   if (adminEmail.includes("@")) {
+    //     let split_email = adminEmail.split("@");
+    //     if (split_email[1] !== "coloradocollege.edu") {
+    //       return false;
+    //     }
+    //   }
+    // }
 
     return true;
   };
 
-  // const removeAdmin = (adminEmail) => {
-  //   fetch("http://52.12.35.11:8080/api/remove_admin", {
-  //     method: "POST",
-  //     mode: "no-cors",
-  //     headers: {
-  //       "Content-Type": "application/json",
-  //     },
-  //     body: JSON.stringify([adminEmail]),
-  //   });
-  // };
+  const removeAdmin = (cellAdminEmail) => {
+    fetch("http://52.12.35.11:8080/api/remove_admin", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email: cellAdminEmail,
+      }),
+    });
+  };
 
   const handleClick = (e) => {
     let isSanitized = sanitizeInput(adminName, adminEmail);
@@ -207,9 +203,8 @@ const Internal = () => {
                   <button
                     class="btn btn-link"
                     onClick={(e) => {
-                      let aEmail = val[1];
-                      //console.log(aEmail);
-                      //removeAdmin(aEmail);
+                      let cellAdminEmail = val[1];
+                      removeAdmin(cellAdminEmail);
                     }}
                   >
                     Remove
