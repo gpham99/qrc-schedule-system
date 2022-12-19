@@ -251,7 +251,6 @@ const Discipline = () => {
                 <td>{val[0]}</td>
                 <td>{val[1]}</td>
                 <td>
-                  <button class="btn btn-link">Edit</button>
                   <button
                     class="btn btn-link"
                     onClick={(e) => {
