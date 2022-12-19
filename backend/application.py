@@ -422,10 +422,10 @@ def set_time_window():
     start_time = time_data['start_time']
     end_time = time_data['end_time']
     new_block = time_data['new_block']
-    current_block = get_current_block()
+    current_block = get_block()
     if new_block:
         current_block = (current_block+1)%8
-        update_current_block(current_block)
+        add_block(current_block)
     add_time_window(current_block, start_time, end_time)
     
 
