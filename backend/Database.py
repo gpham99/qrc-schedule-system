@@ -1,4 +1,6 @@
 import sqlite3 as sql
+
+
 # import datetime
 # import time
 # The Database file includes:
@@ -114,7 +116,7 @@ def create_tables(all_disciplines):
     # create the tutors table
     conn.execute('CREATE TABLE IF NOT EXISTS tutors(email TEXT, name TEXT, status INTEGER,shift_capacity '
                  'INTEGER, tutoring_disciplines TEXT, this_block_la INTEGER, next_block_la INTEGER, '
-                 'individual_tutor INTEGER, PRIMARY KEY (email))')
+                 'individual_tutor INTEGER, favorite_shifts TEXT,  PRIMARY KEY (email))')
     # create the admins table
     conn.execute('CREATE TABLE IF NOT EXISTS admins(email TEXT, name TEXT, PRIMARY KEY (email)) ')
     # create the disciplines table
@@ -142,6 +144,7 @@ def add_tutor(name, email):
     next_block_la = 0
     individual_tutor = 0
     tutoring_disciplines = '[]'
+    favorite_shifts = '[]'
     try:
         with sql.connect("database.db") as conn:
             cur = conn.cursor()
@@ -151,9 +154,10 @@ def add_tutor(name, email):
             # If the user doesn't exist add a new user
             if data is None:
                 cur.execute('INSERT OR IGNORE INTO tutors(email, name, status, shift_capacity, tutoring_disciplines, '
-                            'this_block_la, next_block_la, individual_tutor) VALUES(?, ?, ?, ?, ?, ?, ?, ?)',
-                            (email, name, status, shift_cap, tutoring_disciplines, this_block_la, next_block_la,
-                             individual_tutor))
+                            'this_block_la, next_block_la, individual_tutor, favorite_shifts) '
+                            'VALUES(?, ?, ?, ?, ?, ?, ?,?, ?)', (email, name, status, shift_cap, tutoring_disciplines,
+                                                                 this_block_la, next_block_la, individual_tutor,
+                                                                 favorite_shifts))
                 conn.commit()
             # If the user is being put into the roster and the name are the same do nothing
             if data[1] == name:
@@ -222,7 +226,6 @@ def add_discipline(discipline, abbreviation, shifts):
         discipline_count = len(get_disciplines())
         if col_amount != discipline_count and col_amount < discipline_count:
             reconfigure_when_adding()
-    # reconfigure_database()
 
 
 # Function to add rows to a specific discipline table
@@ -573,7 +576,7 @@ def get_discipline_from_abbreviation(abbreviation):
         with sql.connect("database.db") as conn:
             cur = conn.cursor()
             sql_search_query = 'SELECT * FROM disciplines where abbreviation = ?'
-            cur.execute(sql_search_query, (abbreviation, ))
+            cur.execute(sql_search_query, (abbreviation,))
             record = cur.fetchone()
             return record
     except:
@@ -653,6 +656,20 @@ def get_block_number():
             cur.execute(sql_search_query)
             record = cur.fetchone()
             return record
+    except:
+        conn.rollback()
+    finally:
+        conn.close()
+
+
+# Function to get a user's preffered shifts
+def get_favorite_shifts(user):
+    try:
+        with sql.connect("database.db") as conn:
+            cur = conn.cursor()
+            cur.execute("SELECT * FROM tutors WHERE email = ?", (user,))
+            data = list(cur.fetchone())
+            return data[8]
     except:
         conn.rollback()
     finally:
@@ -824,6 +841,20 @@ def update_individual_tutor(email):
                 # do stuff to turn it on
                 update_query = 'UPDATE tutors SET individual_tutor = 1 WHERE email = ?'
             cur.execute(update_query, (email,))
+    except:
+        conn.rollback()
+    finally:
+        conn.close()
+
+
+# Function to update the favored shifts of a tutor
+def update_favorite_shifts(user, new_favorite_shifts):
+    try:
+        with sql.connect("database.db") as conn:
+            cur = conn.cursor()
+            update_query = 'UPDATE tutors SET favorite_shifts = ? WHERE email = ?'
+            favored_shifts = str(new_favorite_shifts)
+            cur.execute(update_query, (favored_shifts, user))
     except:
         conn.rollback()
     finally:
@@ -1151,6 +1182,7 @@ def wipe(discipline):
     reconfigure_after_deleting()
     delete_table(discipline)
 
+
 if __name__ == '__main__':
     disciplines_list = ["CS", "Math", "Econ", "Physics", "CHBC"]
     tutors1 = ['Joe', 'Rick', None, 'Jerry', 'Paul']
@@ -1158,15 +1190,5 @@ if __name__ == '__main__':
     tutors3 = [None, 'Morty', 'Summer', None, 'James']
     create_tables(disciplines_list)
     reboot_database(disciplines_list, 'No')
+    add_tutor('Joe', "Joe email")
 
-    # add_to_master_schedule(0, discipline_list, tutors1)
-    # add_to_master_schedule(1, discipline_list, tutors2)
-    # add_to_master_schedule(2, discipline_list, tutors3)
-    # for i in range(3):
-    #     print(get_master_schedule_info(i))
-    #
-    # add_discipline("Cosmic_Studies", 'CSS', [])
-    # reconfigure_when_adding()
-    # print(get_master_schedule_columns())
-    # for i in range(3):
-    #     print(get_master_schedule_info(i))
