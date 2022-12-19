@@ -483,6 +483,21 @@ def get_discipline_shift(discipline, shift_number):
         con.close()
 
 
+# Function to get all the content of a table
+def get_table_contents(table):
+    try:
+        with sql.connect("database.db") as conn:
+            cur = conn.cursor()
+            sql_search_query = 'SELECT * FROM ' + table
+            cur.execute(sql_search_query)
+            record = cur.fetchall()
+            return list(record)
+    except:
+        conn.rollback()
+    finally:
+        conn.close()
+
+
 # Function to retrieve the assignments for a particular shift
 def get_master_schedule_info(shift_number):
     try:
@@ -1191,4 +1206,6 @@ if __name__ == '__main__':
     create_tables(disciplines_list)
     reboot_database(disciplines_list, 'No')
     add_tutor('Joe', "Joe email")
+    add_tutor('James', 'James email')
+    print(get_table_contents('Math'))
 
