@@ -16,7 +16,7 @@ class User:
         self.individual_tutor = individual_tutor
 
     def __repr__(self):
-        return "User (email=%s, group=%s)"%(self.email, str(self.group))
+        return "User (email=%s, group=%s)"%(self.id, str(self.group))
 
     #def asdict(self):
     #    return {

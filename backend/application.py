@@ -42,9 +42,11 @@ cas_client = CASClient(
 )
 
 def authenticate(username, password):
+    print("In authenticate: " + username)
     if 'username' not in session:
         session['username'] = username
     in_system, group = check_user(username+"@coloradocollege.edu")
+    print("in_system, group: ", in_system, group)
     if in_system:
         tutor_entry = get_single_tutor_info(username+"@coloradocollege.edu")
         return User(username+"@coloradocollege.edu", tutor_entry[1], group, tutor_entry[2], tutor_entry[3], tutor_entry[4], tutor_entry[5], tutor_entry[6],

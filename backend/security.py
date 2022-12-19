@@ -11,5 +11,5 @@ def authenticate(username, password):
 
 
 def identity(payload):
-    email = payload['identity']
+    email = payload['identity']+"@coloradocollege.edu"
     return authenticate(email, "")
