@@ -355,12 +355,11 @@ def get_email_admins():
 
 @application.route('/api/add_admin', methods=['POST'])
 def add_new_admin():
-    admin_data = request.get_json()
-    admin_name = admin_data["name"]
-    admin_email = admin_data["email"]
+    req = request.get_json()
+    admin_name = req["name"]
+    admin_email = req["email"]
     add_admin(admin_name, admin_email)
-
-
+    return {"msg": "Added successfully"}
 
 @application.route('/api/remove_admin', methods=['POST'])
 def remove_admin():
