@@ -252,7 +252,7 @@ def tutor_info():
     result['username'] = current_identity.id
     result['name'] = current_identity.name
     disciplines = []
-    for discipline in current_identity.disciplines:
+    for discipline in ast.literal_eval(current_identity.disciplines):
         disciplines.append(display(discipline))
     disciplines = sorted(disciplines)
     result['disciplines'] = disciplines
