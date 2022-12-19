@@ -1,15 +1,16 @@
 from Database import *
 import time
-from flask import Flask, request, session, redirect, url_for, jsonify
+from flask import Flask, request, session, redirect, url_for
 from cas import CASClient
 from flask_cors import CORS
 import ast
 import os
-from models import read_roster, User
+from models import read_roster, User, prepare_excel_file
 from werkzeug.utils import secure_filename
-from utility import replace_chars 
+from utility import display, sanitize 
 from flask_jwt import JWT, jwt_required, current_identity
-from security import authenticate, identity
+#from security import authenticate, identity
+from security import identity
 import json
 
 UPLOAD_FOLDER = '.'
@@ -32,11 +33,21 @@ application = Flask(__name__)
 CORS(application)
 application.secret_key = ';sufhiagr3yugfjcnkdlmsx0-w9u4fhbuewiejfigehbjrs'
 application.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
 cas_client = CASClient(
     version=3,    
     service_url='http://52.12.35.11:8080/',
     server_url='https://cas.coloradocollege.edu/cas/'
 )
+def authenticate(username, password):
+    if 'username' not in session:
+        session['username'] = username
+    email = username + "@coloradocollege.edu"
+    in_system, group = check_user(username+"@coloradocollege.edu")
+    if in_system:
+        tutor_entry = get_single_tutor_info(email)
+        return User(email, tutor_entry[1], group, tutor_entry[2], tutor_entry[3], tutor_entry[4], tutor_entry[5], tutor_entry[6],
+        tutor_entry[7])
 jwt = JWT(application, authenticate, identity)
 
 def allowed_file(filename):
@@ -45,8 +56,14 @@ def allowed_file(filename):
 
 def check_login():
     if 'username' in session:
-        in_system, group = check_user(session['username']+"@coloradocollege.edu")
+        try:
+            application.logger.debug("try")
+            in_system, group = check_user(session['username']+"@coloradocollege.edu")
+        except:
+            print(session['username'] + " not in system")
+            return False, "Logged out"
     else:
+        application.logger.debug("else")
         in_system, group = False, "Logged out"
     return in_system, group
 
@@ -79,8 +96,9 @@ def index():
     else:  # Login successfully, redirect according `next` query parameter.
         session['username'] = user
         session['email'] = attributes['email']
+        in_system, group = check_login()
         if not next:
-            return redirect(url_for('profile'))
+            return redirect('http://52.12.35.11:80/'+group+'?username='+session['username'])
         return redirect(next)
 
 @application.route('/profile')
@@ -97,9 +115,11 @@ def profile(method=['GET']):
 def login():
     application.logger.debug('session when you hit login: %s', session)
 
-    if 'username' in session:  
+    if 'username' in session:
+        in_system, group = check_login()
+
         # Already logged in
-        return redirect(url_for('profile'))
+        return redirect('http://52.12.35.11:80/'+group+'?username='+session['username'])
 
     next = request.args.get('next')
     ticket = request.args.get('ticket')
@@ -142,11 +162,9 @@ def get_login_status():
 @application.route('/api/master_schedule')
 def get_master_schedule():
     disciplines = get_disciplines()
-    abbreviations = []
-    for discipline in disciplines:
-        abbreviation = get_discipline_abbreviation(discipline)
-        abbreviation = replace_chars(abbreviation)
-        abbreviations.append(abbreviation)
+    abbreviations = get_abbreviations()
+    for i in range(len(abbreviations)):
+        abbreviations[i] = display(abbreviations[i])
     roster = get_roster()
     master_schedule = []
     master_schedule_with_disciplines = {}
@@ -164,7 +182,10 @@ def get_master_schedule():
                         if tutor_entry[0] == email: #find the tutor in the roster
                             tutor_found = True
                             discipline_list = ast.literal_eval(tutor_entry[4])
-                            discipline_list.remove(disciplines[d]) #ensure there is no redundant information
+                            try:
+                                discipline_list.remove(disciplines[d]) #ensure there is no redundant information
+                            except:
+                                print("ERROR: Discipline " + disciplines[d] + " not in tutorable disciplines for tutor " + email)
                             #get abbreviations for each discipline
                             for i in range(len(discipline_list)):
                                 discipline_list[i] = abbreviations[disciplines.index(discipline_list[i])]
@@ -193,8 +214,9 @@ def get_master_schedule():
 
 #Page where any individual tutor's schedule is stored: shift number and discipline they signed up for
 @application.route('/api/tutor/<username>')
+@jwt_required()
 def get_tutor_schedule(username):
-    email = username + "@coloradocollege.edu"
+    email = current_identity.id
     disciplines = get_disciplines()
     master_schedule = []
     tutor_schedule = {}
@@ -210,6 +232,17 @@ def get_tutor_schedule(username):
                 tutor_schedule[shift_num] = None
             shift_num += 1
     return tutor_schedule
+
+
+@application.route('/api/get_tutor_info')
+@jwt_required()
+def tutor_info():
+    result = {}
+    result['username'] = current_identity.id
+    result['name'] = current_identity.name
+    result['disciplines'] = current_identity.disciplines
+    result['shift_capacity'] = current_identity.shift_capacity
+    return result
     
     
 @application.route('/api/upload_roster', methods=['POST'])
@@ -245,68 +278,81 @@ def unauthorized_login():
 def protected():
     return '%s' % current_identity
 
-@application.route('/api/update_master_schedule', methods=['POST'])
-def update_tutors_in_master_schedule():
-    disciplines = get_disciplines()
-    abbreviations = []
-    for discipline in disciplines:
-        abbreviation = get_discipline_abbreviation(discipline)
-        abbreviation = replace_chars(abbreviation)
-        abbreviations.append(abbreviation) 
-    result = json.load(request.get_json())
-    for key in result.keys():
-        shift_index, discipline_abbreviation = key.split(',')
-        new_tutor_username = result[key]
-        user = authenticate(new_tutor_username, "")
-        if user != None:
-            print(user.id, shift_index, discipline_abbreviation)
-            update_master_schedule_single_discipline(shift_index, disciplines[abbreviations.index(discipline_abbreviation)], user.id)
 
 @application.route('/api/add_remove_disciplines')
 def get_disciplines_abbreviations():
     disciplines = get_disciplines()
     discipline_schedule_with_abv = []
-    for discipline in disciplines:
-        abbreviation = get_discipline_abbreviation(discipline)
-        abbreviation = replace_chars(abbreviation)
-        discipline = replace_chars(discipline)
-        discipline_schedule_with_abv.append([discipline, abbreviation])
+    for i in range(len(disciplines)):
+        abbreviation = get_discipline_abbreviation(disciplines[i])
+        abbreviation = display(abbreviation)
+        disciplines[i] = display(disciplines[i])
+        discipline_schedule_with_abv.append([disciplines[i], abbreviation])
 
     return discipline_schedule_with_abv
+
+
+@application.route('/api/update_master_schedule', methods=['POST'])
+def update_tutors_in_master_schedule():
+    disciplines = get_disciplines()
+    abbreviations = get_abbreviations()
+    for i in range(len(abbreviations)):
+        abbreviations[i] = display(abbreviations[i])
+    result = request.get_json()
+    output = []
+    for key in result.keys():
+        shift_index, discipline_abbreviation = key.split(',')
+        new_tutor_username = result[key]
+        if new_tutor_username == "":
+            update_master_schedule_single_discipline(shift_index, disciplines[abbreviations.index(discipline_abbreviation)], None)
+            #output += "Shift removed successfully\n"
+        else:
+            user = authenticate(new_tutor_username, "")
+            if user != None:
+                #print(user.id, shift_index, discipline_abbreviation)
+                discipline_to_change = disciplines[abbreviations.index(discipline_abbreviation)]
+                if discipline_to_change in user.disciplines:
+                    update_master_schedule_single_discipline(shift_index, discipline_to_change, user.id)
+                    #output += "Shift for " + user.id + " added successfully\n"
+                else:
+                    output.append("Error: Tutor " + user.id + " is not eligible to tutor " + display(discipline_to_change) + "\n")
+            else:
+                output.append("Error: " + user.id + " not found in database, please check your spelling\n")
+    return output
     
 @application.route('/api/add_discipline', methods=['POST'])
 def add_new_discipline():
-    discipline_name = request.get_json()["Name"]
-    discipline_abbreviation = request.get_json()['Abv']
-    add_discipline(discipline_name, discipline_abbreviation, [])
+    req = request.get_json()
+    print(req)
+    discipline_name = req['name']
+    discipline_abbreviation = req["abv"]
+    print("Adding discipline: " + discipline_name)
+    add_discipline(sanitize(discipline_name), sanitize(discipline_abbreviation), [])
+    return {"msg": "Success"}
+
+@application.route('/api/remove_discipline', methods=['POST'])
+def remove_discipline():
+    req = request.get_json()
+    discipline_name = req['disciplineName']
+    delete_discipline(sanitize(discipline_name))
+    return {"msg": "Removed successfully"}
 
 @application.route('/api/get_admins')
 def get_email_admins():
     email_admin = get_admin_roster()
     discipline_schedule_with_email = []
-    for admin, email in email_admin:
-        sanitized_email = replace_chars(email)
-        sanitized_admin = replace_chars(admin)
+    for email, admin in email_admin:
+        sanitized_email = sanitize(email)
+        sanitized_admin = sanitize(admin)
         discipline_schedule_with_email.append([sanitized_admin, sanitized_email])
 
     return discipline_schedule_with_email
 
-@application.route('/api/add_admin')
+@application.route('/api/add_admin', methods=['POST'])
 def add_new_admin():
     admin_name = request.get_json()["name"]
     admin_email = request.get_json()['email']
-    add_admin(admin_name, admin_email)
-
-
-@application.route('/api/remove_admin')
-def remove_admin():
-    admin_name = request.get_json()
-    delete_admins(admin_name)
-
-@application.route('/api/get_disciplines')
-def get_discipline_list():
-    return get_disciplines()
-
+    add_discipline(admin_name, admin_email)
 
 
 # # run the app.

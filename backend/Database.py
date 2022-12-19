@@ -26,6 +26,7 @@ import sqlite3 as sql
 # delete_tutors(email)
 # delete_admins(email)
 # delete_superusers(email)
+# delete_discipline(discipline)
 # clear_table(table)
 # delete_time_window(block)
 
@@ -40,7 +41,10 @@ import sqlite3 as sql
 # get_master_schedule_info(discipline_number)
 # get_roster()
 # get_disciplines()
-# get_discipline_shifts_offered()
+# get_abbreviations()
+# get_discipline_from_abbreviation(discipline)
+# get_discipline_shifts_offered(discipline)
+# get_discipline_abbreviation(discipline)
 # get_time_window(block)
 
 # 7. The ability to check if a user exits in the database
@@ -57,7 +61,6 @@ import sqlite3 as sql
 # update_master_schedule(shift_number,all_disciplines, new_assignments)
 # update_time_window(block, start_time, end_time)
 # update_discipline_abbreviation(discipline, abbreviation)
-#
 
 # 9 Other functions to help with the basic keeping of the database
 # reconfigure_database(new_disciplines_list)
@@ -97,7 +100,9 @@ def create_discipline_tables(all_disciplines):
 # Function to create the tables
 def create_tables(all_disciplines):
     # create a database
+    create_master_schedule(all_disciplines)
     conn = sql.connect('database.db')
+
     # create superuser table
     conn.execute('CREATE TABLE IF NOT EXISTS superuser (email TEXT, name TEXT, PRIMARY KEY (email))')
     # create the tutors table
@@ -116,7 +121,6 @@ def create_tables(all_disciplines):
     conn.close()
     # creates the remaining tables (disciplines, and master_schedule)
     create_discipline_tables(all_disciplines)
-    create_master_schedule(all_disciplines)
 
 
 # Function that will add tutors to the tutors table
@@ -183,7 +187,7 @@ def add_admin(name, email):
 
 # Function that will add rows to the discipline table
 def add_discipline(discipline, abbreviation, shifts):
-    try:
+    if True:
         with sql.connect("database.db") as con:
             cur = con.cursor()
             sql_select_query = 'SELECT * FROM disciplines WHERE discipline=? '
@@ -194,15 +198,13 @@ def add_discipline(discipline, abbreviation, shifts):
                 cur.execute('INSERT OR IGNORE INTO disciplines (discipline, abbreviation,  available_shifts) '
                             'VALUES(?, ?, ?)', (discipline, abbreviation, str(shifts)))
                 con.commit()
-                reconfigure_database()
+                # reconfigure_database()
             # else update
             else:
-                update_query = 'UPDATE disciplines SET abbreviation = ?, shifts = ? WHERE discipline = ?'
-                cur.execute(update_query, (abbreviation, shifts, discipline))
-    except:
-        con.rollback()
-    finally:
-        con.close()
+                update_query = 'UPDATE disciplines SET abbreviation = ?, available_shifts = ? WHERE discipline = ?'
+                cur.execute(update_query, (abbreviation, str(shifts), discipline))
+                print("updated stuff")
+
 
 
 # Function to add rows to a specific discipline table
@@ -282,7 +284,7 @@ def delete_tutors(email):
         con.close()
 
 
-# function that will delete tutors
+# function that will delete admins
 def delete_admins(email):
     try:
         with sql.connect("database.db") as con:
@@ -295,7 +297,7 @@ def delete_admins(email):
         con.close()
 
 
-# function that will delete tutors
+# function that will delete superusers
 def delete_superusers(email):
     try:
         with sql.connect("database.db") as con:
@@ -308,7 +310,20 @@ def delete_superusers(email):
         con.close()
 
 
-# clears every row in the master schedule
+# Function to delete a discipline from the disciplines table
+def delete_discipline(discipline):
+    try:
+        with sql.connect("database.db") as con:
+            cur = con.cursor()
+            cur.execute('DELETE FROM disciplines WHERE discipline = ?', (discipline,))
+            con.commit()
+    except:
+        con.rollback()
+    finally:
+        con.close()
+
+
+# clears every row in a table
 def clear_table(table):
     try:
         with sql.connect("database.db") as con:
@@ -493,6 +508,23 @@ def get_abbreviations():
     finally:
         con.close()
 
+
+# Function to return discipline names from abbreviations
+def get_discipline_from_abbreviation(abbreviation):
+    try:
+        with sql.connect("database.db") as con:
+            disciplines_list = []
+            cur = con.cursor()
+            sql_search_query = 'SELECT * FROM disciplines where abbreviation = ?'
+            cur.execute(sql_search_query, (abbreviation, ))
+            record = cur.fetchone()
+            return record
+    except:
+        con.rollback()
+    finally:
+        con.close()
+
+
 # Function that will return which shifts a particular discipline is available for
 def get_discipline_shifts_offered(discipline):
     try:
@@ -572,14 +604,14 @@ def check_user(user):
             rows = cur.fetchall()
             for row in rows:
                 if row[0] == user:
-                    return True, "admins"
+                    return True, "admin"
 
             # Checks to see if the user is a tutor
             cur.execute("select * from tutors")
             rows = cur.fetchall()
             for row in rows:
                 if row[0] == user:
-                    return True, "tutors"
+                    return True, "tutor"
             return False, "None"
     except:
         con.rollback()
@@ -903,9 +935,12 @@ def reboot_database(all_disciplines, exceptions):
 if __name__ == '__main__':
     discipline_list = ["CS", "Math", "Econ", "Physics", "CHBC"]
     tutors = ['Joe', 'James', None, None, None]
-    reboot_database(discipline_list, 'No')
-    update_discipline_abbreviation('Math', 'M')
-    print(get_abbreviations())
+    create_tables(discipline_list)
+    add_discipline('Math', 'M', [])
+    add_discipline("James", "J", [])
 
 
 # update master_schedule for a single discipline
+# add_discipline
+# reconfigure_table
+# add_new_discipline_table

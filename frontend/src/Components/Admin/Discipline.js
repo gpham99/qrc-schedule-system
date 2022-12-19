@@ -11,20 +11,24 @@ const Discipline = () => {
 
   useEffect(() => {
     fetch("http://52.12.35.11:8080/api/add_remove_disciplines")
-      .then((res) => res.json())
+      .then((response) => {
+        let res = response.json();
+        return res;
+      })
       .then((data) => {
         setDisciplines(data);
       });
   }, [disciplines]);
 
-  const removeDiscipline = (disciplineName) => {
+  const removeDiscipline = (dName) => {
     fetch("http://52.12.35.11:8080/api/remove_discipline", {
       method: "POST",
-      mode: "no-cors",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(disciplineName),
+      body: JSON.stringify({
+        disciplineName: dName,
+      }),
     });
   };
 
@@ -67,9 +71,7 @@ const Discipline = () => {
 
   const handleClick = (e) => {
     let isSanitized = sanitizeInput(disciplineName, disciplineAbv);
-    console.log("is it sanitized?: ", isSanitized);
     setSanitizeCheck(isSanitized);
-
     if (isSanitized === true) {
       fetch("http://52.12.35.11:8080/api/add_discipline", {
         method: "POST",
@@ -83,12 +85,14 @@ const Discipline = () => {
       })
         .then((response) => {
           let res = response.json();
-          console.log("This is the response", res);
           return res;
         })
         .then((data) => {
-          console.log("This is the data ", data);
+          setSubmitMessage(data["msg"]);
         });
+
+      setDisciplineName("");
+      setDisciplineAbv("");
     }
   };
 
@@ -188,7 +192,7 @@ const Discipline = () => {
         </div>
       )}
 
-      {submitMessage === "Fail" && (
+      {submitMessage !== "Success" && submitMessage !== "" && (
         <div
           class="alert alert-warning m-4 alert-dismissible fade show"
           role="alert"
@@ -247,7 +251,6 @@ const Discipline = () => {
                 <td>{val[0]}</td>
                 <td>{val[1]}</td>
                 <td>
-                  <button class="btn btn-link">Edit</button>
                   <button
                     class="btn btn-link"
                     onClick={(e) => {

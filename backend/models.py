@@ -1,11 +1,19 @@
 import pandas as pd
 import traceback
-from databaseTest import create_tables, add_tutor
+from Database import create_tables, add_tutor
 
 class User:
-    def __init__(self, email, group=None):
+    def __init__(self, email, name, group=None, status = 0, shift_capacity=1, tutoring_disciplines=[],\
+        this_block_la=0, next_block_la=0, individual_tutor=0):
         self.id = email
         self.group = group
+        self.name = name
+        self.status = status
+        self.shift_capacity = shift_capacity
+        self.disciplines = tutoring_disciplines
+        self.this_block_la = this_block_la
+        self.next_block_la = next_block_la
+        self.individual_tutor = individual_tutor
 
     def __repr__(self):
         return "User (email=%s, group=%s)"%(self.email, str(self.group))
@@ -33,12 +41,23 @@ def read_roster(roster_file):
     except:
         return "Error reading file. Please ensure you submitted an Excel file."
         traceback.print_exc()
+    errors = ""
     if len(output) > 0:
         for tutor in output:
-            print(tutor)
-            add_tutor(tutor[0], tutor[1])
-        return "File successfully read, tutors added to database"
+            #print(tutor)
+            if tutor[1].endswith("@coloradocollege.edu"):
+                add_tutor(tutor[0], tutor[1])
+            else:
+                errors += ("Tutor " + tutor[1] + " not added to database, please ensure that their email ends in '@coloradocollege.edu'\n")
+        return errors + "File successfully read, tutors added to database"
     return "No tutors found in file"
 
 
+#process Excel file and return it in an easily legible format
+def prepare_excel_file(filename):
+    df = pd.read_excel(filename)
+    output = [[column for column in df.columns]]
+    for i in range(len(df.index)):
+        output.append([num for num in df.iloc[i,:]])
+    return output
 
