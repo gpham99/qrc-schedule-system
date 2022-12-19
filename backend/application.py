@@ -10,8 +10,8 @@ from werkzeug.utils import secure_filename
 from utility import display, sanitize 
 from flask_jwt import JWT, jwt_required, current_identity
 #from security import authenticate, identity
-from security import identity
 import json
+from datetime import timedelta
 
 UPLOAD_FOLDER = '.'
 ALLOWED_EXTENSIONS = {'xls', 'xlsx', 'xlsm', 'xlsb', 'odf', 'ods', 'odt'}
@@ -39,16 +39,26 @@ cas_client = CASClient(
     service_url='http://52.12.35.11:8080/',
     server_url='https://cas.coloradocollege.edu/cas/'
 )
+
 def authenticate(username, password):
+    print("In authenticate: " + username)
+    if not username.endswith("@coloradocollege.edu"):
+        username += "@coloradocollege.edu"
     if 'username' not in session:
         session['username'] = username
-    email = username + "@coloradocollege.edu"
-    in_system, group = check_user(username+"@coloradocollege.edu")
+    in_system, group = check_user(username)
+    print("in_system, group: ", in_system, group)
     if in_system:
-        tutor_entry = get_single_tutor_info(email)
-        return User(email, tutor_entry[1], group, tutor_entry[2], tutor_entry[3], tutor_entry[4], tutor_entry[5], tutor_entry[6],
+        tutor_entry = get_single_tutor_info(username)
+        return User(username, tutor_entry[1], group, tutor_entry[2], tutor_entry[3], tutor_entry[4], tutor_entry[5], tutor_entry[6],
         tutor_entry[7])
+
+def identity(payload):
+    email = payload['identity']
+    return authenticate(email, "")
+
 jwt = JWT(application, authenticate, identity)
+application.config["JWT_EXPIRATION_DELTA"] = timedelta(seconds=86400)
 
 def allowed_file(filename):
     return '.' in filename and \
@@ -217,6 +227,7 @@ def get_master_schedule():
 @jwt_required()
 def get_tutor_schedule():
     email = current_identity.id
+    print(email)
     disciplines = get_disciplines()
     master_schedule = []
     tutor_schedule = {}
@@ -342,30 +353,29 @@ def remove_discipline():
     return {"msg": "Removed successfully"}
 
 @application.route('/api/get_admins')
-def get_email_admins():
-    email_admin = get_admin_roster()
-    discipline_schedule_with_email = []
-    for email, admin in email_admin:
-        sanitized_email = sanitize(email)
-        sanitized_admin = sanitize(admin)
-        discipline_schedule_with_email.append([sanitized_admin, sanitized_email])
-
-    return discipline_schedule_with_email
+def get_admins():
+    admin_info = get_admin_roster()
+    admin_display_lst = []
+    for name, email in admin_info:
+        display_email = email
+        display_name = display(name)
+        admin_display_lst.append([display_name, display_email])
+    return admin_display_lst
 
 @application.route('/api/add_admin', methods=['POST'])
 def add_new_admin():
-    admin_data = request.get_json()
-    admin_name = admin_data["name"]
-    admin_email = admin_data["email"]
+    req = request.get_json()
+    admin_name = sanitize(req["name"])
+    admin_email = sanitize(req["email"])
     add_admin(admin_name, admin_email)
-
-
+    return {"msg": "Added successfully"}
 
 @application.route('/api/remove_admin', methods=['POST'])
 def remove_admin():
-    admin_name = request.get_json()
-    delete_admins(admin_name)
-
+    req = request.get_json()
+    admin_email = req['email']
+    delete_admins(admin_email)
+    return {"msg": "Removed successfully"}
 
 @application.route('/api/get_username', methods=['GET'])
 def get_username():

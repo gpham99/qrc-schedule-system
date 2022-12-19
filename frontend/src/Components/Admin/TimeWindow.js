@@ -9,7 +9,7 @@ const TimeWindow = () => {
 
   // func to post to database
   const createTimeWindow = (event) => {
-   // console.log(newBlock);
+    // console.log(newBlock);
     fetch("http://52.12.35.11:8080/api/set_time_window", {
       method: "POST",
       headers: {
@@ -77,18 +77,24 @@ const TimeWindow = () => {
         </div>
       </div>
       <div class="pb-4 d-flex justify-content-center">
-        <button type="button" class="btn btn-secondary mr-3 ml-3" 
-        onClick={() => {
-          setNewBlock(false);
-          createTimeWindow();
-        }}>
+        <button
+          type="button"
+          class="btn btn-secondary mr-3 ml-3"
+          onClick={() => {
+            setNewBlock(false);
+            createTimeWindow();
+          }}
+        >
           Update the time window
         </button>
-        <button type="button" class="btn btn-info mr-3 ml-3"
-        onClick={() => {
-          setNewBlock(true);
-          createTimeWindow();
-        }}>
+        <button
+          type="button"
+          class="btn btn-info mr-3 ml-3"
+          onClick={() => {
+            setNewBlock(true);
+            createTimeWindow();
+          }}
+        >
           Create a new time window
         </button>
       </div>
