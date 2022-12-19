@@ -174,7 +174,7 @@ const Discipline = () => {
         </div>
       </div>
 
-      {submitMessage === "Success" ? (
+      {submitMessage === "Success" && (
         <div
           class="alert alert-success m-4 alert-dismissible fade show"
           role="alert"
@@ -189,7 +189,9 @@ const Discipline = () => {
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
-      ) : (
+      )}
+
+      {submitMessage !== "Success" && submitMessage !== "" && (
         <div
           class="alert alert-warning m-4 alert-dismissible fade show"
           role="alert"
