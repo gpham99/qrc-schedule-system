@@ -261,6 +261,8 @@ def tutor_info():
             disciplines.append((display(discipline), False))
     result['disciplines'] = disciplines
     result['shift_capacity'] = current_identity.shift_capacity
+    result['status'] = True if current_identity.status == 1 else False
+    result['this_block_la'] = True if current_identity.this_block_la == 1 else False
     return result
     
     
@@ -381,43 +383,6 @@ def remove_admin():
     delete_admins(admin_email)
     return {"msg": "Removed successfully"}
 
-@application.route('/api/get_username', methods=['GET'])
-def get_username():
-    application.logger.debug("session: %s", session)
-  #  if 'username' in session:
-   #     application.logger.debug('username is  %s', session['username'])
-    #    return "Success"
-   # else:
-    #    application.logger.debug('username is not in session')
-     #   return "Cannot get username"
-    if 'username' in session:
-        # response = flask.jsonify({'username': session['username']})
-        # response.headers.add('Access-Control-Allow-Origin', '*')
-        # return response
-        return {
-                'statusCode': 200,
-                'headers': {
-                    'Access-Control-Allow-Origin': 'http://52.12.35.11',
-                    'Access-Control-Allow-Methods': 'OPTIONS, POST, GET'
-                },
-                'body': json.dumps(session["username"])
-        }
-    else:
-        return {
-                'statusCode': 200,
-                'headers': {
-                    'Access-Control-Allow-Origin': 'http://52.12.35.11',
-                    'Access-Control-Allow-Methods': 'OPTIONS, POST, GET'
-                },
-                'body': json.dumps("username not in session")
-        }
-         
-       # response = flask.jsonify({'username': 'Oh well you run into else statement, meaning username is not in session'})
-        # response.headers.add('Access-Control-Allow-Origin', '*')
-        # return response
-    # in_system, group = check_login()
-    # if in_system:
-    #     return session['username']
 
 
 @application.route('/api/last_excel_file')
