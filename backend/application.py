@@ -51,7 +51,7 @@ def authenticate(username, password):
     if in_system:
         tutor_entry = get_single_tutor_info(username)
         return User(username, tutor_entry[1], group, tutor_entry[2], tutor_entry[3], tutor_entry[4], tutor_entry[5], tutor_entry[6],
-        tutor_entry[7])
+        tutor_entry[7], tutor_entry[8])
 
 def identity(payload):
     email = payload['identity']
@@ -275,7 +275,7 @@ def tutor_info():
         all_disciplines = sorted(all_disciplines)
         disciplines = []
         for discipline in all_disciplines:
-            if discipline in ast.literal_eval(current_identity.disciplines):
+            if discipline in current_identity.disciplines:
                 disciplines.append((display(discipline), True))
             else:
                 disciplines.append((display(discipline), False))
@@ -446,9 +446,38 @@ def set_schedule_skeleton():
     data = request.get_json()
     disciplines = get_disciplines()
     for discipline in disciplines:
-        shift_list = data[discipline]
+        shift_list = data[display(discipline)]
         update_discipline_shift_availability(discipline, shift_list)
     return "Schedule skeleton updated"
+
+@application.route('/api/tutor/get_availability')
+@jwt_required()
+def get_availability():
+    ret = {}
+    tutoring_disciplines = current_identity.disciplines
+    for i in range(20):
+        all_possible_disciplines = []
+        picked = ""
+        favorited = False
+        shift_dict = {}
+        for discipline in tutoring_disciplines:
+            shifts_offered = get_discipline_shifts_offered(discipline)
+            if i in shifts_offered:
+                all_possible_disciplines.append(display(discipline))
+                available_tutors = ast.literal_eval(get_discipline_shift(discipline, i))
+                if current_identity.id in available_tutors:
+                    picked = discipline
+                    if i in current_identity.favorited_shifts:
+                        favorited = True
+        shift_dict['all_possible_disciplines'] = all_possible_disciplines
+        shift_dict['picked'] = picked
+        shift_dict['favorited'] = favorited
+        ret[i] = shift_dict
+    return ret
+
+
+
+
 
 
 # # run the app.
