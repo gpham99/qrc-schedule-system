@@ -343,21 +343,20 @@ def remove_discipline():
     return {"msg": "Removed successfully"}
 
 @application.route('/api/get_admins')
-def get_email_admins():
-    email_admin = get_admin_roster()
-    discipline_schedule_with_email = []
-    for email, admin in email_admin:
-        sanitized_email = sanitize(email)
-        sanitized_admin = sanitize(admin)
-        discipline_schedule_with_email.append([sanitized_admin, sanitized_email])
-
-    return discipline_schedule_with_email
+def get_admins():
+    admin_info = get_admin_roster()
+    admin_display_lst = []
+    for email, name in admin_info:
+        display_email = display(email)
+        display_name = display(name)
+        admin_display_lst.append([display_name, display_email])
+    return admin_display_lst
 
 @application.route('/api/add_admin', methods=['POST'])
 def add_new_admin():
     req = request.get_json()
-    admin_name = req["name"]
-    admin_email = req["email"]
+    admin_name = sanitize(req["name"])
+    admin_email = sanitize(req["email"])
     add_admin(admin_name, admin_email)
     return {"msg": "Added successfully"}
 
