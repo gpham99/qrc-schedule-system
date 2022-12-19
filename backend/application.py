@@ -251,10 +251,14 @@ def tutor_info():
     result = {}
     result['username'] = current_identity.id
     result['name'] = current_identity.name
+    all_disciplines = get_disciplines()
+    all_disciplines = sorted(all_disciplines)
     disciplines = []
-    for discipline in current_identity.disciplines:
-        disciplines.append(display(discipline))
-    disciplines = sorted(disciplines)
+    for discipline in all_disciplines:
+        if discipline in current_identity.disciplines:
+            disciplines.append((display(discipline), True))
+        else:
+            disciplines.append((display(discipline), False))
     result['disciplines'] = disciplines
     result['shift_capacity'] = current_identity.shift_capacity
     return result
