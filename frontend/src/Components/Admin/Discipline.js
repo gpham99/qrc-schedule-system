@@ -17,14 +17,15 @@ const Discipline = () => {
       });
   }, [disciplines]);
 
-  const removeDiscipline = (disciplineName) => {
+  const removeDiscipline = (dName) => {
     fetch("http://52.12.35.11:8080/api/remove_discipline", {
       method: "POST",
-      mode: "no-cors",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(disciplineName),
+      body: JSON.stringify({
+        disciplineName: dName,
+      }),
     });
   };
 
