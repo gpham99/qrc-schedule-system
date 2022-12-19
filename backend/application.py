@@ -250,6 +250,13 @@ def update_tutor_info():
     req = request.get_json()
     new_shift_capacity = req['shift_capacity']
     new_disciplines = req['disciplines']
+    update_shift_capacity(current_identity.id, new_shift_capacity)
+    disciplines = []
+    for discipline, discipline_bool in new_disciplines:
+        if discipline_bool == True:
+            disciplines.append(sanitize(discipline))
+    update_tutoring_disciplines(current_identity.id, disciplines)
+    return "Tutor info updated"
 
 
 @application.route('/api/tutor/get_info', methods = ['GET'])
