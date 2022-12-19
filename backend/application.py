@@ -1,4 +1,4 @@
-from Database import add_admin, get_admin_roster, add_discipline, get_roster, get_master_schedule_info, get_disciplines, check_user, get_discipline_abbreviation, update_master_schedule_single_discipline
+from Database import *
 import time
 from flask import Flask, request, session, redirect, url_for, jsonify
 from cas import CASClient
@@ -281,7 +281,7 @@ def add_new_discipline():
     add_discipline(discipline_name, discipline_abbreviation, [])
 
 @application.route('/api/get_admins')
-def get_disciplines_abbreviations():
+def get_email_admins():
     email_admin = get_admin_roster()
     discipline_schedule_with_email = []
     for admin, email in email_admin:
@@ -295,7 +295,18 @@ def get_disciplines_abbreviations():
 def add_new_admin():
     admin_name = request.get_json()["name"]
     admin_email = request.get_json()['email']
-    add_discipline(admin_name, admin_email)
+    add_admin(admin_name, admin_email)
+
+
+@application.route('/api/remove_admin')
+def remove_admin():
+    admin_name = request.get_json()
+    delete_admins(admin_name)
+
+@application.route('/api/get_disciplines')
+def get_discipline_list():
+    return get_disciplines()
+
 
 
 # # run the app.
