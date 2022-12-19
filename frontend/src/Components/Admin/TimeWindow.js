@@ -20,6 +20,13 @@ const TimeWindow = () => {
         eTime: endDate,
         nBlock: newBlock,
       }),
+    })
+    .then((response) => {
+      let res = response.json();
+      return res;
+    })
+    .then((data) => {
+      //post response message?
     });
   };
 
