@@ -329,10 +329,10 @@ def add_new_discipline():
 
 @application.route('/api/remove_discipline', methods=['POST'])
 def remove_discipline():
-    discipline_name = request.get_json()
-    #discipline_name = req['name']
+    req = request.get_json()
+    discipline_name = req['disciplineName']
     delete_discipline(sanitize(discipline_name))
-    return "Discipline deleted"
+    return {"msg": "Removed successfully"}
 
 @application.route('/api/get_admins')
 def get_email_admins():

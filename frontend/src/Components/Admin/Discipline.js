@@ -66,12 +66,12 @@ const Discipline = () => {
   };
 
   const handleClick = (e) => {
-    console.log("this is the disciplineName: ", disciplineName);
-    console.log("this is the disciplineAbv: ", disciplineAbv);
+    // console.log("this is the disciplineName: ", disciplineName);
+    // console.log("this is the disciplineAbv: ", disciplineAbv);
     let isSanitized = sanitizeInput(disciplineName, disciplineAbv);
-    console.log("is it sanitized?: ", isSanitized);
+    // console.log("is it sanitized?: ", isSanitized);
     setSanitizeCheck(isSanitized);
-    console.log("after using setSanitizedCheck: ", isSanitized);
+    // console.log("after using setSanitizedCheck: ", isSanitized);
 
     if (isSanitized === true) {
       fetch("http://52.12.35.11:8080/api/add_discipline", {
@@ -86,7 +86,7 @@ const Discipline = () => {
       })
         .then((response) => {
           let res = response.json();
-          console.log("This is res: ", res);
+          // console.log("This is res: ", res);
           return res;
         })
         .then((data) => {
