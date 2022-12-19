@@ -11,20 +11,24 @@ const Discipline = () => {
 
   useEffect(() => {
     fetch("http://52.12.35.11:8080/api/add_remove_disciplines")
-      .then((res) => res.json())
+      .then((response) => {
+        let res = response.json();
+        return res;
+      })
       .then((data) => {
         setDisciplines(data);
       });
   }, [disciplines]);
 
-  const removeDiscipline = (disciplineName) => {
+  const removeDiscipline = (dName) => {
     fetch("http://52.12.35.11:8080/api/remove_discipline", {
       method: "POST",
-      mode: "no-cors",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(disciplineName),
+      body: JSON.stringify({
+        disciplineName: dName,
+      }),
     });
   };
 
@@ -67,13 +71,10 @@ const Discipline = () => {
 
   const handleClick = (e) => {
     let isSanitized = sanitizeInput(disciplineName, disciplineAbv);
-    console.log("is it sanitized?: ", isSanitized);
     setSanitizeCheck(isSanitized);
-
     if (isSanitized === true) {
       fetch("http://52.12.35.11:8080/api/add_discipline", {
         method: "POST",
-        mode: "no-cors",
         headers: {
           "Content-Type": "application/json",
         },
@@ -81,16 +82,17 @@ const Discipline = () => {
           name: disciplineName,
           abv: disciplineAbv,
         }),
-      }).then((response) => {
-        let res = response.json();
-        if (200 <= res.status <= 299) {
-          console.log("Discipline added successfully");
-          setSubmitMessage("Success");
-        } else {
-          console.log("Failed to add discipline");
-          setSubmitMessage("Fail");
-        }
-      });
+      })
+        .then((response) => {
+          let res = response.json();
+          return res;
+        })
+        .then((data) => {
+          setSubmitMessage(data["msg"]);
+        });
+
+      setDisciplineName("");
+      setDisciplineAbv("");
     }
   };
 
@@ -190,7 +192,7 @@ const Discipline = () => {
         </div>
       )}
 
-      {submitMessage === "Fail" && (
+      {submitMessage !== "Success" && submitMessage !== "" && (
         <div
           class="alert alert-warning m-4 alert-dismissible fade show"
           role="alert"
@@ -249,7 +251,6 @@ const Discipline = () => {
                 <td>{val[0]}</td>
                 <td>{val[1]}</td>
                 <td>
-                  <button class="btn btn-link">Edit</button>
                   <button
                     class="btn btn-link"
                     onClick={(e) => {

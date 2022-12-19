@@ -1,6 +1,6 @@
 from Database import *
 import time
-from flask import Flask, request, session, redirect, url_for, jsonify
+from flask import Flask, request, session, redirect, url_for
 from cas import CASClient
 from flask_cors import CORS
 import ast
@@ -33,6 +33,7 @@ application = Flask(__name__)
 CORS(application)
 application.secret_key = ';sufhiagr3yugfjcnkdlmsx0-w9u4fhbuewiejfigehbjrs'
 application.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
 cas_client = CASClient(
     version=3,    
     service_url='http://52.12.35.11:8080/',
@@ -326,14 +327,14 @@ def add_new_discipline():
     discipline_abbreviation = req["abv"]
     print("Adding discipline: " + discipline_name)
     add_discipline(sanitize(discipline_name), sanitize(discipline_abbreviation), [])
-    return "Things should be added"
+    return {"msg": "Success"}
 
 @application.route('/api/remove_discipline', methods=['POST'])
 def remove_discipline():
-    discipline_name = request.get_json()
-    #discipline_name = req['name']
+    req = request.get_json()
+    discipline_name = req['disciplineName']
     delete_discipline(sanitize(discipline_name))
-    return "Discipline deleted"
+    return {"msg": "Removed successfully"}
 
 @application.route('/api/get_admins')
 def get_email_admins():
@@ -395,9 +396,9 @@ def get_username():
        # response = flask.jsonify({'username': 'Oh well you run into else statement, meaning username is not in session'})
         # response.headers.add('Access-Control-Allow-Origin', '*')
         # return response
-    in_system, group = check_login()
-    if in_system:
-        return session['username']
+    # in_system, group = check_login()
+    # if in_system:
+    #     return session['username']
 
 
 @application.route('/api/last_excel_file')
