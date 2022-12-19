@@ -255,7 +255,7 @@ def tutor_info():
     all_disciplines = sorted(all_disciplines)
     disciplines = []
     for discipline in all_disciplines:
-        if discipline in current_identity.disciplines:
+        if discipline in ast.literal_eval(current_identity.disciplines):
             disciplines.append((display(discipline), True))
         else:
             disciplines.append((display(discipline), False))
@@ -362,7 +362,7 @@ def remove_discipline():
 def get_admins():
     admin_info = get_admin_roster()
     admin_display_lst = []
-    for name, email in admin_info:
+    for email, name in admin_info:
         display_email = email
         display_name = display(name)
         admin_display_lst.append([display_name, display_email])

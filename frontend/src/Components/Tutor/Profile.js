@@ -1,33 +1,30 @@
 import React, { useState, useEffect } from "react";
 
 const Profile = () => {
-  // const [jwt, setJwt] = useState("");
+  const [userInfo, setUserInfo] = useState({});
 
-  // useEffect(() => {
-  //   const requestOptions = {
-  //     method: "POST",
-  //     headers: { "Content-Type": "application/json" },
-  //     body: JSON.stringify({ username: "pass", password: "pass" }),
-  //   };
-  //   fetch("http://52.12.35.11:8080/auth", requestOptions)
-  //     .then(function (response) {
-  //       console.log("res hehe: ", response.json());
-  //       return response.json();
-  //     })
-  //     .then(function (data) {
-  //       console.log(data);
-  //     });
-  // }, []);
+  // grab the access token from the local storage
+  const accessToken = localStorage.getItem("access_token");
 
-  // useEffect(() => {
-  //   fetch("http://52.12.35.11:8080/api/get_username").then((res) => {
-  //     console.log("res: ", res);
-  //     res.json();
-  //   });
-  //   // .then((data) => {
-  //   //   (data.time);
-  //   // });
-  // }, []);
+  // call get_tutor_info and pass the access token as authorization header
+  useEffect(() => {
+    const requestOptions = {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "JWT " + accessToken.replace(/["]+/g, ""),
+      },
+    };
+
+    fetch("http://52.12.35.11:8080/api/get_tutor_info", requestOptions)
+      .then((response) => {
+        let res = response.json();
+        return res;
+      })
+      .then((data) => {
+        console.log("data: ", data);
+        setUserInfo(data);
+      });
+  }, []);
 
   return (
     <div class="bg-light p-4 d-flex flex-column align-items-center justify-content-center">
@@ -46,13 +43,13 @@ const Profile = () => {
               <tr>
                 <td>Name:</td>
                 <td>
-                  <p>John Doe</p>
+                  <p>{userInfo["name"]}</p>
                 </td>
               </tr>
               <tr>
                 <td>Email address: </td>
                 <td>
-                  <p>j_doe@coloradocollege.edu</p>
+                  <p>{userInfo["username"]}</p>
                 </td>
               </tr>
               <tr>
