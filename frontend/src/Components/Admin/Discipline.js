@@ -84,21 +84,13 @@ const Discipline = () => {
           abv: disciplineAbv,
         }),
       })
-        .then(function (response) {
-          console.log("this is response.json(): ", response.json());
-          return response.json();
-          // console.log("response.json(): ", response.json());
-          // let res = response.json();
-          // if (200 <= res.status && res.status <= 299) {
-          //   console.log("Discipline added successfully");
-          //   setSubmitMessage("Success");
-          // } else {
-          //   console.log("Failed to add discipline");
-          //   setSubmitMessage("Fail");
-          // }
+        .then((response) => {
+          let res = response.json();
+          console.log("This is res: ", res);
+          return res;
         })
-        .then(function (data) {
-          console.log("this is the data: ", data);
+        .then((data) => {
+          setSubmitMessage(data["msg"]);
         });
     }
   };
@@ -182,7 +174,7 @@ const Discipline = () => {
         </div>
       </div>
 
-      {submitMessage === "Success" && (
+      {submitMessage === "Success" ? (
         <div
           class="alert alert-success m-4 alert-dismissible fade show"
           role="alert"
@@ -197,9 +189,7 @@ const Discipline = () => {
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
-      )}
-
-      {submitMessage === "Fail" && (
+      ) : (
         <div
           class="alert alert-warning m-4 alert-dismissible fade show"
           role="alert"

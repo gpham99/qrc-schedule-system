@@ -325,7 +325,7 @@ def add_new_discipline():
     discipline_name = req['name']
     discipline_abbreviation = req["abv"]
     add_discipline(sanitize(discipline_name), sanitize(discipline_abbreviation), [])
-    return {"msg": "Things should be added"}
+    return {"msg": "Success"}
 
 @application.route('/api/remove_discipline', methods=['POST'])
 def remove_discipline():
