@@ -12,6 +12,7 @@ from flask_jwt import JWT, jwt_required, current_identity
 #from security import authenticate, identity
 from security import identity
 import json
+from datetime import timedelta
 
 UPLOAD_FOLDER = '.'
 ALLOWED_EXTENSIONS = {'xls', 'xlsx', 'xlsm', 'xlsb', 'odf', 'ods', 'odt'}
@@ -49,6 +50,7 @@ def authenticate(username, password):
         return User(username+"@coloradocollege.edu", tutor_entry[1], group, tutor_entry[2], tutor_entry[3], tutor_entry[4], tutor_entry[5], tutor_entry[6],
         tutor_entry[7])
 jwt = JWT(application, authenticate, identity)
+application.config["JWT_EXPIRATION_DELTA"] = timedelta(seconds=86400)
 
 def allowed_file(filename):
     return '.' in filename and \
