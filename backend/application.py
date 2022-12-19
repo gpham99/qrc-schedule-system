@@ -10,8 +10,8 @@ from werkzeug.utils import secure_filename
 from utility import display, sanitize 
 from flask_jwt import JWT, jwt_required, current_identity
 #from security import authenticate, identity
-from security import identity
 import json
+from datetime import timedelta
 
 UPLOAD_FOLDER = '.'
 ALLOWED_EXTENSIONS = {'xls', 'xlsx', 'xlsm', 'xlsb', 'odf', 'ods', 'odt'}
@@ -39,16 +39,26 @@ cas_client = CASClient(
     service_url='http://52.12.35.11:8080/',
     server_url='https://cas.coloradocollege.edu/cas/'
 )
+
 def authenticate(username, password):
+    print("In authenticate: " + username)
+    if not username.endswith("@coloradocollege.edu"):
+        username += "@coloradocollege.edu"
     if 'username' not in session:
         session['username'] = username
-    email = username + "@coloradocollege.edu"
-    in_system, group = check_user(username+"@coloradocollege.edu")
+    in_system, group = check_user(username)
+    print("in_system, group: ", in_system, group)
     if in_system:
-        tutor_entry = get_single_tutor_info(email)
-        return User(email, tutor_entry[1], group, tutor_entry[2], tutor_entry[3], tutor_entry[4], tutor_entry[5], tutor_entry[6],
+        tutor_entry = get_single_tutor_info(username)
+        return User(username, tutor_entry[1], group, tutor_entry[2], tutor_entry[3], tutor_entry[4], tutor_entry[5], tutor_entry[6],
         tutor_entry[7])
+
+def identity(payload):
+    email = payload['identity']
+    return authenticate(email, "")
+
 jwt = JWT(application, authenticate, identity)
+application.config["JWT_EXPIRATION_DELTA"] = timedelta(seconds=86400)
 
 def allowed_file(filename):
     return '.' in filename and \
@@ -213,10 +223,11 @@ def get_master_schedule():
     return master_schedule_with_disciplines
 
 #Page where any individual tutor's schedule is stored: shift number and discipline they signed up for
-@application.route('/api/tutor/<username>')
+@application.route('/api/tutor/')
 @jwt_required()
-def get_tutor_schedule(username):
+def get_tutor_schedule():
     email = current_identity.id
+    print(email)
     disciplines = get_disciplines()
     master_schedule = []
     tutor_schedule = {}
@@ -240,7 +251,11 @@ def tutor_info():
     result = {}
     result['username'] = current_identity.id
     result['name'] = current_identity.name
-    result['disciplines'] = current_identity.disciplines
+    disciplines = []
+    for discipline in ast.literal_eval(current_identity.disciplines):
+        disciplines.append(display(discipline))
+    disciplines = sorted(disciplines)
+    result['disciplines'] = disciplines
     result['shift_capacity'] = current_identity.shift_capacity
     return result
     
@@ -338,21 +353,111 @@ def remove_discipline():
     return {"msg": "Removed successfully"}
 
 @application.route('/api/get_admins')
-def get_email_admins():
-    email_admin = get_admin_roster()
-    discipline_schedule_with_email = []
-    for email, admin in email_admin:
-        sanitized_email = sanitize(email)
-        sanitized_admin = sanitize(admin)
-        discipline_schedule_with_email.append([sanitized_admin, sanitized_email])
-
-    return discipline_schedule_with_email
+def get_admins():
+    admin_info = get_admin_roster()
+    admin_display_lst = []
+    for email, name in admin_info:
+        display_email = email
+        display_name = display(name)
+        admin_display_lst.append([display_name, display_email])
+    return admin_display_lst
 
 @application.route('/api/add_admin', methods=['POST'])
 def add_new_admin():
-    admin_name = request.get_json()["name"]
-    admin_email = request.get_json()['email']
-    add_discipline(admin_name, admin_email)
+    admin_data = request.get_json()
+    admin_name = admin_data["name"]
+    admin_email = admin_data["email"]
+    add_admin(admin_name, admin_email)
+
+
+
+@application.route('/api/remove_admin', methods=['POST'])
+def remove_admin():
+    admin_name = request.get_json()
+    delete_admins(admin_name)
+
+
+@application.route('/api/get_username', methods=['GET'])
+def get_username():
+    application.logger.debug("session: %s", session)
+  #  if 'username' in session:
+   #     application.logger.debug('username is  %s', session['username'])
+    #    return "Success"
+   # else:
+    #    application.logger.debug('username is not in session')
+     #   return "Cannot get username"
+    if 'username' in session:
+        # response = flask.jsonify({'username': session['username']})
+        # response.headers.add('Access-Control-Allow-Origin', '*')
+        # return response
+        return {
+                'statusCode': 200,
+                'headers': {
+                    'Access-Control-Allow-Origin': 'http://52.12.35.11',
+                    'Access-Control-Allow-Methods': 'OPTIONS, POST, GET'
+                },
+                'body': json.dumps(session["username"])
+        }
+    else:
+        return {
+                'statusCode': 200,
+                'headers': {
+                    'Access-Control-Allow-Origin': 'http://52.12.35.11',
+                    'Access-Control-Allow-Methods': 'OPTIONS, POST, GET'
+                },
+                'body': json.dumps("username not in session")
+        }
+         
+       # response = flask.jsonify({'username': 'Oh well you run into else statement, meaning username is not in session'})
+        # response.headers.add('Access-Control-Allow-Origin', '*')
+        # return response
+    # in_system, group = check_login()
+    # if in_system:
+    #     return session['username']
+
+
+@application.route('/api/last_excel_file')
+def last_excel_file():
+    if 'ROSTER' in application.config:
+        filepath = application.config['ROSTER']
+        return prepare_excel_file(filepath)
+    else:
+        return None
+
+
+@application.route('/api/set_time_window', methods=['POST'])
+def set_time_window():
+    print("Received call to set_time_window")
+    time_data = request.get_json()
+    start_time = time_data['start_time']
+    end_time = time_data['end_time']
+    new_block = time_data['new_block']
+    current_block = get_current_block()
+    if new_block:
+        current_block = (current_block+1)%8
+        update_current_block(current_block)
+    add_time_window(current_block, start_time, end_time)
+    
+
+@application.route('/api/get_disciplines')
+def get_discipline_list():
+    sanitized_disciplines = []
+    fetched_disciplines =  get_disciplines() 
+    for discipline in fetched_disciplines:
+        discipline = sanitize(discipline)
+        sanitized_disciplines.append(discipline)
+
+    return sanitized_disciplines
+
+
+@application.route('/api/set_schedule_skeleton')
+def set_schedule_skeleton():
+    data = request.get_json()
+    disciplines = get_disciplines()
+    for discipline in disciplines:
+        shift_list = data[discipline]
+        update_discipline_shift_availability(discipline, shift_list)
+    return "Schedule skeleton updated"
 
 
 # # run the app.

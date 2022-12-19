@@ -1,5 +1,5 @@
 #List of replacements for illegal SQL characters and what they are replacing
-SUBSTITUTIONS = [('_', ' '), ('$', '/')]
+SUBSTITUTIONS = [('_', ' '), ('$', '/'), ('#', '\'')]
 
 #Replace convention characters with characters for human display
 def display(in_string):
