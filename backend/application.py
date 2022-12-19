@@ -223,7 +223,7 @@ def get_master_schedule():
     return master_schedule_with_disciplines
 
 #Page where any individual tutor's schedule is stored: shift number and discipline they signed up for
-@application.route('/api/tutor/')
+@application.route('/api/tutor/get_schedule')
 @jwt_required()
 def get_tutor_schedule():
     email = current_identity.id
@@ -238,32 +238,40 @@ def get_tutor_schedule():
         if line != None:
             if email in line:
                 index = line.index(email)
-                tutor_schedule[shift_num] = disciplines[index]
+                tutor_schedule[shift_num] = display(disciplines[index])
             else:
                 tutor_schedule[shift_num] = None
             shift_num += 1
     return tutor_schedule
 
+@application.route('/api/tutor/update_info', methods = ['POST'])
+@jwt_required()
+def update_tutor_info():
+    req = request.get_json()
+    new_shift_capacity = req['shift_capacity']
+    new_disciplines = req['disciplines']
 
-@application.route('/api/get_tutor_info')
+
+@application.route('/api/tutor/get_info', methods = ['GET'])
 @jwt_required()
 def tutor_info():
-    result = {}
-    result['username'] = current_identity.id
-    result['name'] = current_identity.name
-    all_disciplines = get_disciplines()
-    all_disciplines = sorted(all_disciplines)
-    disciplines = []
-    for discipline in all_disciplines:
-        if discipline in ast.literal_eval(current_identity.disciplines):
-            disciplines.append((display(discipline), True))
-        else:
-            disciplines.append((display(discipline), False))
-    result['disciplines'] = disciplines
-    result['shift_capacity'] = current_identity.shift_capacity
-    result['status'] = True if current_identity.status == 1 else False
-    result['this_block_la'] = True if current_identity.this_block_la == 1 else False
-    return result
+        result = {}
+        result['username'] = current_identity.id
+        result['name'] = current_identity.name
+        all_disciplines = get_disciplines()
+        all_disciplines = sorted(all_disciplines)
+        disciplines = []
+        for discipline in all_disciplines:
+            if discipline in ast.literal_eval(current_identity.disciplines):
+                disciplines.append((display(discipline), True))
+            else:
+                disciplines.append((display(discipline), False))
+        result['disciplines'] = disciplines
+        result['shift_capacity'] = current_identity.shift_capacity
+        result['status'] = True if current_identity.status == 1 else False
+        result['this_block_la'] = True if current_identity.this_block_la == 1 else False
+        return result
+
     
     
 @application.route('/api/upload_roster', methods=['POST'])
