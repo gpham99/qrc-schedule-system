@@ -352,7 +352,7 @@ def remove_discipline():
 def get_admins():
     admin_info = get_admin_roster()
     admin_display_lst = []
-    for email, name in admin_info:
+    for name, email in admin_info:
         display_email = email
         display_name = display(name)
         admin_display_lst.append([display_name, display_email])
