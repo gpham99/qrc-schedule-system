@@ -214,8 +214,9 @@ def get_master_schedule():
 
 #Page where any individual tutor's schedule is stored: shift number and discipline they signed up for
 @application.route('/api/tutor/<username>')
+@jwt_required()
 def get_tutor_schedule(username):
-    email = username + "@coloradocollege.edu"
+    email = current_identity.id
     disciplines = get_disciplines()
     master_schedule = []
     tutor_schedule = {}
@@ -322,8 +323,10 @@ def update_tutors_in_master_schedule():
 @application.route('/api/add_discipline', methods=['POST'])
 def add_new_discipline():
     req = request.get_json()
+    print(req)
     discipline_name = req['name']
     discipline_abbreviation = req["abv"]
+    print("Adding discipline: " + discipline_name)
     add_discipline(sanitize(discipline_name), sanitize(discipline_abbreviation), [])
     return {"msg": "Success"}
 
@@ -431,6 +434,16 @@ def get_discipline_list():
         sanitized_disciplines.append(discipline)
 
     return sanitized_disciplines
+
+
+@application.route('/api/set_schedule_skeleton')
+def set_schedule_skeleton():
+    data = request.get_json()
+    disciplines = get_disciplines()
+    for discipline in disciplines:
+        shift_list = data[discipline]
+        update_discipline_shift_availability(discipline, shift_list)
+    return "Schedule skeleton updated"
 
 
 # # run the app.
