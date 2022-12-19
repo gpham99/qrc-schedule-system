@@ -464,9 +464,8 @@ def get_availability():
             shifts_offered = get_discipline_shifts_offered(discipline)
             if str(i) in shifts_offered:
                 all_possible_disciplines.append(display(discipline))
-                print(discipline, i)
-                available_tutors = ast.literal_eval(get_discipline_shift(discipline, i))
-                if current_identity.id in available_tutors:
+                available_tutors = get_discipline_shift(discipline, i)
+                if available_tutors is not None and current_identity.id in ast.literal_eval(available_tutors):
                     picked = discipline
                     if str(i) in current_identity.favorited_shifts:
                         favorited = True
