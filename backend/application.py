@@ -490,7 +490,8 @@ def set_availability():
     favorited_list = []
     for i in range(20):
         picked = req[str(i)]['picked']
-        print("Picked :", type(picked), picked)
+        if picked == '':
+            continue
         discipline = sanitize(all_disciplines[abbreviations.index(picked)])
         favorited = req[str(i)]['favorited']
         available_tutors = get_discipline_shift(discipline, i)
