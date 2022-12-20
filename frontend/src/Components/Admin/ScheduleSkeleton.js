@@ -147,7 +147,15 @@ const ScheduleSkeleton = () => {
                         ))}
                       </div>
                     ) : (
-                      <div>NO</div>
+                      <div>
+                        {disciplineList.map((discipline) => (
+                          <div class="form-check flex-column ">
+                            <span class="badge badge-success">
+                              {discipline}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
                     )}
                   </td>
                 ))}
@@ -173,7 +181,15 @@ const ScheduleSkeleton = () => {
                         ))}
                       </div>
                     ) : (
-                      <div>NO</div>
+                      <div>
+                        {disciplineList.map((discipline) => (
+                          <div class="form-check flex-column ">
+                            <span class="badge badge-success">
+                              {discipline}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
                     )}
                   </td>
                 ))}
@@ -198,7 +214,15 @@ const ScheduleSkeleton = () => {
                         ))}
                       </div>
                     ) : (
-                      <div>NO</div>
+                      <div>
+                        {disciplineList.map((discipline) => (
+                          <div class="form-check flex-column ">
+                            <span class="badge badge-success">
+                              {discipline}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
                     )}
                   </td>
                 ))}
@@ -223,7 +247,15 @@ const ScheduleSkeleton = () => {
                         ))}
                       </div>
                     ) : (
-                      <div>NO</div>
+                      <div>
+                        {disciplineList.map((discipline) => (
+                          <div class="form-check flex-column ">
+                            <span class="badge badge-success">
+                              {discipline}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
                     )}
                   </td>
                 ))}
