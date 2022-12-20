@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from "react";
+import Dropdown from "react-bootstrap/Dropdown";
+import DropdownButton from "react-bootstrap/DropdownButton";
 
 const Schedule = () => {
   // grab the access token from the local storage
@@ -9,6 +11,10 @@ const Schedule = () => {
 
   // tutor's availability schedule
   const [availabilities, setAvailabilities] = useState({});
+
+  // make a copy of availabilities, and the discipline that person chooses will go into the copy of the dictionary and shown
+  // to people
+  const [edittedAvailabilities, setEdittedAvailabilities] = useState({});
 
   // This will deteremine if the schedule is in edit mode or view mode
   const [editMode, setEditMode] = useState(0);
@@ -49,10 +55,12 @@ const Schedule = () => {
       .then((data) => {
         console.log("availabilities data: ", data);
         setAvailabilities(data);
+        setEdittedAvailabilities(structuredClone(data));
       });
   }, []);
 
   const toggleEditMode = () => {
+    setEdittedAvailabilities(structuredClone(availabilities));
     setEditMode(1 - editMode);
   };
 
@@ -120,54 +128,99 @@ const Schedule = () => {
                   {editMode === 0 ? (
                     <span class="badge badge-success p-1">{schedule[num]}</span>
                   ) : (
-                    //DROPDOWN
-                    <div class="d-flex flex-row justify-content-center align-items-center">
-                      <div>
-                        <button class="p-2 d-flex align-items-center justify-content-center">
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="16"
-                            height="16"
-                            fill="teal"
-                            class="bi bi-star-fill"
-                            viewBox="0 0 16 16"
-                          >
-                            <path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z" />
-                          </svg>
-                        </button>
-                      </div>
-                      <div class="p-2">
-                        <button
-                          class="btn btn-outline-info dropdown-toggle"
-                          type="button"
-                          id="dropdownMenuButton"
-                          data-toggle="dropdown"
-                          aria-haspopup="true"
-                          aria-expanded="false"
-                        >
-                          Select
-                        </button>
+                    <>
+                      {availabilities[num]["all_possible_disciplines"]
+                        .length !== 0 && (
+                        //DROPDOWN
+                        <div class="d-flex flex-row justify-content-center align-items-center pl-2">
+                          {/* the star button */}
+                          <div class="w-25">
+                            <button
+                              class="p-2 d-flex align-items-center justify-content-center"
+                              onClick={() => {
+                                let edittedAvailabilitiesCopy = {
+                                  ...edittedAvailabilities,
+                                };
+                                edittedAvailabilitiesCopy[num]["favorited"] =
+                                  !edittedAvailabilitiesCopy[num]["favorited"];
+                                setEdittedAvailabilities(
+                                  edittedAvailabilitiesCopy
+                                );
+                              }}
+                            >
+                              {edittedAvailabilities[num]["favorited"] ===
+                              true ? (
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  width="16"
+                                  height="16"
+                                  fill="#e1ad01"
+                                  class="bi bi-star-fill"
+                                  viewBox="0 0 16 16"
+                                >
+                                  <path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z" />
+                                </svg>
+                              ) : (
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  width="16"
+                                  height="16"
+                                  fill="#bebebe"
+                                  class="bi bi-star-fill"
+                                  viewBox="0 0 16 16"
+                                >
+                                  <path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z" />
+                                </svg>
+                              )}
+                            </button>
+                          </div>
+                          {/* the dropdown button */}
+                          <div class="p-2 w-75 d-flex flex-justify-start">
+                            <DropdownButton
+                              title={
+                                edittedAvailabilities[num]["picked"] === ""
+                                  ? "Select"
+                                  : edittedAvailabilities[num]["picked"]
+                              }
+                              variant={
+                                edittedAvailabilities[num]["picked"] === ""
+                                  ? "outline-info"
+                                  : "info"
+                              }
+                              onSelect={(e) => {
+                                let edittedAvailabilitiesCopy = {
+                                  ...edittedAvailabilities,
+                                };
+                                if (e === "Select") {
+                                  edittedAvailabilitiesCopy[num]["picked"] = "";
+                                } else {
+                                  edittedAvailabilitiesCopy[num]["picked"] = e;
+                                }
+                                setEdittedAvailabilities(
+                                  edittedAvailabilitiesCopy
+                                );
+                              }}
+                            >
+                              {availabilities[num][
+                                "all_possible_disciplines"
+                              ].map((discipline) => (
+                                <Dropdown.Item
+                                  class="dropdown-item"
+                                  eventKey={discipline}
+                                >
+                                  {discipline}
+                                </Dropdown.Item>
+                              ))}
 
-                        <div
-                          class="dropdown-menu"
-                          aria-labelledby="dropdownMenuButton"
-                        >
-                          {/* TODO - map discipline vals here */}
-                          {availabilities[num]["all_possible_disciplines"].map(
-                            (discipline) => (
-                              <a class="dropdown-item">{discipline}</a>
-                            )
-                          )}
-
-                          {/* <a class="dropdown-item" href="#">
-                            Action
-                          </a>
-                          <a class="dropdown-item" href="#">
-                            Another action
-                          </a> */}
+                              <Dropdown.Divider />
+                              <Dropdown.Item eventKey="Select">
+                                <p class="text-secondary p-0 m-0"> Select</p>
+                              </Dropdown.Item>
+                            </DropdownButton>
+                          </div>
                         </div>
-                      </div>
-                    </div>
+                      )}
+                    </>
                   )}
                 </td>
               ))}
@@ -177,7 +230,103 @@ const Schedule = () => {
               <td>4-6 PM</td>
               {[5, 6, 7, 8, 9].map((num) => (
                 <td key={num}>
-                  <span class="badge badge-success p-1">{schedule[num]}</span>
+                  {editMode === 0 ? (
+                    <span class="badge badge-success p-1">{schedule[num]}</span>
+                  ) : (
+                    <>
+                      {availabilities[num]["all_possible_disciplines"]
+                        .length !== 0 && (
+                        //DROPDOWN
+                        <div class="d-flex flex-row justify-content-center align-items-center pl-2">
+                          {/* the star button */}
+                          <div class="w-25">
+                            <button
+                              class="p-2 d-flex align-items-center justify-content-center"
+                              onClick={() => {
+                                let edittedAvailabilitiesCopy = {
+                                  ...edittedAvailabilities,
+                                };
+                                edittedAvailabilitiesCopy[num]["favorited"] =
+                                  !edittedAvailabilitiesCopy[num]["favorited"];
+                                setEdittedAvailabilities(
+                                  edittedAvailabilitiesCopy
+                                );
+                              }}
+                            >
+                              {edittedAvailabilities[num]["favorited"] ===
+                              true ? (
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  width="16"
+                                  height="16"
+                                  fill="#e1ad01"
+                                  class="bi bi-star-fill"
+                                  viewBox="0 0 16 16"
+                                >
+                                  <path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z" />
+                                </svg>
+                              ) : (
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  width="16"
+                                  height="16"
+                                  fill="#bebebe"
+                                  class="bi bi-star-fill"
+                                  viewBox="0 0 16 16"
+                                >
+                                  <path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z" />
+                                </svg>
+                              )}
+                            </button>
+                          </div>
+                          {/* the dropdown button */}
+                          <div class="p-2 w-75 d-flex flex-justify-start">
+                            <DropdownButton
+                              title={
+                                edittedAvailabilities[num]["picked"] === ""
+                                  ? "Select"
+                                  : edittedAvailabilities[num]["picked"]
+                              }
+                              variant={
+                                edittedAvailabilities[num]["picked"] === ""
+                                  ? "outline-info"
+                                  : "info"
+                              }
+                              onSelect={(e) => {
+                                let edittedAvailabilitiesCopy = {
+                                  ...edittedAvailabilities,
+                                };
+                                if (e === "Select") {
+                                  edittedAvailabilitiesCopy[num]["picked"] = "";
+                                } else {
+                                  edittedAvailabilitiesCopy[num]["picked"] = e;
+                                }
+                                setEdittedAvailabilities(
+                                  edittedAvailabilitiesCopy
+                                );
+                              }}
+                            >
+                              {availabilities[num][
+                                "all_possible_disciplines"
+                              ].map((discipline) => (
+                                <Dropdown.Item
+                                  class="dropdown-item"
+                                  eventKey={discipline}
+                                >
+                                  {discipline}
+                                </Dropdown.Item>
+                              ))}
+
+                              <Dropdown.Divider />
+                              <Dropdown.Item eventKey="Select">
+                                <p class="text-secondary p-0 m-0"> Select</p>
+                              </Dropdown.Item>
+                            </DropdownButton>
+                          </div>
+                        </div>
+                      )}
+                    </>
+                  )}
                 </td>
               ))}
             </tr>
@@ -185,7 +334,103 @@ const Schedule = () => {
               <td>6-8 PM</td>
               {[10, 11, 12, 13, 14].map((num) => (
                 <td key={num}>
-                  <span class="badge badge-success p-1">{schedule[num]}</span>
+                  {editMode === 0 ? (
+                    <span class="badge badge-success p-1">{schedule[num]}</span>
+                  ) : (
+                    <>
+                      {availabilities[num]["all_possible_disciplines"]
+                        .length !== 0 && (
+                        //DROPDOWN
+                        <div class="d-flex flex-row justify-content-center align-items-center  pl-2">
+                          {/* the star button */}
+                          <div>
+                            <button
+                              class="p-2 d-flex align-items-center justify-content-center"
+                              onClick={() => {
+                                let edittedAvailabilitiesCopy = {
+                                  ...edittedAvailabilities,
+                                };
+                                edittedAvailabilitiesCopy[num]["favorited"] =
+                                  !edittedAvailabilitiesCopy[num]["favorited"];
+                                setEdittedAvailabilities(
+                                  edittedAvailabilitiesCopy
+                                );
+                              }}
+                            >
+                              {edittedAvailabilities[num]["favorited"] ===
+                              true ? (
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  width="16"
+                                  height="16"
+                                  fill="#e1ad01"
+                                  class="bi bi-star-fill"
+                                  viewBox="0 0 16 16"
+                                >
+                                  <path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z" />
+                                </svg>
+                              ) : (
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  width="16"
+                                  height="16"
+                                  fill="#bebebe"
+                                  class="bi bi-star-fill"
+                                  viewBox="0 0 16 16"
+                                >
+                                  <path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z" />
+                                </svg>
+                              )}
+                            </button>
+                          </div>
+                          {/* the dropdown button */}
+                          <div class="p-2 w-75 d-flex flex-justify-start">
+                            <DropdownButton
+                              title={
+                                edittedAvailabilities[num]["picked"] === ""
+                                  ? "Select"
+                                  : edittedAvailabilities[num]["picked"]
+                              }
+                              variant={
+                                edittedAvailabilities[num]["picked"] === ""
+                                  ? "outline-info"
+                                  : "info"
+                              }
+                              onSelect={(e) => {
+                                let edittedAvailabilitiesCopy = {
+                                  ...edittedAvailabilities,
+                                };
+                                if (e === "Select") {
+                                  edittedAvailabilitiesCopy[num]["picked"] = "";
+                                } else {
+                                  edittedAvailabilitiesCopy[num]["picked"] = e;
+                                }
+                                setEdittedAvailabilities(
+                                  edittedAvailabilitiesCopy
+                                );
+                              }}
+                            >
+                              {availabilities[num][
+                                "all_possible_disciplines"
+                              ].map((discipline) => (
+                                <Dropdown.Item
+                                  class="dropdown-item"
+                                  eventKey={discipline}
+                                >
+                                  {discipline}
+                                </Dropdown.Item>
+                              ))}
+
+                              <Dropdown.Divider />
+                              <Dropdown.Item eventKey="Select">
+                                <p class="text-secondary p-0 m-0"> Select</p>
+                              </Dropdown.Item>
+                            </DropdownButton>
+                          </div>
+                        </div>
+                      )}
+                    </>
+                  )}
                 </td>
               ))}
             </tr>
@@ -193,7 +438,104 @@ const Schedule = () => {
               <td>8-10 PM</td>
               {[15, 16, 17, 18, 19].map((num) => (
                 <td key={num}>
-                  <span class="badge badge-success p-1">{schedule[num]}</span>
+                  {editMode === 0 ? (
+                    <span class="badge badge-success p-1">{schedule[num]}</span>
+                  ) : (
+                    <>
+                      {availabilities[num]["all_possible_disciplines"]
+                        .length !== 0 && (
+                        //DROPDOWN
+                        <div class="d-flex flex-row justify-content-center align-items-center  pl-2">
+                          {/* the star button */}
+                          <div>
+                            <button
+                              class="p-2 d-flex align-items-center justify-content-center"
+                              onClick={() => {
+                                let edittedAvailabilitiesCopy = {
+                                  ...edittedAvailabilities,
+                                };
+                                edittedAvailabilitiesCopy[num]["favorited"] =
+                                  !edittedAvailabilitiesCopy[num]["favorited"];
+                                setEdittedAvailabilities(
+                                  edittedAvailabilitiesCopy
+                                );
+                              }}
+                            >
+                              {edittedAvailabilities[num]["favorited"] ===
+                              true ? (
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  width="16"
+                                  height="16"
+                                  fill="#e1ad01"
+                                  class="bi bi-star-fill"
+                                  viewBox="0 0 16 16"
+                                >
+                                  <path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z" />
+                                </svg>
+                              ) : (
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  width="16"
+                                  height="16"
+                                  fill="#bebebe"
+                                  class="bi bi-star-fill"
+                                  viewBox="0 0 16 16"
+                                >
+                                  <path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z" />
+                                </svg>
+                              )}
+                            </button>
+                          </div>
+                          {/* the dropdown button */}
+                          <div class="p-2 w-75 d-flex flex-justify-start">
+                            <DropdownButton
+                              align="end"
+                              title={
+                                edittedAvailabilities[num]["picked"] === ""
+                                  ? "Select"
+                                  : edittedAvailabilities[num]["picked"]
+                              }
+                              variant={
+                                edittedAvailabilities[num]["picked"] === ""
+                                  ? "outline-info"
+                                  : "info"
+                              }
+                              onSelect={(e) => {
+                                let edittedAvailabilitiesCopy = {
+                                  ...edittedAvailabilities,
+                                };
+                                if (e === "Select") {
+                                  edittedAvailabilitiesCopy[num]["picked"] = "";
+                                } else {
+                                  edittedAvailabilitiesCopy[num]["picked"] = e;
+                                }
+                                setEdittedAvailabilities(
+                                  edittedAvailabilitiesCopy
+                                );
+                              }}
+                            >
+                              {availabilities[num][
+                                "all_possible_disciplines"
+                              ].map((discipline) => (
+                                <Dropdown.Item
+                                  class="dropdown-item"
+                                  eventKey={discipline}
+                                >
+                                  {discipline}
+                                </Dropdown.Item>
+                              ))}
+
+                              <Dropdown.Divider />
+                              <Dropdown.Item eventKey="Select">
+                                <p class="text-secondary p-0 m-0"> Select</p>
+                              </Dropdown.Item>
+                            </DropdownButton>
+                          </div>
+                        </div>
+                      )}
+                    </>
+                  )}
                 </td>
               ))}
             </tr>
@@ -203,7 +545,16 @@ const Schedule = () => {
 
       {editMode === 1 && (
         <div class="p-4">
-          <button class="btn btn-info">Save</button>
+          <button
+            class="btn btn-info"
+            onClick={(e) => {
+              //we need to check if a discipline that isnt clicked is favorited
+              e.preventDefault();
+              console.log("editted avails: ", edittedAvailabilities);
+            }}
+          >
+            Save
+          </button>
         </div>
       )}
     </div>
