@@ -435,7 +435,7 @@ def get_discipline_list():
     sanitized_disciplines = []
     fetched_disciplines =  get_disciplines() 
     for discipline in fetched_disciplines:
-        discipline = sanitize(discipline)
+        discipline = display(discipline)
         sanitized_disciplines.append(discipline)
 
     return sanitized_disciplines
@@ -547,7 +547,7 @@ def set_tutors_information():
             update_this_block_la(email)
         if tutor_dict['status'] != status:
             update_status(email)
-    return "Updates complete"
+    return {'msg': 'Updates complete'}
 
 def wipe_master_schedule():
     pass
