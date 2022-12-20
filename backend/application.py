@@ -483,11 +483,13 @@ def get_availability():
 @jwt_required()
 def set_availability():
     req = request.get_json()
+    print("Req: ", type(req), req)
     favorited_list = []
     for i in range(20):
-        picked = req[i]['picked']
+        picked = req[str(i)]['picked']
+        print("Picked :", type(picked), picked)
         discipline = sanitize(picked)
-        favorited = req[i]['favorited']
+        favorited = req[str(i)]['favorited']
         available_tutors = get_discipline_shift(discipline, i)
         if available_tutors is not None:
             available_tutors = ast.literal_eval(available_tutors)
@@ -500,7 +502,8 @@ def set_availability():
         if picked != None and favorited:
             favorited_list.append(i)
 
-        return {'msg': 'Changes saved'}
+    update_favorite_shifts(current_identity.id, favorited_list)
+    return {'msg': 'Changes saved'}
 
 @application.route('/api/get_tutors_information', methods = ['GET'])
 @jwt_required()
