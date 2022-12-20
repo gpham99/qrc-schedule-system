@@ -464,14 +464,12 @@ def get_availability():
             shifts_offered = get_discipline_shifts_offered(discipline)
             if str(i) in shifts_offered:
                 all_possible_disciplines.append(display(get_discipline_abbreviation(discipline)))
-                print(discipline, i)
                 available_tutors_string_form = get_discipline_shift(discipline, i)
-                print("available_tutors_string_form: ", available_tutors_string_form)
                 if available_tutors_string_form is not None:
                     available_tutors = ast.literal_eval(available_tutors_string_form)
                     if current_identity.id in available_tutors:
-                        picked = discipline
-                        if str(i) in current_identity.favorited_shifts:
+                        picked = display(get_discipline_abbreviation(discipline))
+                        if i in current_identity.favorited_shifts:
                             favorited = True
         shift_dict['all_possible_disciplines'] = all_possible_disciplines
         shift_dict['picked'] = picked
@@ -501,7 +499,7 @@ def set_availability():
             available_tutors = []
         if current_identity.id not in available_tutors:
             available_tutors.append(current_identity.id)
-        update_discipline_shifts(discipline, i, available_tutors)
+        add_shifts(discipline, i, available_tutors)
         
         if picked != None and favorited:
             favorited_list.append(i)

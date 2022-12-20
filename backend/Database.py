@@ -476,6 +476,7 @@ def get_discipline_shift(discipline, shift_number):
             cur.execute(sql_search_query, (shift_number,))
             record = cur.fetchone()
             _, res = record
+
             return res
     except:
         con.rollback()
@@ -882,7 +883,7 @@ def update_discipline_shifts(discipline, shift_number, new_available_tutors):
         with sql.connect("database.db") as conn:
             cur = conn.cursor()
             update_query = 'UPDATE ' + discipline + ' SET available_tutors = ? WHERE shift_number = ?'
-            cur.execute(update_query, (shift_number, new_available_tutors))
+            cur.execute(update_query, (new_available_tutors, shift_number))
     except:
         conn.rollback()
     finally:
