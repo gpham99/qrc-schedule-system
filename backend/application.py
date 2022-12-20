@@ -451,7 +451,7 @@ def set_schedule_skeleton():
     return "Schedule skeleton updated"
 
 @application.route('/api/tutor/get_availability')
-@jwt_required()
+#@jwt_required()
 def get_availability():
     ret = {}
     tutoring_disciplines = current_identity.disciplines
@@ -479,9 +479,9 @@ def get_availability():
         ret[i] = shift_dict
     return ret
 
-@application.route('/api/tutors_information')
+@application.route('/api/get_tutors_information', methods = ['GET'])
 @jwt_required()
-def tutors_information():
+def get_tutors_information():
     ret = {}
     roster = get_roster()
     for tutor in roster:
@@ -494,8 +494,18 @@ def tutors_information():
     ret = {key: val for key, val in sorted(ret.items(), key = lambda ele: ele[0])}
     return ret
 
-
-
+@application.route('/api/set_tutors_information', methods = ['POST'])
+@jwt_required()
+def set_tutors_information():
+    data = request.get_json()
+    roster = get_roster()
+    for tutor in roster:
+        email = tutor[0]
+        name = tutor[1]
+        this_block_la = True if tutor[5] == 1 else False
+        status = True if tutor[2] == 1 else False
+        tutor_dict = {'name': name, 'this_block_la': this_block_la, 'status': status}
+        ret['email'] = tutor_dict
 
 
 
