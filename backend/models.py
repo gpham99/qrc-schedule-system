@@ -55,14 +55,23 @@ def read_roster(roster_file):
         ALLOWED_CHARS_EMAIL = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_@."
         for tutor in output:
             #print(tutor)
+            valid_tutor = True
             if tutor[1].endswith("@coloradocollege.edu"):
                 for char in tutor[0]:
                     if char not in ALLOWED_CHARS_NAME:
-                        errors += "Tutor " + tutor[1] + " not added to database, the character "
-                add_tutor(tutor[0], tutor[1])
+                        errors += "Tutor " + tutor[1] + " not added to database; invalid character detected in name: " + char
+                        valid_tutor = False
+                        break
+                for char in tutor[1]:
+                    if char not in ALLOWED_CHARS_EMAIL:
+                        errors += "Tutor " + tutor[1] + " not added to database; invalid character detected in name: " + char
+                        valid_tutor = False
+                        break
+                if valid_tutor:
+                    add_tutor(tutor[0], tutor[1])
             else:
                 errors += "Tutor " + tutor[1] + " not added to database, please ensure that their email ends in '@coloradocollege.edu'\n"
-        return errors + "File successfully read, tutors added to database"
+        return errors + "File successfully read, all other tutors added to database"
     return "No tutors found in file"
 
 
