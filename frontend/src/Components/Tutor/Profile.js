@@ -89,7 +89,7 @@ const Profile = () => {
                 </td>
               </tr>
               <tr>
-                <td>Availablility status this block: </td>
+                <td>Unavailable this block: </td>
                 <td>
                   <input
                     type="checkbox"
