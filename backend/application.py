@@ -435,7 +435,7 @@ def get_discipline_list():
     sanitized_disciplines = []
     fetched_disciplines =  get_disciplines() 
     for discipline in fetched_disciplines:
-        discipline = sanitize(discipline)
+        discipline = display(discipline)
         sanitized_disciplines.append(discipline)
 
     return sanitized_disciplines
