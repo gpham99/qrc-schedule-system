@@ -440,6 +440,16 @@ def get_discipline_list():
 
     return sanitized_disciplines
 
+@application.route('/api/get_schedule_skeleton')
+@jwt_required()
+def get_schedule_skeleton():
+    ret = {}
+    disciplines = get_disciplines()
+    for discipline in disciplines:
+        shifts_offered = get_discipline_shifts_offered(discipline)
+        ret[discipline] = shifts_offered
+    return ret
+
 
 @application.route('/api/set_schedule_skeleton')
 def set_schedule_skeleton():

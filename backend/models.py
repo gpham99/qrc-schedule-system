@@ -9,7 +9,7 @@ class User:
         self.id = email
         self.group = group
         self.name = name
-        self.status = status
+        self.unavailable = status
         self.shift_capacity = shift_capacity
         if isinstance(tutoring_disciplines, list):
             self.disciplines = tutoring_disciplines
@@ -58,10 +58,10 @@ def read_roster(roster_file):
             if tutor[1].endswith("@coloradocollege.edu"):
                 for char in tutor[0]:
                     if char not in ALLOWED_CHARS_NAME:
-                        errors += ""
+                        errors += "Tutor " + tutor[1] + " not added to database, the character "
                 add_tutor(tutor[0], tutor[1])
             else:
-                errors += ("Tutor " + tutor[1] + " not added to database, please ensure that their email ends in '@coloradocollege.edu'\n")
+                errors += "Tutor " + tutor[1] + " not added to database, please ensure that their email ends in '@coloradocollege.edu'\n"
         return errors + "File successfully read, tutors added to database"
     return "No tutors found in file"
 
