@@ -435,7 +435,7 @@ def get_discipline_list():
     sanitized_disciplines = []
     fetched_disciplines =  get_disciplines() 
     for discipline in fetched_disciplines:
-        discipline = display(discipline)
+        discipline = sanitize(discipline)
         sanitized_disciplines.append(discipline)
 
     return sanitized_disciplines
@@ -450,7 +450,7 @@ def set_schedule_skeleton():
         update_discipline_shift_availability(discipline, shift_list)
     return "Schedule skeleton updated"
 
-@application.route('/api/tutor/get_availability')
+@application.route('/api/tutor/get_availability', methods = 'GET')
 @jwt_required()
 def get_availability():
     ret = {}
@@ -462,22 +462,45 @@ def get_availability():
         shift_dict = {}
         for discipline in tutoring_disciplines:
             shifts_offered = get_discipline_shifts_offered(discipline)
-            if shifts_offered is not None:
-                shifts_offered = ast.literal_eval(shifts_offered)
-            if i in shifts_offered:
+            if str(i) in shifts_offered:
                 all_possible_disciplines.append(display(get_discipline_abbreviation(discipline)))
+                print(discipline, i)
                 available_tutors_string_form = get_discipline_shift(discipline, i)
+                print("available_tutors_string_form: ", available_tutors_string_form)
                 if available_tutors_string_form is not None:
                     available_tutors = ast.literal_eval(available_tutors_string_form)
                     if current_identity.id in available_tutors:
                         picked = discipline
-                        if i in current_identity.favorited_shifts:
+                        if str(i) in current_identity.favorited_shifts:
                             favorited = True
         shift_dict['all_possible_disciplines'] = all_possible_disciplines
         shift_dict['picked'] = picked
         shift_dict['favorited'] = favorited
         ret[i] = shift_dict
     return ret
+
+@application.route('/api/tutor/set_availability', methods = 'POST')
+@jwt_required()
+def set_availability():
+    req = request.get_json()
+    favorited_list = []
+    for i in range(20):
+        picked = req[i]['picked']
+        discipline = sanitize(picked)
+        favorited = req[i]['favorited']
+        available_tutors = get_discipline_shift(discipline, i)
+        if available_tutors is not None:
+            available_tutors = ast.literal_eval(available_tutors)
+        else:
+            available_tutors = []
+        if current_identity.id not in available_tutors:
+            available_tutors.append(current_identity.id)
+        update_discipline_shifts(discipline, i, available_tutors)
+        
+        if picked != None and favorited:
+            favorited_list.append(i)
+
+        return {'msg': 'Changes saved'}
 
 @application.route('/api/get_tutors_information', methods = ['GET'])
 @jwt_required()
@@ -504,8 +527,19 @@ def set_tutors_information():
         name = tutor[1]
         this_block_la = True if tutor[5] == 1 else False
         status = True if tutor[2] == 1 else False
-        tutor_dict = {'name': name, 'this_block_la': this_block_la, 'status': status}
-        ret['email'] = tutor_dict
+        tutor_dict = data[email]
+        if tutor_dict['this_block_la'] != this_block_la:
+            update_this_block_la(email)
+        if tutor_dict['status'] != status:
+            update_status(email)
+    return "Updates complete"
+
+def wipe_master_schedule():
+    pass
+#wipe tutor’s personal schedule and choices for the block
+
+def write_master_schedule():
+    pass
 
 
 
