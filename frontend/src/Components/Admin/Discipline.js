@@ -106,6 +106,11 @@ const Discipline = () => {
       <div class="row p-4 justify-content-center">
         <p>You can add a new discipline or remove an existing one here.</p>
       </div>
+
+      <div class="row justify-content-center">
+        <p>Please don't remove one of the five offered disciplines.</p>
+      </div>
+
       <div class="d-flex justify-content-end p-4">
         <button
           type="button"

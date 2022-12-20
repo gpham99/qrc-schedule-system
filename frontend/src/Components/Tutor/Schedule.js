@@ -19,6 +19,9 @@ const Schedule = () => {
   // This will deteremine if the schedule is in edit mode or view mode
   const [editMode, setEditMode] = useState(0);
 
+  // checks if the submission is legal
+  const [isLegalSubmission, setIsLegalSubmission] = useState(null);
+
   // call /api/tutor/get_schedule and pass the access token as authorization header
   useEffect(() => {
     const requestOptions = {
@@ -64,6 +67,37 @@ const Schedule = () => {
     setEditMode(1 - editMode);
   };
 
+  // check that a cell cannot be favorited if the discipline in that same cell is not picked -> true means illegal
+  const checkDidFavoriteWithoutChoice = () => {
+    for (const [key, value] of Object.entries(edittedAvailabilities)) {
+      if (value["picked"] === "" && value["favorited"] === true) {
+        return true;
+      }
+    }
+    return false;
+  };
+
+  // a function to send the submission
+  const sendSubmission = () => {
+    const requestOptions = {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "JWT " + accessToken.replace(/["]+/g, ""),
+      },
+      body: JSON.stringify(edittedAvailabilities),
+    };
+
+    fetch("http://52.12.35.11:8080/api/tutor/set_availability", requestOptions)
+      .then((response) => {
+        let res = response.json();
+        return res;
+      })
+      .then((data) => {
+        console.log(data);
+      });
+  };
+
   return (
     <div class="container align-items-center bg-light">
       <div class="d-flex justify-content-center p-4">
@@ -103,6 +137,27 @@ const Schedule = () => {
         <div class="d-flex justify-content-end pl-4 pr-4">
           <button class="btn btn-info" onClick={toggleEditMode}>
             <span class="p-1"> Cancel </span>
+          </button>
+        </div>
+      )}
+
+      {/* the alert message */}
+      {isLegalSubmission === false && (
+        <div
+          class="alert alert-warning m-4 alert-dismissible fade show"
+          role="alert"
+        >
+          <div className="m-3 text-left">
+            You cannot favorite a shift without choosing a discipline. Your
+            submission didn't go through. Please edit your choices.
+          </div>
+          <button
+            type="button"
+            class="close"
+            data-dismiss="alert"
+            aria-label="Close"
+          >
+            <span aria-hidden="true">&times;</span>
           </button>
         </div>
       )}
@@ -548,9 +603,21 @@ const Schedule = () => {
           <button
             class="btn btn-info"
             onClick={(e) => {
-              //we need to check if a discipline that isnt clicked is favorited
-              e.preventDefault();
               console.log("editted avails: ", edittedAvailabilities);
+              let didFavoriteWithoutChoice = checkDidFavoriteWithoutChoice();
+              // console.log(
+              //   "did you favorite something without making a choice: ",
+              //   didFavoriteWithoutChoice
+              // );
+
+              // console.log(
+              //   "the negation of didFavoriteWithoutChoice: ",
+              //   !didFavoriteWithoutChoice
+              // );
+              setIsLegalSubmission(!didFavoriteWithoutChoice);
+              if (!didFavoriteWithoutChoice) {
+                sendSubmission();
+              }
             }}
           >
             Save
