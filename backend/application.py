@@ -518,7 +518,7 @@ def get_tutors_information():
         this_block_la = True if tutor[5] == 1 else False
         status = True if tutor[2] == 1 else False
         tutor_dict = {'name': name, 'this_block_la': this_block_la, 'status': status}
-        ret['email'] = tutor_dict
+        ret[email] = tutor_dict
     ret = {key: val for key, val in sorted(ret.items(), key = lambda ele: ele[0])}
     return ret
 
