@@ -450,7 +450,7 @@ def set_schedule_skeleton():
         update_discipline_shift_availability(discipline, shift_list)
     return "Schedule skeleton updated"
 
-@application.route('/api/tutor/get_availability', methods = 'GET')
+@application.route('/api/tutor/get_availability', methods = ['GET'])
 @jwt_required()
 def get_availability():
     ret = {}
@@ -479,7 +479,7 @@ def get_availability():
         ret[i] = shift_dict
     return ret
 
-@application.route('/api/tutor/set_availability', methods = 'POST')
+@application.route('/api/tutor/set_availability', methods = ['POST'])
 @jwt_required()
 def set_availability():
     req = request.get_json()
