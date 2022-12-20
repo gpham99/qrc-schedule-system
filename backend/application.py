@@ -451,7 +451,7 @@ def set_schedule_skeleton():
     return "Schedule skeleton updated"
 
 @application.route('/api/tutor/get_availability')
-#@jwt_required()
+@jwt_required()
 def get_availability():
     ret = {}
     tutoring_disciplines = current_identity.disciplines
