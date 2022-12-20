@@ -483,12 +483,15 @@ def get_availability():
 @jwt_required()
 def set_availability():
     req = request.get_json()
-    print("Req: ", type(req), req)
+    abbreviations = get_abbreviations()
+    for i in range(len(abbreviations)):
+        abbreviations[i] = display(abbreviations[i])
+    all_disciplines = get_disciplines()
     favorited_list = []
     for i in range(20):
         picked = req[str(i)]['picked']
         print("Picked :", type(picked), picked)
-        discipline = sanitize(picked)
+        discipline = sanitize(all_disciplines[abbreviations.index(picked)])
         favorited = req[str(i)]['favorited']
         available_tutors = get_discipline_shift(discipline, i)
         if available_tutors is not None:
