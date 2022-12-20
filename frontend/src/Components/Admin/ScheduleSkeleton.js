@@ -3,17 +3,25 @@ import React, { useState, useEffect } from "react";
 const ScheduleSkeleton = () => {
   const [disciplineList, setDisciplineList] = useState([]);
   const [editMode, setEditMode] = useState(1);
+  const [scheduleSkeletionDictionary, setScheduleSkeletonDictionary] = useState(
+    {}
+  );
 
+  // This toggles between the view and edit menu
   const changeEditMode = () => {
     setEditMode(1 - editMode);
-    console.log(editMode);
   };
 
+  // Retrieving all the disciplines
   useEffect(() => {
     fetch("http://52.12.35.11:8080/api/get_disciplines")
-      .then((res) => res.json())
+      .then((response) => {
+        let res = response.json();
+        return res;
+      })
       .then((data) => {
         setDisciplineList(data);
+        addDictKeys(data);
       });
   }, []);
 
@@ -25,12 +33,18 @@ const ScheduleSkeleton = () => {
     }
   };
 
-  //console.log("THIS IS THE LIST", disciplineList);
-  // const [editMode, setEditMode] = useState(0);
+  const addDictKeys = (disciplineLst) => {
+    let dictionaryToCopy = {};
+    for (let i = 0; i < disciplineLst.length; i++) {
+      dictionaryToCopy[disciplineLst[i]] = [];
+    }
+    setScheduleSkeletonDictionary(structuredClone(dictionaryToCopy));
+  };
 
-  // const getDisciplines = () => {
-  //   console.log("Placeholder for now");
-  // };
+  // {
+  //   console.log("THIS IS THE DISICIPLINE LIST", disciplineList);
+  //   console.log("THIS IS THE COPIED DICTIONARY", scheduleSkeletionDictionary);
+  // }
   return (
     <>
       <div class="container align-items-center bg-light">
@@ -112,116 +126,139 @@ const ScheduleSkeleton = () => {
             <tbody>
               <tr>
                 <td>2-4 PM</td>
-                {editMode === 0 ? (
-                  <>
-                    {[0, 1, 2, 3, 4].map((val) => (
-                      <td key={val}>
-                        <div class="d-flex flex-column">
-                          {disciplineList.map((discipline) => (
-                            <div class="form-check flex-row btn-group">
-                              <>
-                                <p class="font-weight-bold">{discipline}</p>
-                                <input
-                                  class="form-check-input"
-                                  type="checkbox"
-                                  id={[val, discipline]}
-                                  onClick={(e) => handleCheck(val, discipline)}
-                                />
-                              </>
-                            </div>
-                          ))}
-                        </div>
-                      </td>
-                    ))}
-                  </>
-                ) : (
-                  <div>No</div>
-                )}
+
+                {[0, 1, 2, 3, 4].map((val) => (
+                  <td key={val}>
+                    {editMode === 0 ? (
+                      <div class="d-flex flex-column">
+                        {disciplineList.map((discipline) => (
+                          <div class="form-check flex-row btn-group">
+                            <p>{discipline}</p>
+                            <input
+                              class="form-check-input"
+                              type="checkbox"
+                              // id={[val, discipline]}
+                              // checked={true}
+                              onChange={(e) => {
+                                console.log(val, discipline);
+                              }}
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div>
+                        {disciplineList.map((discipline) => (
+                          <div class="form-check flex-column ">
+                            <span class="badge badge-success">
+                              {discipline}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </td>
+                ))}
               </tr>
 
               <tr>
                 <td>4-6 PM</td>
-                {editMode === 0 ? (
-                  <>
-                    {[5, 6, 7, 8, 9].map((val) => (
-                      <td key={val}>
-                        <div class="d-flex flex-column">
-                          {disciplineList.map((discipline) => (
-                            <div class="form-check flex-row btn-group">
-                              <>
-                                <p class="font-weight-bold">{discipline}</p>
-                                <input
-                                  class="form-check-input"
-                                  type="checkbox"
-                                  id={[val, discipline]}
-                                  onClick={(e) => handleCheck(val, discipline)}
-                                />
-                              </>
-                            </div>
-                          ))}
-                        </div>
-                      </td>
-                    ))}
-                  </>
-                ) : (
-                  <div>No</div>
-                )}
+
+                {[0, 1, 2, 3, 4].map((val) => (
+                  <td key={val}>
+                    {editMode === 0 ? (
+                      <div class="d-flex flex-column">
+                        {disciplineList.map((discipline) => (
+                          <div class="form-check flex-row btn-group">
+                            <p>{discipline}</p>
+                            <input
+                              class="form-check-input"
+                              type="checkbox"
+                              id={[val, discipline]}
+                              onClick={(e) => handleCheck(val, discipline)}
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div>
+                        {disciplineList.map((discipline) => (
+                          <div class="form-check flex-column ">
+                            <span class="badge badge-success">
+                              {discipline}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </td>
+                ))}
               </tr>
               <tr>
                 <td>6-8 PM</td>
-                {editMode === 0 ? (
-                  <>
-                    {[10, 11, 12, 13, 14].map((val) => (
-                      <td key={val}>
-                        <div class="d-flex flex-column">
-                          {disciplineList.map((discipline) => (
-                            <div class="form-check flex-row btn-group">
-                              <>
-                                <p class="font-weight-bold">{discipline}</p>
-                                <input
-                                  class="form-check-input"
-                                  type="checkbox"
-                                  id={[val, discipline]}
-                                  onClick={(e) => handleCheck(val, discipline)}
-                                />
-                              </>
-                            </div>
-                          ))}
-                        </div>
-                      </td>
-                    ))}
-                  </>
-                ) : (
-                  <div>No</div>
-                )}
+
+                {[0, 1, 2, 3, 4].map((val) => (
+                  <td key={val}>
+                    {editMode === 0 ? (
+                      <div class="d-flex flex-column">
+                        {disciplineList.map((discipline) => (
+                          <div class="form-check flex-row btn-group">
+                            <p>{discipline}</p>
+                            <input
+                              class="form-check-input"
+                              type="checkbox"
+                              id={[val, discipline]}
+                              onClick={(e) => handleCheck(val, discipline)}
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div>
+                        {disciplineList.map((discipline) => (
+                          <div class="form-check flex-column ">
+                            <span class="badge badge-success">
+                              {discipline}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </td>
+                ))}
               </tr>
               <tr>
                 <td>8-10 PM</td>
-                {editMode === 0 ? (
-                  <>
-                    {[15, 16, 17, 18, 19].map((val) => (
-                      <td key={val}>
-                        <div class="d-flex flex-column">
-                          {disciplineList.map((discipline) => (
-                            <div class="form-check flex-row btn-group">
-                              <>
-                                <p class="font-weight-bold">{discipline}</p>
-                                <input
-                                  class="form-check-input"
-                                  type="checkbox"
-                                  id={[val, discipline]}
-                                  onClick={(e) => handleCheck(val, discipline)}
-                                />
-                              </>
-                            </div>
-                          ))}
-                        </div>
-                      </td>
-                    ))}
-                  </>
-                ) : (
-                  <div>No</div>
-                )}
+
+                {[0, 1, 2, 3, 4].map((val) => (
+                  <td key={val}>
+                    {editMode === 0 ? (
+                      <div class="d-flex flex-column">
+                        {disciplineList.map((discipline) => (
+                          <div class="form-check flex-row btn-group">
+                            <p>{discipline}</p>
+                            <input
+                              class="form-check-input"
+                              type="checkbox"
+                              id={[val, discipline]}
+                              onClick={(e) => handleCheck(val, discipline)}
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div>
+                        {disciplineList.map((discipline) => (
+                          <div class="form-check flex-column ">
+                            <span class="badge badge-success">
+                              {discipline}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </td>
+                ))}
               </tr>
             </tbody>
           </table>
