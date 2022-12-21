@@ -29,13 +29,13 @@ const Tutor = () => {
     if (isAuthorized === null) {
       fetch("http://52.12.35.11:8080/auth", requestOptions)
         .then(function (response) {
-          return response.json();
+          let res = response.json();
+          return res;
         })
         .then(function (data) {
-          if (data["access_token"] === undefined) {
-            setIsAuthorized(false);
-          } else {
-            setIsAuthorized(true);
+          let isAuthorized = "access_token" in data;
+          setIsAuthorized(isAuthorized);
+          if (isAuthorized) {
             localStorage.setItem(
               "access_token",
               JSON.stringify(data["access_token"])

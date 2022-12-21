@@ -1,22 +1,50 @@
 import React from "react";
 import { useState, useEffect } from "react";
+import Unauthorized from "../../ErrorPages/Unauthorized";
 
 const Internal = () => {
+  // grab the access token from the local storage
+  const accessToken = localStorage.getItem("access_token");
+
   const [admins, setAdmins] = useState({});
   const [adminName, setAdminName] = useState("");
   const [adminEmail, setAdminEmail] = useState("");
   var isEmailSanitized = null;
   var isNameSanitized = null;
 
+  // if access token is null, then this person is not authorized, show page 401 -> authorized state is false
+  // else if they have an access token, verify first
+  const [isAuthorized, setIsAuthorized] = useState(() => {
+    if (accessToken === null) {
+      return false;
+    } else {
+      return null;
+    }
+  });
+
   useEffect(() => {
-    fetch("http://52.12.35.11:8080/api/get_admins")
-      .then((response) => {
-        let res = response.json();
-        return res;
-      })
-      .then((data) => {
-        setAdmins(data);
-      });
+    if (isAuthorized !== false) {
+      const requestOptions = {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "JWT " + accessToken.replace(/["]+/g, ""),
+        },
+      };
+
+      fetch("http://52.12.35.11:8080/api/get_admins", requestOptions)
+        .then((response) => {
+          let res = response.json();
+          return res;
+        })
+        .then((data) => {
+          if ("error" in data) {
+            setIsAuthorized(false);
+          } else {
+            setIsAuthorized(true);
+            setAdmins(data);
+          }
+        });
+    }
   }, [admins]);
 
   const handleCancel = (e) => {
@@ -77,20 +105,26 @@ const Internal = () => {
   };
 
   const removeAdmin = (cellAdminEmail) => {
-    fetch("http://52.12.35.11:8080/api/remove_admin", {
+    const requestOptions = {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        Authorization: "JWT " + accessToken.replace(/["]+/g, ""),
+        body: JSON.stringify({
+          email: cellAdminEmail,
+        }),
       },
-      body: JSON.stringify({
-        email: cellAdminEmail,
-      }),
-    })
+    };
+
+    fetch("http://52.12.35.11:8080/api/remove_admin", requestOptions)
       .then((response) => {
         let res = response.json();
         return res;
       })
       .then((data) => {
+        if ("error" in data) {
+          setIsAuthorized(false);
+        }
         console.log(data);
       });
   };
@@ -110,6 +144,7 @@ const Internal = () => {
         headers: {
           "Content-Type": "application/json",
         },
+        Authorization: "JWT " + accessToken.replace(/["]+/g, ""),
         body: JSON.stringify({
           name: adminName,
           email: adminEmail,
@@ -130,151 +165,126 @@ const Internal = () => {
   };
 
   return (
-    <div class="container align-items-center bg-light">
-      <div class="row p-4 justify-content-center">
-        <p>
-          You can add a new administrator or remove an existing adminstrator
-          here.
-        </p>
-      </div>
+    <>
+      {isAuthorized === false ? (
+        <Unauthorized></Unauthorized>
+      ) : (
+        <div class="container align-items-center bg-light">
+          <div class="row p-4 justify-content-center">
+            <p>
+              You can add a new administrator or remove an existing adminstrator
+              here.
+            </p>
+          </div>
 
-      {/* add an admin buton */}
-      <div class="d-flex justify-content-end p-4">
-        <button
-          type="button"
-          class="btn btn-info"
-          data-toggle="modal"
-          data-target="#exampleModal"
-        >
-          <span class="p-1">Add an administrator</span>
-        </button>
-        <div
-          class="modal fade"
-          id="exampleModal"
-          tabindex="-1"
-          role="dialog"
-          aria-labelledby="exampleModalLabel"
-          aria-hidden="true"
-        >
-          <div class="modal-dialog" role="document">
-            <div class="modal-content">
-              <div class="modal-header">
-                <p5 class="align-self-center w-100">
-                  Please fill out the form to add an administrator
-                </p5>
-                <button
-                  type="button"
-                  class="close"
-                  data-dismiss="modal"
-                  aria-label="Close"
-                  onClick={handleCancel}
-                >
-                  <span aria-hidden="true">&times;</span>
-                </button>
-              </div>
-              <div class="modal-body">
-                <form>
-                  <div class="form-group">
-                    <label>Administrator Name</label>
-                    <input
-                      class="form-control"
-                      placeholder="Ex: Steve Getty"
-                      value={adminName}
-                      onChange={(e) => {
-                        setAdminName(e.target.value);
-                      }}
-                    />
+          {/* add an admin buton */}
+          <div class="d-flex justify-content-end p-4">
+            <button
+              type="button"
+              class="btn btn-info"
+              data-toggle="modal"
+              data-target="#exampleModal"
+            >
+              <span class="p-1">Add an administrator</span>
+            </button>
+            <div
+              class="modal fade"
+              id="exampleModal"
+              tabindex="-1"
+              role="dialog"
+              aria-labelledby="exampleModalLabel"
+              aria-hidden="true"
+            >
+              <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <p5 class="align-self-center w-100">
+                      Please fill out the form to add an administrator
+                    </p5>
+                    <button
+                      type="button"
+                      class="close"
+                      data-dismiss="modal"
+                      aria-label="Close"
+                      onClick={handleCancel}
+                    >
+                      <span aria-hidden="true">&times;</span>
+                    </button>
                   </div>
-                  <div class="form-group">
-                    <label>Administrator's Email</label>
-                    <input
-                      class="form-control"
-                      placeholder="Ex: sgetty@coloradocollege.edu"
-                      value={adminEmail}
-                      onChange={(e) => {
-                        setAdminEmail(e.target.value);
-                      }}
-                    />
+                  <div class="modal-body">
+                    <form>
+                      <div class="form-group">
+                        <label>Administrator Name</label>
+                        <input
+                          class="form-control"
+                          placeholder="Ex: Steve Getty"
+                          value={adminName}
+                          onChange={(e) => {
+                            setAdminName(e.target.value);
+                          }}
+                        />
+                      </div>
+                      <div class="form-group">
+                        <label>Administrator's Email</label>
+                        <input
+                          class="form-control"
+                          placeholder="Ex: sgetty@coloradocollege.edu"
+                          value={adminEmail}
+                          onChange={(e) => {
+                            setAdminEmail(e.target.value);
+                          }}
+                        />
+                      </div>
+                      <div class="form-check"></div>
+                      <button
+                        class="btn btn-info"
+                        data-dismiss="modal"
+                        onClick={handleClick}
+                      >
+                        Submit
+                      </button>
+                    </form>
                   </div>
-                  <div class="form-check"></div>
-                  <button
-                    class="btn btn-info"
-                    data-dismiss="modal"
-                    onClick={handleClick}
-                  >
-                    Submit
-                  </button>
-                </form>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </div>
 
-      {/* {
-        (isNameSanitized === false || isEmailSanitized === false) && (
-          <div
-            class="alert alert-warning m-4 alert-dismissible fade show text-left"
-            role="alert"
-          >
-            {isNameSanitized === false && (
-              <p>
-                Names can only contain upper or lowercase alphabetical letters,
-                space, dash "-", or apostrophe " ' "
-              </p>
-            )}
-            {isEmailSanitized === false && (
-              <p>
-                Emails can only contain upper or lowercase alphabetical letters,
-                numbers, underscore, space, dash "-", at symbol "@", and period "
-                . ". All emails must end in coloradocollege.edu
-              </p>
-            )}
-            <button
-              type="button"
-              class="close"
-              data-dismiss="alert"
-              aria-label="Close"
-            >
-              <span aria-hidden="true">&times;</span>
-            </button>
+          {/* a table to show all the current qrc admins */}
+          {/* table */}
+          <div class="p-4 table-responsive">
+            <table class="table table-bordered table-fixed">
+              <thead class="table-dark">
+                <tr>
+                  <th class="col-sm-4">Name</th>
+                  <th class="col-sm-4">Email</th>
+                  <th class="col-sm-4">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {Object.values(admins).map((val) => (
+                  <tr>
+                    <td>{val[0]}</td>
+                    <td>{val[1]}</td>
+                    <td>
+                      <button
+                        class="btn btn-link"
+                        onClick={(e) => {
+                          let cellAdminEmail = val[1];
+                          removeAdmin(cellAdminEmail);
+                        }}
+                      >
+                        Remove
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
-        )
-      } */}
-
-      {/* a table to show all the current qrc admins */}
-      {/* table */}
-      <div class="p-4 table-responsive">
-        <table class="table table-bordered table-fixed">
-          <thead class="table-dark">
-            <tr>
-              <th class="col-sm-4">Name</th>
-              <th class="col-sm-4">Email</th>
-              <th class="col-sm-4">Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {Object.values(admins).map((val) => (
-              <tr>
-                <td>{val[0]}</td>
-                <td>{val[1]}</td>
-                <td>
-                  <button
-                    class="btn btn-link"
-                    onClick={(e) => {
-                      let cellAdminEmail = val[1];
-                      removeAdmin(cellAdminEmail);
-                    }}
-                  >
-                    Remove
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
+        </div>
+      )}
+    </>
   );
 };
 
