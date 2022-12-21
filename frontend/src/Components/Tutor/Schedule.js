@@ -6,6 +6,8 @@ const Schedule = () => {
   // grab the access token from the local storage
   const accessToken = localStorage.getItem("access_token");
 
+  const [submitMessage, setSubmitMessage] = useState(null);
+
   // tutor's shift schedule
   const [schedule, setSchedule] = useState({});
 
@@ -56,7 +58,7 @@ const Schedule = () => {
         return res;
       })
       .then((data) => {
-        console.log("availabilities data: ", data);
+        // console.log("availabilities data: ", data);
         setAvailabilities(data);
         setEdittedAvailabilities(structuredClone(data));
       });
@@ -94,8 +96,11 @@ const Schedule = () => {
         return res;
       })
       .then((data) => {
-        console.log(data);
+        console.log("data: ", data);
+        setSubmitMessage(data["msg"]);
       });
+
+    setEditMode(1 - editMode);
   };
 
   return (
@@ -137,6 +142,23 @@ const Schedule = () => {
         <div class="d-flex justify-content-end pl-4 pr-4">
           <button class="btn btn-info" onClick={toggleEditMode}>
             <span class="p-1"> Cancel </span>
+          </button>
+        </div>
+      )}
+
+      {submitMessage !== null && (
+        <div
+          class="alert alert-success m-4 alert-dismissible fade show"
+          role="alert"
+        >
+          {submitMessage}
+          <button
+            type="button"
+            class="close"
+            data-dismiss="alert"
+            aria-label="Close"
+          >
+            <span aria-hidden="true">&times;</span>
           </button>
         </div>
       )}
