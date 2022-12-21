@@ -912,8 +912,8 @@ def update_discipline_shift_availability(discipline, new_available_shifts):
     try:
         with sql.connect("database.db") as conn:
             cur = conn.cursor()
-            update_query = 'UPDATE disciplines SET shifts = ? WHERE discipline = ?'
-            cur.execute(update_query, (new_available_shifts, discipline))
+            update_query = 'UPDATE disciplines SET available_shifts = ? WHERE discipline = ?'
+            cur.execute(update_query, (str(new_available_shifts), discipline))
             conn.commit()
     except:
         conn.rollback()
@@ -1228,6 +1228,6 @@ if __name__ == '__main__':
     tutors3 = [None, 'Morty', 'Summer', None, 'James']
     create_tables(disciplines_list)
     reboot_database(disciplines_list, 'No')
-    add_tutor('Moises', 'Moises email')
-    add_tutor('Moises', 'Moises email')
+    update_discipline_shift_availability('Math', tutors2)
+    print(get_discipline_shifts_offered('Math'))
 
