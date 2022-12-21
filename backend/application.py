@@ -183,9 +183,8 @@ def get_login_status():
     else:
         return {"login_status": "0"}
 
-
-
 @application.route('/api/master_schedule')
+@jwt_required()
 def get_master_schedule():
     disciplines = get_disciplines()
     abbreviations = get_abbreviations()
@@ -352,6 +351,7 @@ def fetch_disciplines():
 
 
 @application.route('/api/update_master_schedule', methods=['POST'])
+@jwt_required()
 def update_tutors_in_master_schedule():
     disciplines = get_disciplines()
     abbreviations = get_abbreviations()
