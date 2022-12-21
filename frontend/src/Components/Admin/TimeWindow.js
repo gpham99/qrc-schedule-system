@@ -16,9 +16,9 @@ const TimeWindow = () => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        sTime: startDate,
-        eTime: endDate,
-        nBlock: newBlock,
+        start_time: startDate,
+        end_time: endDate,
+        new_block: newBlock,
       }),
     })
     .then((response) => {
