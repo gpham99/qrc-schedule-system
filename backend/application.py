@@ -608,20 +608,35 @@ def wipe_all_choices():
 
 #take in the tutors' chosen shifts and use them to create the master schedule
 def write_master_schedule():
-
+    disciplines = get_disciplines()
     tutors = []
+    avail_tables = []
+    open_shifts = []
+    for i in range(len(disciplines)):
+        open_shifts.append([])
+        dictionary = {}
+        for j in range(len(open_shifts[i])):
+            dictionary[open_shifts[i][j]] = []
+            avail_tables.append(dictionary)
+    
+    for i in range(len(disciplines)):
+        open_shifts[i] = ast.literal_eval(get_discipline_shifts_offered(disciplines[i]))
     avail_tables = []
     for i in range(len(disciplines)):
         dictionary = {}
         for j in range(len(open_shifts[i])):
             dictionary[open_shifts[i][j]] = []
-            avail_tables.append(dictionary)
-    disciplines = get_disciplines()
+    avail_tables.append(dictionary)
+
     for tutor in get_roster():
-        tutors.append(User(username, tutor_entry[1], group, tutor_entry[2], tutor_entry[3], tutor_entry[4], tutor_entry[5], tutor_entry[6], tutor_entry[7], tutor_entry[8]))
+        tutors.append(User(tutor[0], tutor[1], 'tutor', tutor[2], tutor[3], tutor[4], tutor[5], tutor[6], tutor[7], tutor[8]))
     for i in range(len(disciplines)):
         for shift in range(SHIFT_SLOTS):
             avail_tables[i][shift] = get_discipline_shift(disciplines[i], shift)
+
+    favorites = []
+    possible_solutions = algorithm(200, tutors, avail_tables, open_shifts, favorites)
+    print("Done")
 
 
    
@@ -691,10 +706,10 @@ def discipline_evenness(schedule):
     deviation = stdev(shift_counts)
     return deviation
 
-def algorithm(totaltries, tutors, capacities, avail_tables, open_shifts, favorites):
+def algorithm(totaltries, tutors, avail_tables, open_shifts, favorites):
     possible_solutions = []
     for i in range(totaltries):
-        soln, assigned = greedy()
+        soln, assigned = greedy(tutors, avail_tables, open_shifts, favorites)
         unfairness = tutor_unfairness(soln)
         evenness = discipline_evenness(soln)
         possible_solutions.append((soln, assigned, unfairness, evenness))
@@ -730,6 +745,10 @@ def algorithm(totaltries, tutors, capacities, avail_tables, open_shifts, favorit
         print(soln[1], soln[2], soln[3])   
         for line in soln[0]:
             print(line)
+
+    return possible_solutions
+
+write_master_schedule()
 
 #     # Setting debug to True enables debug output. This line should be
 #     # removed before deploying a production app.
