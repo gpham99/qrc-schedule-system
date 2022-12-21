@@ -303,25 +303,25 @@ def tutor_info():
 @application.route('/api/upload_roster', methods=['PUT','POST'])
 @jwt_required()
 def upload_roster():
-    print(request.get_json())
-    return "Hi"
     # check if the post request has the file part
-    if 'filename' not in request.files:
+    print("request.files: ", request.files)
+    if 'file' not in request.files:
         print('No file part')
-        return redirect(request.url)
-    file = request.files['filename']
+        return {"msg": "No file part"}
+        #return redirect(request.url)
+    file = request.files['file']
     # If the user does not select a file, the browser submits an
     # empty file without a filename.
     if file.filename == '':
         print('No selected file')
-        return "No selected file"
+        return {"msg": "No selected file"}
     if file and allowed_file(file.filename):
         filename = secure_filename(file.filename)
         file.save(os.path.join(application.config['UPLOAD_FOLDER'], ROSTER_PATH + file.filename.split('.')[1]))
         result = read_roster(ROSTER_PATH + file.filename.split('.')[1])
         print(result)
-        return result
-    return "File format not accepted"
+        return {"msg": result}
+    return {"msg": "File format not accepted"}
 
 @application.route('/unauthorized_login')
 def unauthorized_login():
