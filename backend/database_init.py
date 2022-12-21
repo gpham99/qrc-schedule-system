@@ -1,4 +1,4 @@
-from Database import reboot_database, add_tutor, add_admin, add_superuser, add_to_master_schedule, create_tables, add_discipline, update_tutoring_disciplines
+from Database import *
 reboot_database(["Computer_Science", "Mathematics", "Physics", "Economics", "Chemistry$Molecular_Biology"],'No')
 create_tables(["Computer_Science", "Mathematics", "Physics", "Economics", "Chemistry$Molecular_Biology"])
 add_tutor("Moises Padilla", "m_padilla@coloradocollege.edu")
@@ -23,3 +23,5 @@ for i in range(2, 19):
 add_to_master_schedule(19, ["Computer_Science", "Mathematics", "Physics", "Economics", "Chemistry$Molecular_Biology"], ["p_mishra@coloradocollege.edu", "m_padilla@coloradocollege.edu", "j_hannebert@coloradocollege.edu", None, "g_pham@coloradocollege.edu"])
 add_admin("Steve_Getty", "sgetty@coloradocollege.edu")
 add_admin("Karen Chui", "kchui@coloradocollege.edu")
+add_block(1)
+add_time_window(1, 1000000, 1000000)

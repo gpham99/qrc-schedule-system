@@ -439,6 +439,7 @@ def last_excel_file():
 
 
 @application.route('/api/set_time_window', methods=['POST'])
+@jwt_required()
 def set_time_window():
     time_data = request.get_json()
     start_time = time.mktime(parser.parse(time_data['start_time']).timetuple())
@@ -447,8 +448,10 @@ def set_time_window():
     current_block = get_block_number()
     if new_block:
         current_block = (current_block+1)%8
-    add_block(current_block)
-    add_time_window(current_block, start_time, end_time)
+        add_block(current_block)
+        add_time_window(current_block, start_time, end_time)
+    else:
+        update_time_window(current_block, start_time, end_time)
     return {"msg": "Time window successfully set"}
     
 
@@ -635,6 +638,13 @@ def write_master_schedule():
                     assignments[disciplines.index(discipline)] = chosen_tutor
                     tutor_dict[chosen_tutor] -= 1
         add_to_master_schedule(i, disciplines, assignments)
+
+
+@application.route('/api/time_window', methods = ['GET'])
+@jwt_required()
+def time_window():
+    start_date, end_date = get_time_window(get_block_number())
+    return {'start_date':start_date, 'end_date':end_date}
 
 
 """
