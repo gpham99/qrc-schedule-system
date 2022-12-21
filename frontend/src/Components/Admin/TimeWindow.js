@@ -7,6 +7,9 @@ const TimeWindow = () => {
   const [endDate, setEndDate] = useState(new Date());
   const [newBlock, setNewBlock] = useState(false);
 
+  // grab the access token from the local storage
+  const accessToken = localStorage.getItem("access_token");
+
   // func to post to database
   const createTimeWindow = (event) => {
     // console.log(newBlock);
@@ -14,6 +17,7 @@ const TimeWindow = () => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+	Authorization: "JWT " + accessToken.replace(/["]+/g, ""),
       },
       body: JSON.stringify({
         start_time: startDate,

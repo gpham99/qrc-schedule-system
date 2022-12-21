@@ -12,9 +12,11 @@ from flask_jwt import JWT, jwt_required, current_identity
 #from security import authenticate, identity
 import json
 from datetime import timedelta
+from dateutil import parser
 
 UPLOAD_FOLDER = '.'
 ALLOWED_EXTENSIONS = {'xls', 'xlsx', 'xlsm', 'xlsb', 'odf', 'ods', 'odt'}
+SHIFT_SLOTS = 20
 
 # print a nice greeting.
 def say_hello(username = "Team"):
@@ -42,6 +44,7 @@ cas_client = CASClient(
 
 def authenticate(username, password):
     print("In authenticate: " + username)
+    username = username.lower()
     if not username.endswith("@coloradocollege.edu"):
         username += "@coloradocollege.edu"
     if 'username' not in session:
@@ -49,9 +52,17 @@ def authenticate(username, password):
     in_system, group = check_user(username)
     print("in_system, group: ", in_system, group)
     if in_system:
-        tutor_entry = get_single_tutor_info(username)
-        return User(username, tutor_entry[1], group, tutor_entry[2], tutor_entry[3], tutor_entry[4], tutor_entry[5], tutor_entry[6],
-        tutor_entry[7], tutor_entry[8])
+        if group == 'tutor':
+            tutor_entry = get_single_tutor_info(username)
+            return User(username, tutor_entry[1], group, tutor_entry[2], tutor_entry[3], tutor_entry[4], tutor_entry[5], tutor_entry[6],
+            tutor_entry[7], tutor_entry[8])
+        elif group == 'admin':
+            admin_entry = get_admin_info(username)
+            return User(username, admin_entry[1], group)
+        elif group == 'superuser':
+            superuser_entry = get_superuser_info(username)
+            return User(username, superuser_entry[1], group)
+    return None
 
 def identity(payload):
     email = payload['identity']
@@ -98,6 +109,7 @@ def index():
     application.logger.debug('next: %s', next)
     user, attributes, pgtiou = cas_client.verify_ticket(ticket)
 
+    user = user.lower()
     application.logger.debug(
         'CAS verify ticket response: user: %s, attributes: %s, pgtiou: %s', user, attributes, pgtiou)
 
@@ -178,7 +190,7 @@ def get_master_schedule():
     roster = get_roster()
     master_schedule = []
     master_schedule_with_disciplines = {}
-    for i in range(20): #TODO: MAGIC CONSTANT
+    for i in range(SHIFT_SLOTS):
         master_schedule.append(get_master_schedule_info(i))
     shift_num = 0
     for line in master_schedule:
@@ -231,7 +243,7 @@ def get_tutor_schedule():
     disciplines = get_disciplines()
     master_schedule = []
     tutor_schedule = {}
-    for i in range(20): #TODO: MAGIC CONSTANT
+    for i in range(SHIFT_SLOTS):
         master_schedule.append(get_master_schedule_info(i))
     shift_num = 0
     for line in master_schedule:
@@ -281,7 +293,7 @@ def tutor_info():
                 disciplines.append((display(discipline), False))
         result['disciplines'] = disciplines
         result['shift_capacity'] = current_identity.shift_capacity
-        result['status'] = True if current_identity.status == 1 else False
+        result['this_block_unavailable'] = True if current_identity.this_block_unavailable == 1 else False
         result['this_block_la'] = True if current_identity.this_block_la == 1 else False
         return result
 
@@ -359,8 +371,8 @@ def update_tutors_in_master_schedule():
                 else:
                     output.append("Error: Tutor " + user.id + " is not eligible to tutor " + display(discipline_to_change) + "\n")
             else:
-                output.append("Error: " + user.id + " not found in database, please check your spelling\n")
-    return output
+                output.append("Error: " + new_tutor_username + " not found in database, please check your spelling\n")
+    return list(set(output))
     
 @application.route('/api/add_discipline', methods=['POST'])
 def add_new_discipline():
@@ -418,9 +430,8 @@ def last_excel_file():
 @application.route('/api/set_time_window', methods=['POST'])
 def set_time_window():
     time_data = request.get_json()
-    start_time = time_data['start_time']
-    end_time = time_data['end_time']
-    print(start_time, end_time)
+    start_time = time.mktime(parser.parse(time_data['start_time']).timetuple())
+    end_time = time.mktime(parser.parse(time_data['end_time']).timetuple())
     new_block = time_data['new_block']
     current_block = get_block_number()
     if new_block:
@@ -444,10 +455,16 @@ def get_discipline_list():
 @jwt_required()
 def get_schedule_skeleton():
     ret = {}
-    disciplines = get_disciplines()
+    disciplines = sorted(get_disciplines())
+    for i in range(SHIFT_SLOTS):
+        ret[i] = []
     for discipline in disciplines:
-        shifts_offered = get_discipline_shifts_offered(discipline)
-        ret[discipline] = shifts_offered
+        shifts_offered = ast.literal_eval(get_discipline_shifts_offered(discipline))
+        for i in range(SHIFT_SLOTS):
+            if i in shifts_offered:
+                ret[i].append((display(discipline),True))
+            else:
+                ret[i].append((display(discipline),False))
     return ret
 
 
@@ -465,7 +482,7 @@ def set_schedule_skeleton():
 def get_availability():
     ret = {}
     tutoring_disciplines = current_identity.disciplines
-    for i in range(20):
+    for i in range(SHIFT_SLOTS):
         all_possible_disciplines = []
         picked = ""
         favorited = False
@@ -496,7 +513,7 @@ def set_availability():
         abbreviations[i] = display(abbreviations[i])
     all_disciplines = get_disciplines()
     favorited_list = []
-    for i in range(20):
+    for i in range(SHIFT_SLOTS):
         picked = req[str(i)]['picked']
         if picked == '':
             continue
@@ -526,8 +543,8 @@ def get_tutors_information():
         email = tutor[0]
         name = tutor[1]
         this_block_la = True if tutor[5] == 1 else False
-        status = True if tutor[2] == 1 else False
-        tutor_dict = {'name': name, 'this_block_la': this_block_la, 'status': status}
+        this_block_unavailable = True if tutor[2] == 1 else False
+        tutor_dict = {'name': name, 'this_block_la': this_block_la, 'this_block_unavailable': this_block_unavailable}
         ret[email] = tutor_dict
     ret = {key: val for key, val in sorted(ret.items(), key = lambda ele: ele[0])}
     return ret
@@ -539,15 +556,21 @@ def set_tutors_information():
     roster = get_roster()
     for tutor in roster:
         email = tutor[0]
-        name = tutor[1]
         this_block_la = True if tutor[5] == 1 else False
-        status = True if tutor[2] == 1 else False
+        this_block_unavailable = True if tutor[2] == 1 else False
         tutor_dict = data[email]
         if tutor_dict['this_block_la'] != this_block_la:
             update_this_block_la(email)
-        if tutor_dict['status'] != status:
+        if tutor_dict['this_block_unavailable'] != this_block_unavailable:
             update_status(email)
     return {'msg': 'Updates complete'}
+
+@application.route('/api/get_block_number', methods = ['GET'])
+@jwt_required()
+def get_block_number():
+    print(get_block_number())
+    block_number = int(get_block_number())
+    return {'block': block_number}
 
 def wipe_master_schedule():
     pass
