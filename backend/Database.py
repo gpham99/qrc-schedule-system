@@ -145,7 +145,7 @@ def add_tutor(name, email):
     individual_tutor = 0
     tutoring_disciplines = '[]'
     favorite_shifts = '[]'
-    if True:
+    try:
         with sql.connect("database.db") as conn:
             cur = conn.cursor()
             sql_select_query = 'SELECT * FROM tutors WHERE email=? '
@@ -158,16 +158,18 @@ def add_tutor(name, email):
                             'this_block_la, next_block_la, individual_tutor, favorite_shifts) '
                             'VALUES(?, ?, ?, ?, ?, ?, ?,?, ?)', (email, name, status, shift_cap, tutoring_disciplines,
                                                                  this_block_la, next_block_la, individual_tutor,
-                                                                 favorite_shifts))
-
-            # If the user is being put into the roster and the name are the same do nothing
+                                                                          favorite_shifts))
+            # If the user is being put into the roster and the name
             elif data[1] == name:
-                sql_select_query = 'SELECT * FROM tutors WHERE email=? '
-                cur.execute(sql_select_query, (email,))
-                data = cur.fetchone()
-                print(data)
-
-
+                email, name, status, shift_cap, tutoring_disciplines, this_block_la, next_block_la, individual_tutor, \
+                    favorite_shifts = data
+                delete_query = 'DELETE FROM tutors WHERE email = ?'
+                cur.execute(delete_query, (email,))
+                cur.execute('INSERT OR IGNORE INTO tutors(email, name, status, shift_capacity, tutoring_disciplines, '
+                            'this_block_la, next_block_la, individual_tutor, favorite_shifts) '
+                            'VALUES(?, ?, ?, ?, ?, ?, ?,?, ?)', (email, name, status, shift_cap, tutoring_disciplines,
+                                                                 this_block_la, next_block_la, individual_tutor,
+                                                                 favorite_shifts))
             # else update the name of the user
             else:
                 update_query = 'UPDATE tutors SET name = ? WHERE email = ?'
@@ -177,8 +179,20 @@ def add_tutor(name, email):
                 cur.execute(sql_select_query, (email,))
                 data = cur.fetchone()
                 print(data)
+                email, name, status, shift_cap, tutoring_disciplines, this_block_la, next_block_la, individual_tutor, \
+                    favorite_shifts = data
+                delete_query = 'DELETE FROM tutors WHERE email = ?'
+                cur.execute(delete_query, (email,))
+                cur.execute('INSERT OR IGNORE INTO tutors(email, name, status, shift_capacity, tutoring_disciplines, '
+                            'this_block_la, next_block_la, individual_tutor, favorite_shifts) '
+                            'VALUES(?, ?, ?, ?, ?, ?, ?,?, ?)', (email, name, status, shift_cap, tutoring_disciplines,
+                                                                 this_block_la, next_block_la, individual_tutor,
+                                                                 favorite_shifts))
             conn.commit()
-
+    except:
+        conn.rollback()
+    finally:
+        conn.close()
 
 # Function to add superusers
 def add_superuser(name, email):
@@ -286,7 +300,7 @@ def add_time_window(block, start_date, end_date):
             if data is None:
                 sql_query = 'INSERT OR IGNORE INTO time_window(block, start_time, end_time) VALUES (?, ?, ?)'
                 cur.execute(sql_query, (block, start_date, end_date))
-            else:   
+            else:
                 update_query = 'UPDATE time_window SET start_time = ?, end_time = ?  WHERE block = ?'
                 cur.execute(update_query, (start_date, end_date, block))
             conn.commit()
@@ -1231,8 +1245,11 @@ if __name__ == '__main__':
     tutors1 = ['Joe', 'Rick', None, 'Jerry', 'Paul']
     tutors2 = ['Joe', 'Jerry', None, "Beth", None]
     tutors3 = [None, 'Morty', 'Summer', None, 'James']
-    create_tables(disciplines_list)
-    reboot_database(disciplines_list, 'No')
-    update_discipline_shift_availability('Math', tutors2)
-    print(get_discipline_shifts_offered('Math'))
+    add_tutor('James', "James email")
+    add_tutor('Joe', "Joe email")
+    add_tutor('Jessica', "Jessica email")
+    add_tutor('James', 'James email')
+    add_tutor('Joseph', 'Joe email')
+    print(get_table_contents('tutors'))
+
 
