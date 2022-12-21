@@ -132,182 +132,176 @@ const Discipline = () => {
   };
 
   return (
-    <>
-      {isAuthorized === false ? (
-        <Unauthorized></Unauthorized>
-      ) : (
-        <div class="container align-items-center bg-light">
-          <div class="row p-4 justify-content-center">
-            <p>You can add a new discipline or remove an existing one here.</p>
-          </div>
+    <div class="container align-items-center bg-light">
+      <div class="row p-4 justify-content-center">
+        <p>You can add a new discipline or remove an existing one here.</p>
+      </div>
 
-          <div class="row justify-content-center">
-            <p>Please don't remove one of the five offered disciplines.</p>
-          </div>
+      <div class="row justify-content-center">
+        <p>Please don't remove one of the five offered disciplines.</p>
+      </div>
 
-          <div class="d-flex justify-content-end p-4">
-            <button
-              type="button"
-              class="btn btn-info"
-              data-toggle="modal"
-              data-target="#exampleModal"
-            >
-              <span class="p-1">Add a new discipline</span>
-            </button>
-            <div
-              class="modal fade"
-              id="exampleModal"
-              tabindex="-1"
-              role="dialog"
-              aria-labelledby="exampleModalLabel"
-              aria-hidden="true"
-            >
-              <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                  <div class="modal-header">
-                    <p5 class="align-self-center w-100">Add a discipline</p5>
-                    <button
-                      type="button"
-                      class="close"
-                      data-dismiss="modal"
-                      aria-label="Close"
-                      onClick={handleCancel}
-                    >
-                      <span aria-hidden="true">&times;</span>
-                    </button>
-                  </div>
-                  <div class="modal-body">
-                    <form>
-                      <div class="form-group">
-                        <label>Discipline Name</label>
-                        <input
-                          class="form-control"
-                          value={disciplineName}
-                          placeholder="Ex: Mathematics"
-                          onChange={(e) => {
-                            setDisciplineName(e.target.value);
-                          }}
-                        />
-                      </div>
-                      <div class="form-group">
-                        <label>Discipline Abbreviation</label>
-                        <input
-                          class="form-control"
-                          value={disciplineAbv}
-                          placeholder="Ex: M"
-                          onChange={(e) => {
-                            setDisciplineAbv(e.target.value);
-                          }}
-                        />
-                      </div>
-                      <button
-                        class="btn btn-info"
-                        data-dismiss="modal"
-                        onClick={handleClick}
-                      >
-                        Submit
-                      </button>
-                    </form>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {submitMessage === "Success" && (
-            <div
-              class="alert alert-success m-4 alert-dismissible fade show"
-              role="alert"
-            >
-              Discipline added successfully!
-              <button
-                type="button"
-                class="close"
-                data-dismiss="alert"
-                aria-label="Close"
-              >
-                <span aria-hidden="true">&times;</span>
-              </button>
-            </div>
-          )}
-
-          {submitMessage !== "Success" && submitMessage !== "" && (
-            <div
-              class="alert alert-warning m-4 alert-dismissible fade show"
-              role="alert"
-            >
-              Failed to add discipline.
-              <button
-                type="button"
-                class="close"
-                data-dismiss="alert"
-                aria-label="Close"
-              >
-                <span aria-hidden="true">&times;</span>
-              </button>
-            </div>
-          )}
-
-          {sanitizeCheck === false && (
-            <div class="alert alert-warning fade show m-4" role="alert">
-              <div class="justify-content-end">
+      <div class="d-flex justify-content-end p-4">
+        <button
+          type="button"
+          class="btn btn-info"
+          data-toggle="modal"
+          data-target="#exampleModal"
+        >
+          <span class="p-1">Add a new discipline</span>
+        </button>
+        <div
+          class="modal fade"
+          id="exampleModal"
+          tabindex="-1"
+          role="dialog"
+          aria-labelledby="exampleModalLabel"
+          aria-hidden="true"
+        >
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <p5 class="align-self-center w-100">Add a discipline</p5>
                 <button
                   type="button"
                   class="close"
-                  data-dismiss="alert"
+                  data-dismiss="modal"
                   aria-label="Close"
+                  onClick={handleCancel}
                 >
                   <span aria-hidden="true">&times;</span>
                 </button>
               </div>
-
-              <div class="pt-3 text-center">
-                <p>
-                  <strong>Error: Discipline not added.</strong>
-                </p>
-                <p>
-                  You may only use alphabetical characters, slash "/", or space
-                  " " for the discipline name and its abbreviation.
-                </p>
+              <div class="modal-body">
+                <form>
+                  <div class="form-group">
+                    <label>Discipline Name</label>
+                    <input
+                      class="form-control"
+                      value={disciplineName}
+                      placeholder="Ex: Mathematics"
+                      onChange={(e) => {
+                        setDisciplineName(e.target.value);
+                      }}
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label>Discipline Abbreviation</label>
+                    <input
+                      class="form-control"
+                      value={disciplineAbv}
+                      placeholder="Ex: M"
+                      onChange={(e) => {
+                        setDisciplineAbv(e.target.value);
+                      }}
+                    />
+                  </div>
+                  <button
+                    class="btn btn-info"
+                    data-dismiss="modal"
+                    onClick={handleClick}
+                  >
+                    Submit
+                  </button>
+                </form>
               </div>
             </div>
-          )}
+          </div>
+        </div>
+      </div>
 
-          {/* a table to show all the current disciplines */}
-          {/* table */}
-          <div class="p-4 table-responsive">
-            <table class="table table-bordered table-fixed">
-              <thead class="table-dark">
-                <tr>
-                  <th class="col-sm-4">Discipline</th>
-                  <th class="col-sm-4">Abbreviation</th>
-                  <th class="col-sm-4">Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {Object.values(disciplines).map((val) => (
-                  <tr>
-                    <td>{val[0]}</td>
-                    <td>{val[1]}</td>
-                    <td>
-                      <button
-                        class="btn btn-link"
-                        onClick={(e) => {
-                          let dName = val[0];
-                          removeDiscipline(dName);
-                        }}
-                      >
-                        Remove
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+      {submitMessage === "Success" && (
+        <div
+          class="alert alert-success m-4 alert-dismissible fade show"
+          role="alert"
+        >
+          Discipline added successfully!
+          <button
+            type="button"
+            class="close"
+            data-dismiss="alert"
+            aria-label="Close"
+          >
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+      )}
+
+      {submitMessage !== "Success" && submitMessage !== "" && (
+        <div
+          class="alert alert-warning m-4 alert-dismissible fade show"
+          role="alert"
+        >
+          Failed to add discipline.
+          <button
+            type="button"
+            class="close"
+            data-dismiss="alert"
+            aria-label="Close"
+          >
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+      )}
+
+      {sanitizeCheck === false && (
+        <div class="alert alert-warning fade show m-4" role="alert">
+          <div class="justify-content-end">
+            <button
+              type="button"
+              class="close"
+              data-dismiss="alert"
+              aria-label="Close"
+            >
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+
+          <div class="pt-3 text-center">
+            <p>
+              <strong>Error: Discipline not added.</strong>
+            </p>
+            <p>
+              You may only use alphabetical characters, slash "/", or space " "
+              for the discipline name and its abbreviation.
+            </p>
           </div>
         </div>
       )}
-    </>
+
+      {/* a table to show all the current disciplines */}
+      {/* table */}
+      <div class="p-4 table-responsive">
+        <table class="table table-bordered table-fixed">
+          <thead class="table-dark">
+            <tr>
+              <th class="col-sm-4">Discipline</th>
+              <th class="col-sm-4">Abbreviation</th>
+              <th class="col-sm-4">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {Object.values(disciplines).map((val) => (
+              <tr>
+                <td>{val[0]}</td>
+                <td>{val[1]}</td>
+                <td>
+                  <button
+                    class="btn btn-link"
+                    onClick={(e) => {
+                      let dName = val[0];
+                      removeDiscipline(dName);
+                    }}
+                  >
+                    Remove
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
   );
 };
 

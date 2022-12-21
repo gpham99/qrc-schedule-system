@@ -100,7 +100,7 @@ const Tutor = () => {
 
           <div class="p-5">
             <Routes>
-              <Route path=""></Route>
+              <Route path="" element={<Schedule></Schedule>}></Route>
               <Route path="schedule" element={<Schedule></Schedule>}></Route>
               <Route path="profile" element={<Profile></Profile>}></Route>
             </Routes>

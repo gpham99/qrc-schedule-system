@@ -16,8 +16,7 @@ function App() {
           <Route path="/admin/*" element={<Admin />}></Route>
           <Route path="/tutor/*" element={<Tutor></Tutor>}></Route>
           <Route path="/" element={<Home></Home>}></Route>
-          <Route path="/404" element={<FileNotFound></FileNotFound>}></Route>
-          <Route path="/401" element={<Unauthorized></Unauthorized>}></Route>
+          <Route path="*" element={<FileNotFound></FileNotFound>}></Route>
         </Routes>
       </div>
     </div>

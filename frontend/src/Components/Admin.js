@@ -8,6 +8,7 @@ import Internal from "./Admin/Internal";
 import ScheduleSkeleton from "./Admin/ScheduleSkeleton";
 import Discipline from "./Admin/Discipline";
 import Unauthorized from "../ErrorPages/Unauthorized";
+import FileNotFound from "../ErrorPages/FileNotFound";
 
 const Admin = () => {
   const [searchParams, setSearchParams] = useSearchParams();

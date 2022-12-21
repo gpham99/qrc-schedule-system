@@ -13,28 +13,40 @@ const Profile = () => {
   // grab the access token from the local storage
   const accessToken = localStorage.getItem("access_token");
 
+  // if access token is null, then this person is not authorized, show page 401 -> authorized state is false
+  // else if they have an access token, verify first
+  const [isAuthorized, setIsAuthorized] = useState(() => {
+    if (accessToken === null) {
+      return false;
+    } else {
+      return null;
+    }
+  });
+
   // call /api/tutor/get_info and pass the access token as authorization header
   useEffect(() => {
-    const requestOptions = {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "JWT " + accessToken.replace(/["]+/g, ""),
-      },
-    };
+    if (isAuthorized !== false) {
+      const requestOptions = {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "JWT " + accessToken.replace(/["]+/g, ""),
+        },
+      };
 
-    fetch("http://52.12.35.11:8080/api/tutor/get_info", requestOptions)
-      .then((response) => {
-        let res = response.json();
-        return res;
-      })
-      .then((data) => {
-        setUserInfo(data);
-        setMaximumShiftCapacity(data["shift_capacity"]);
-        setPersonalDisciplines(data["disciplines"]);
-        setEditedPersonalDisciplines({ ...data["disciplines"] });
-        setAvailabilityStatus(data["this_block_unavailable"]);
-        setLaStatus(data["this_block_la"]);
-      });
+      fetch("http://52.12.35.11:8080/api/tutor/get_info", requestOptions)
+        .then((response) => {
+          let res = response.json();
+          return res;
+        })
+        .then((data) => {
+          setUserInfo(data);
+          setMaximumShiftCapacity(data["shift_capacity"]);
+          setPersonalDisciplines(data["disciplines"]);
+          setEditedPersonalDisciplines({ ...data["disciplines"] });
+          setAvailabilityStatus(data["this_block_unavailable"]);
+          setLaStatus(data["this_block_la"]);
+        });
+    }
   }, []);
 
   // the function to handle the update button

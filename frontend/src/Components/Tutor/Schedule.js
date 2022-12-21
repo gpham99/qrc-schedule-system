@@ -6,6 +6,16 @@ const Schedule = () => {
   // grab the access token from the local storage
   const accessToken = localStorage.getItem("access_token");
 
+  // if access token is null, then this person is not authorized, show page 401 -> authorized state is false
+  // else if they have an access token, verify first
+  const [isAuthorized, setIsAuthorized] = useState(() => {
+    if (accessToken === null) {
+      return false;
+    } else {
+      return null;
+    }
+  });
+
   const [submitMessage, setSubmitMessage] = useState(null);
 
   // tutor's shift schedule
@@ -26,42 +36,49 @@ const Schedule = () => {
 
   // call /api/tutor/get_schedule and pass the access token as authorization header
   useEffect(() => {
-    const requestOptions = {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "JWT " + accessToken.replace(/["]+/g, ""),
-      },
-    };
+    if (isAuthorized !== false) {
+      const requestOptions = {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "JWT " + accessToken.replace(/["]+/g, ""),
+        },
+      };
 
-    fetch("http://52.12.35.11:8080/api/tutor/get_schedule", requestOptions)
-      .then((response) => {
-        let res = response.json();
-        return res;
-      })
-      .then((data) => {
-        setSchedule(data);
-      });
+      fetch("http://52.12.35.11:8080/api/tutor/get_schedule", requestOptions)
+        .then((response) => {
+          let res = response.json();
+          return res;
+        })
+        .then((data) => {
+          setSchedule(data);
+        });
+    }
   }, []);
 
   // call /api/tutor/get_availability and pass the access token as authorization header
   useEffect(() => {
-    const requestOptions = {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "JWT " + accessToken.replace(/["]+/g, ""),
-      },
-    };
+    if (isAuthorized !== false) {
+      const requestOptions = {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "JWT " + accessToken.replace(/["]+/g, ""),
+        },
+      };
 
-    fetch("http://52.12.35.11:8080/api/tutor/get_availability", requestOptions)
-      .then((response) => {
-        let res = response.json();
-        return res;
-      })
-      .then((data) => {
-        // console.log("availabilities data: ", data);
-        setAvailabilities(data);
-        setEdittedAvailabilities(structuredClone(data));
-      });
+      fetch(
+        "http://52.12.35.11:8080/api/tutor/get_availability",
+        requestOptions
+      )
+        .then((response) => {
+          let res = response.json();
+          return res;
+        })
+        .then((data) => {
+          // console.log("availabilities data: ", data);
+          setAvailabilities(data);
+          setEdittedAvailabilities(structuredClone(data));
+        });
+    }
   }, []);
 
   const toggleEditMode = () => {
