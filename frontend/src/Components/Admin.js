@@ -146,7 +146,7 @@ const Admin = () => {
 
           <div class="p-5">
             <Routes>
-              <Route path="" element={<Schedule></Schedule>}></Route>
+              <Route path=""></Route>
               <Route path="excel" element={<Roster></Roster>}></Route>
               <Route
                 path="tutor-info"

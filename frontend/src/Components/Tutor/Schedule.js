@@ -50,6 +50,7 @@ const Schedule = () => {
           return res;
         })
         .then((data) => {
+          setIsAuthorized(true);
           setSchedule(data);
         });
     }
