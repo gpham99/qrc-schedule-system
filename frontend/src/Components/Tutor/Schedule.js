@@ -79,7 +79,7 @@ const Schedule = () => {
           setEdittedAvailabilities(structuredClone(data));
         });
     }
-  }, []);
+  }, [schedule]);
 
   const toggleEditMode = () => {
     setEdittedAvailabilities(structuredClone(availabilities));

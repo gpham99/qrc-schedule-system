@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
 import Schedule from "./Tutor/Schedule";
 import Profile from "./Tutor/Profile";
-import { Route, Routes, useSearchParams } from "react-router-dom";
+import { Route, Routes, useSearchParams, useNavigate } from "react-router-dom";
 import Unauthorized from "../ErrorPages/Unauthorized";
 
 const Tutor = () => {
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [name, setName] = useState(() => {
     return searchParams.get("username") || null;
@@ -42,6 +43,7 @@ const Tutor = () => {
             );
           }
         });
+      navigate("/tutor", { replace: true });
     }
   }, []);
 

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Route, Routes, useSearchParams } from "react-router-dom";
+import { useNavigate, Route, Routes, useSearchParams } from "react-router-dom";
 import TutorInfo from "./Admin/TutorInfo";
 import Schedule from "./Admin/Schedule";
 import Roster from "./Admin/Roster";
@@ -8,9 +8,9 @@ import Internal from "./Admin/Internal";
 import ScheduleSkeleton from "./Admin/ScheduleSkeleton";
 import Discipline from "./Admin/Discipline";
 import Unauthorized from "../ErrorPages/Unauthorized";
-import FileNotFound from "../ErrorPages/FileNotFound";
 
 const Admin = () => {
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [name, setName] = useState(() => {
     return searchParams.get("username") || null;
@@ -48,6 +48,8 @@ const Admin = () => {
             );
           }
         });
+
+      navigate("/admin", { replace: true });
     }
   }, []);
 
