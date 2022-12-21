@@ -281,10 +281,15 @@ def add_time_window(block, start_date, end_date):
         with sql.connect("database.db") as conn:
 
             cur = conn.cursor()
-            sql_query = 'INSERT OR IGNORE INTO time_window(block, start_time, end_time) VALUES (?, ?, ?)'
-            cur.execute(sql_query, (block, start_date, end_date))
+            select_query = 'SELECT * FROM time_window WHERE block = ?'
+            data = cur.fetchone()
+            if data is None:
+                sql_query = 'INSERT OR IGNORE INTO time_window(block, start_time, end_time) VALUES (?, ?, ?)'
+                cur.execute(sql_query, (block, start_date, end_date))
+            else:   
+                update_query = 'UPDATE time_window SET start_time = ?, end_time = ?  WHERE block = ?'
+                cur.execute(update_query, (start_date, end_date, block))
             conn.commit()
-            print('inserted')
     except:
         conn.rollback()
     finally:
