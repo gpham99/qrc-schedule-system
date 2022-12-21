@@ -13,6 +13,9 @@ from flask_jwt import JWT, jwt_required, current_identity
 import json
 from datetime import timedelta
 from dateutil import parser
+from copy import deepcopy
+from statistics import stdev
+from random import sample, choice
 
 UPLOAD_FOLDER = '.'
 ALLOWED_EXTENSIONS = {'xls', 'xlsx', 'xlsm', 'xlsb', 'odf', 'ods', 'odt'}
@@ -606,33 +609,67 @@ def wipe_master_schedule():
 def wipe_all_choices():
     pass
 
+def write_master_schedule():
+    # make a dictionary with the tutors name being the keys,
+    # and their max capacity being the value
+    
+    roster = get_roster()
+    tutor_dict = {tutor[0]: tutor[3] for tutor in roster}
+    print(tutor_dict)
+    disciplines = get_disciplines()
+    for i in sample(range(SHIFT_SLOTS), SHIFT_SLOTS):
+        assignments = ["" for _ in range(len(disciplines))] # n strings, w n being no of disciplines
+        for discipline in sample(disciplines, len(disciplines)):
+            available_tutors = get_discipline_shift(discipline, i) 
+            if available_tutors != None:
+                available_tutors = ast.literal_eval(available_tutors)
+                choice_index = choice(range(len(available_tutors)))
+                chosen_tutor = available_tutors[choice_index]
+                j = 0
+                while tutor_dict[chosen_tutor] == 0 and j < len(available_tutors):
+                    choice_index = choice(range(len(available_tutors)))
+                    chosen_tutor = available_tutors[choice_index]
+                    j += 1
+                if tutor_dict[chosen_tutor] != 0:
+                    # add to assignments
+                    assignments[disciplines.index(discipline)] = chosen_tutor
+                    tutor_dict[chosen_tutor] -= 1
+        add_to_master_schedule(i, disciplines, assignments)
+
+
+"""
 #take in the tutors' chosen shifts and use them to create the master schedule
 def write_master_schedule():
+    #Get the list of all disciplines
     disciplines = get_disciplines()
     tutors = []
     avail_tables = []
     open_shifts = []
+    #open_shifts: The schedule skeleton / list of shifts per discipline that could be taken
     for i in range(len(disciplines)):
-        open_shifts.append([])
+        open_shifts.append(ast.literal_eval(get_discipline_shifts_offered(disciplines[i])))
+
+
+    for i in range(len(disciplines)):
         dictionary = {}
         for j in range(len(open_shifts[i])):
             dictionary[open_shifts[i][j]] = []
             avail_tables.append(dictionary)
     
-    for i in range(len(disciplines)):
-        open_shifts[i] = ast.literal_eval(get_discipline_shifts_offered(disciplines[i]))
     avail_tables = []
     for i in range(len(disciplines)):
         dictionary = {}
         for j in range(len(open_shifts[i])):
             dictionary[open_shifts[i][j]] = []
-    avail_tables.append(dictionary)
+        avail_tables.append(dictionary)
 
     for tutor in get_roster():
         tutors.append(User(tutor[0], tutor[1], 'tutor', tutor[2], tutor[3], tutor[4], tutor[5], tutor[6], tutor[7], tutor[8]))
     for i in range(len(disciplines)):
         for shift in range(SHIFT_SLOTS):
             avail_tables[i][shift] = get_discipline_shift(disciplines[i], shift)
+            if avail_tables[i][shift] == None:
+                avail_tables[i][shift] = []
 
     favorites = []
     possible_solutions = algorithm(200, tutors, avail_tables, open_shifts, favorites)
@@ -644,9 +681,13 @@ def write_master_schedule():
 def greedy(tutors, avail_tables, open_shifts, favorites):
     attempts = 0
     assigned = 0
+    disciplines = get_disciplines()
+    total_shifts = sum([len(shift_list) for shift_list in open_shifts])
     capacities = [tutor.shift_capacity for tutor in tutors]
+    emails = [tutor.id for tutor in tutors]
     sum_capacities = sum(capacities)
     avail_copy = deepcopy(avail_tables) #delete tutors from this one; master schedule will contain only finalized changes
+    print(avail_copy)
     master_schedule = []
     for i in range(len(disciplines)):
         dictionary = {}
@@ -654,12 +695,13 @@ def greedy(tutors, avail_tables, open_shifts, favorites):
             dictionary[open_shifts[i][j]] = ""
         master_schedule.append(dictionary)
     while(assigned < total_shifts and assigned < sum_capacities and attempts < 100):
-        for d in samp(list(range(len(disciplines))), len(disciplines)):
-            for shift in samp(open_shifts[d], 1): #this can be simplified to a variable and the inner code tabbed back
+        for d in sample(list(range(len(disciplines))), len(disciplines)):
+            for shift in sample(open_shifts[d], 1): #this can be simplified to a variable and the inner code tabbed back
                 if len(avail_copy[d][shift]) > 0:
                     assigned_bool = False
-                    for tutor in samp(avail_copy[d][shift],len(avail_copy[d][shift])):
-                        if capacities[names.index(tutor)] > 0:
+                    for tutor in sample(avail_copy[d][shift],len(avail_copy[d][shift])):
+                        print(tutor)
+                        if capacities[emails.index(tutor)] > 0:
                             master_schedule[d][shift] = tutor
                             avail_copy[d][shift] = []
                             capacities[names.index(tutor)] -= 1
@@ -682,7 +724,7 @@ def greedy(tutors, avail_tables, open_shifts, favorites):
     #            master_schedule[d][shift] = ""
     return master_schedule, assigned
             
-def tutor_unfairness(schedule):
+def tutor_unfairness(schedule, tutors, open_shifts):
     unfairness_score = 0 #lower is better
     for tutor in tutors:
         #count number of shifts they have been assigned
@@ -691,11 +733,11 @@ def tutor_unfairness(schedule):
             for j in open_shifts[i]:
                 if schedule[i][j] == tutor.name:
                    assigned += 1
-        score_component = (tutor.shift_cap - assigned) / tutor.shift_cap
+        score_component = (tutor.shift_capacity - assigned + 1) / (tutor.shift_capacity + 1)
         unfairness_score += score_component
     return unfairness_score
 
-def discipline_evenness(schedule):
+def discipline_evenness(schedule, open_shifts):
     shift_counts = []
     for i in range(len(schedule)):
         shift_count = 0
@@ -710,8 +752,8 @@ def algorithm(totaltries, tutors, avail_tables, open_shifts, favorites):
     possible_solutions = []
     for i in range(totaltries):
         soln, assigned = greedy(tutors, avail_tables, open_shifts, favorites)
-        unfairness = tutor_unfairness(soln)
-        evenness = discipline_evenness(soln)
+        unfairness = tutor_unfairness(soln, tutors, open_shifts)
+        evenness = discipline_evenness(soln, open_shifts)
         possible_solutions.append((soln, assigned, unfairness, evenness))
     assigned_amounts = [soln[1] for soln in possible_solutions]
     maximum = max(assigned_amounts)
@@ -746,9 +788,8 @@ def algorithm(totaltries, tutors, avail_tables, open_shifts, favorites):
         for line in soln[0]:
             print(line)
 
-    return possible_solutions
+    return possible_solutions"""
 
-write_master_schedule()
 
 #     # Setting debug to True enables debug output. This line should be
 #     # removed before deploying a production app.
