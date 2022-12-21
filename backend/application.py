@@ -300,8 +300,11 @@ def tutor_info():
 
     
     
-@application.route('/api/upload_roster', methods=['POST'])
+@application.route('/api/upload_roster', methods=['PUT','POST'])
+@jwt_required()
 def upload_roster():
+    print(request.get_json())
+    return "Hi"
     # check if the post request has the file part
     if 'filename' not in request.files:
         print('No file part')
@@ -331,8 +334,9 @@ def protected():
     return '%s' % current_identity
 
 
-@application.route('/api/add_remove_disciplines')
-def get_disciplines_abbreviations():
+@application.route('/api/fetch_disciplines')
+@jwt_required()
+def fetch_disciplines():
     disciplines = get_disciplines()
     discipline_schedule_with_abv = []
     for i in range(len(disciplines)):
@@ -373,6 +377,7 @@ def update_tutors_in_master_schedule():
     return list(set(output))
     
 @application.route('/api/add_discipline', methods=['POST'])
+@jwt_required()
 def add_new_discipline():
     req = request.get_json()
     print(req)
@@ -383,6 +388,7 @@ def add_new_discipline():
     return {"msg": "Success"}
 
 @application.route('/api/remove_discipline', methods=['POST'])
+@jwt_required()
 def remove_discipline():
     req = request.get_json()
     discipline_name = req['disciplineName']
@@ -390,6 +396,7 @@ def remove_discipline():
     return {"msg": "Removed successfully"}
 
 @application.route('/api/get_admins')
+@jwt_required()
 def get_admins():
     admin_info = get_admin_roster()
     admin_display_lst = []
@@ -400,6 +407,7 @@ def get_admins():
     return admin_display_lst
 
 @application.route('/api/add_admin', methods=['POST'])
+@jwt_required()
 def add_new_admin():
     req = request.get_json()
     admin_name = sanitize(req["name"])
@@ -408,6 +416,7 @@ def add_new_admin():
     return {"msg": "Added successfully"}
 
 @application.route('/api/remove_admin', methods=['POST'])
+@jwt_required()
 def remove_admin():
     req = request.get_json()
     admin_email = req['email']
@@ -599,13 +608,129 @@ def wipe_all_choices():
 
 #take in the tutors' chosen shifts and use them to create the master schedule
 def write_master_schedule():
-    
-    pass
+
+    tutors = []
+    avail_tables = []
+    for i in range(len(disciplines)):
+        dictionary = {}
+        for j in range(len(open_shifts[i])):
+            dictionary[open_shifts[i][j]] = []
+            avail_tables.append(dictionary)
+    disciplines = get_disciplines()
+    for tutor in get_roster():
+        tutors.append(User(username, tutor_entry[1], group, tutor_entry[2], tutor_entry[3], tutor_entry[4], tutor_entry[5], tutor_entry[6], tutor_entry[7], tutor_entry[8]))
+    for i in range(len(disciplines)):
+        for shift in range(SHIFT_SLOTS):
+            avail_tables[i][shift] = get_discipline_shift(disciplines[i], shift)
 
 
+   
 
-# # run the app.
-# if __name__ == "__main__":
+def greedy(tutors, avail_tables, open_shifts, favorites):
+    attempts = 0
+    assigned = 0
+    capacities = [tutor.shift_capacity for tutor in tutors]
+    sum_capacities = sum(capacities)
+    avail_copy = deepcopy(avail_tables) #delete tutors from this one; master schedule will contain only finalized changes
+    master_schedule = []
+    for i in range(len(disciplines)):
+        dictionary = {}
+        for j in range(len(open_shifts[i])):
+            dictionary[open_shifts[i][j]] = ""
+        master_schedule.append(dictionary)
+    while(assigned < total_shifts and assigned < sum_capacities and attempts < 100):
+        for d in samp(list(range(len(disciplines))), len(disciplines)):
+            for shift in samp(open_shifts[d], 1): #this can be simplified to a variable and the inner code tabbed back
+                if len(avail_copy[d][shift]) > 0:
+                    assigned_bool = False
+                    for tutor in samp(avail_copy[d][shift],len(avail_copy[d][shift])):
+                        if capacities[names.index(tutor)] > 0:
+                            master_schedule[d][shift] = tutor
+                            avail_copy[d][shift] = []
+                            capacities[names.index(tutor)] -= 1
+                            assigned += 1
+                            assigned_bool = True
+                            break
+                    if not assigned_bool:
+                        avail_copy[d][shift] = []
+                    break
+        attempts += 1
+    if assigned == total_shifts:
+        print("all shifts filled")
+    if assigned == sum_capacities:
+        print("tutors maxed out")
+    if attempts >= 100:
+        print("greedy algorithm gave up")
+    #for d in sample(range(len(disciplines)), len(disciplines)):
+    #    for shift in sample(open_shifts[d], len(open_shifts[d])):
+    #        if len(avail_copy[d][shift]) > 0:
+    #            master_schedule[d][shift] = ""
+    return master_schedule, assigned
+            
+def tutor_unfairness(schedule):
+    unfairness_score = 0 #lower is better
+    for tutor in tutors:
+        #count number of shifts they have been assigned
+        assigned = 0
+        for i in range(len(schedule)):
+            for j in open_shifts[i]:
+                if schedule[i][j] == tutor.name:
+                   assigned += 1
+        score_component = (tutor.shift_cap - assigned) / tutor.shift_cap
+        unfairness_score += score_component
+    return unfairness_score
+
+def discipline_evenness(schedule):
+    shift_counts = []
+    for i in range(len(schedule)):
+        shift_count = 0
+        for j in open_shifts[i]:
+            if schedule[i][j] != '':
+                shift_count += 1
+        shift_counts.append(shift_count)
+    deviation = stdev(shift_counts)
+    return deviation
+
+def algorithm(totaltries, tutors, capacities, avail_tables, open_shifts, favorites):
+    possible_solutions = []
+    for i in range(totaltries):
+        soln, assigned = greedy()
+        unfairness = tutor_unfairness(soln)
+        evenness = discipline_evenness(soln)
+        possible_solutions.append((soln, assigned, unfairness, evenness))
+    assigned_amounts = [soln[1] for soln in possible_solutions]
+    maximum = max(assigned_amounts)
+    i = 0
+    while i < len(possible_solutions):
+        soln = possible_solutions[i]
+        if soln[1] != maximum:
+            possible_solutions.remove(soln)
+        else:
+            i+=1
+    unfairness_amounts = [soln[2] for soln in possible_solutions]
+    minimum = min(unfairness_amounts)
+    i = 0
+    while i < len(possible_solutions):
+        soln = possible_solutions[i]
+        if soln[2] != minimum:
+            possible_solutions.remove(soln)
+        else:
+            i+=1
+    evenness_amounts = [soln[3] for soln in possible_solutions]
+    maximum = max(evenness_amounts)
+    i = 0
+    while i < len(possible_solutions):
+        soln = possible_solutions[i]
+        if soln[3] != maximum:
+            possible_solutions.remove(soln)
+        else:
+            i+=1
+
+    for soln in possible_solutions:
+        print(soln[1], soln[2], soln[3])   
+        for line in soln[0]:
+            print(line)
+
 #     # Setting debug to True enables debug output. This line should be
 #     # removed before deploying a production app.
 #     application.debug = True
