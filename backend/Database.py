@@ -288,21 +288,22 @@ def add_block(block):
     try:
         with sql.connect("database.db") as conn:
             cur = conn.cursor()
-            sql_select_query = 'SELECT * FROM block'
+            sql_select_query = 'SELECT * FROM block_number'
             cur.execute(sql_select_query)
             data = cur.fetchone()
             # If the user doesn't exist add the discipline
             if data is None:
                 sql_query = 'INSERT OR IGNORE INTO block_number(block) VALUES (?)'
                 cur.execute(sql_query, (block,))
+                print('There was no value')
             else:
                 sql_clear_query = 'DELETE FROM block_number'
                 cur.execute(sql_clear_query)
                 sql_query = 'INSERT OR IGNORE INTO block_number(block) VALUES (?)'
                 cur.execute(sql_query, (block,))
+                print('there was a value')
 
             conn.commit()
-            print('inserted')
     except:
         conn.rollback()
     finally:
@@ -477,7 +478,7 @@ def get_discipline_shift(discipline, shift_number):
             record = cur.fetchone()
             _, res = record
 
-            return list(res)
+            return res
     except:
         con.rollback()
     finally:
@@ -671,7 +672,7 @@ def get_block_number():
             sql_search_query = 'SELECT * FROM block_number'
             cur.execute(sql_search_query)
             record = cur.fetchone()
-            return record
+            return list(record)[0]
     except:
         conn.rollback()
     finally:
@@ -1206,7 +1207,8 @@ if __name__ == '__main__':
     tutors3 = [None, 'Morty', 'Summer', None, 'James']
     create_tables(disciplines_list)
     reboot_database(disciplines_list, 'No')
-    add_tutor('Joe', "Joe email")
-    add_tutor('James', 'James email')
-    print(get_table_contents('Math'))
+    add_block(1)
+    print(get_block_number())
+    add_block(2)
+    print(get_block_number())
 
