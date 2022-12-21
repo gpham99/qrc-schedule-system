@@ -145,12 +145,13 @@ def add_tutor(name, email):
     individual_tutor = 0
     tutoring_disciplines = '[]'
     favorite_shifts = '[]'
-    try:
+    if True:
         with sql.connect("database.db") as conn:
             cur = conn.cursor()
             sql_select_query = 'SELECT * FROM tutors WHERE email=? '
             cur.execute(sql_select_query, (email,))
             data = cur.fetchone()
+
             # If the user doesn't exist add a new user
             if data is None:
                 cur.execute('INSERT OR IGNORE INTO tutors(email, name, status, shift_capacity, tutoring_disciplines, '
@@ -158,18 +159,25 @@ def add_tutor(name, email):
                             'VALUES(?, ?, ?, ?, ?, ?, ?,?, ?)', (email, name, status, shift_cap, tutoring_disciplines,
                                                                  this_block_la, next_block_la, individual_tutor,
                                                                  favorite_shifts))
-                conn.commit()
+
             # If the user is being put into the roster and the name are the same do nothing
-            if data[1] == name:
-                pass
+            elif data[1] == name:
+                sql_select_query = 'SELECT * FROM tutors WHERE email=? '
+                cur.execute(sql_select_query, (email,))
+                data = cur.fetchone()
+                print(data)
+
+
             # else update the name of the user
             else:
                 update_query = 'UPDATE tutors SET name = ? WHERE email = ?'
-            cur.execute(update_query, (name, email))
-    except:
-        conn.rollback()
-    finally:
-        conn.close()
+                cur.execute(update_query, (name, email))
+
+                sql_select_query = 'SELECT * FROM tutors WHERE email=? '
+                cur.execute(sql_select_query, (email,))
+                data = cur.fetchone()
+                print(data)
+            conn.commit()
 
 
 # Function to add superusers
@@ -759,6 +767,7 @@ def update_status(email):
                 # do stuff to turn it on
                 update_query = 'UPDATE tutors SET status = 1 WHERE email = ?'
             cur.execute(update_query, (email,))
+            conn.commit()
     except:
         conn.rollback()
     finally:
@@ -775,6 +784,7 @@ def update_shift_capacity(email, new_capacity):
             update_query = 'UPDATE tutors SET shift_capacity =' + str(new_capacity)
             update_query = update_query + ' WHERE email = ?'
             cur.execute(update_query, (email,))
+            conn.commit()
     except:
         conn.rollback()
     finally:
@@ -789,6 +799,7 @@ def update_tutoring_disciplines(email, disciplines):
             update_query = 'UPDATE tutors SET tutoring_disciplines =? WHERE email = ?'
             disciplines = str(disciplines)
             cur.execute(update_query, (disciplines, email))
+            conn.commit()
     except:
         conn.rollback()
     finally:
@@ -812,6 +823,7 @@ def update_this_block_la(email):
                 # do stuff to turn it on
                 update_query = 'UPDATE tutors SET this_block_la = 1 WHERE email = ?'
             cur.execute(update_query, (email,))
+            conn.commit()
     except:
         conn.rollback()
     finally:
@@ -835,6 +847,7 @@ def update_next_block_la(email):
                 # do stuff to turn it on
                 update_query = 'UPDATE tutors SET next_block_la = 1 WHERE email = ?'
             cur.execute(update_query, (email,))
+            conn.commit()
     except:
         conn.rollback()
     finally:
@@ -858,6 +871,7 @@ def update_individual_tutor(email):
                 # do stuff to turn it on
                 update_query = 'UPDATE tutors SET individual_tutor = 1 WHERE email = ?'
             cur.execute(update_query, (email,))
+            conn.commit()
     except:
         conn.rollback()
     finally:
@@ -872,6 +886,7 @@ def update_favorite_shifts(user, new_favorite_shifts):
             update_query = 'UPDATE tutors SET favorite_shifts = ? WHERE email = ?'
             favored_shifts = str(new_favorite_shifts)
             cur.execute(update_query, (favored_shifts, user))
+            conn.commit()
     except:
         conn.rollback()
     finally:
@@ -885,6 +900,7 @@ def update_discipline_shifts(discipline, shift_number, new_available_tutors):
             cur = conn.cursor()
             update_query = 'UPDATE ' + discipline + ' SET available_tutors = ? WHERE shift_number = ?'
             cur.execute(update_query, (new_available_tutors, shift_number))
+            conn.commit()
     except:
         conn.rollback()
     finally:
@@ -898,6 +914,7 @@ def update_discipline_shift_availability(discipline, new_available_shifts):
             cur = conn.cursor()
             update_query = 'UPDATE disciplines SET shifts = ? WHERE discipline = ?'
             cur.execute(update_query, (new_available_shifts, discipline))
+            conn.commit()
     except:
         conn.rollback()
     finally:
@@ -949,6 +966,7 @@ def update_master_schedule(shift_number, disciplines, new_assignments):
                 empty_params = (shift_number,) + insert_params
                 insert_query = insert_query + values
                 cur.execute(insert_query, empty_params)
+            conn.commit()
     except:
         conn.rollback()
     finally:
@@ -962,6 +980,7 @@ def update_master_schedule_single_discipline(shift_number, discipline, new_assig
             cur = conn.cursor()
             sql_update_query = 'UPDATE master_schedule SET ' + discipline + ' = ? WHERE shift_number = ? '
             cur.execute(sql_update_query, (new_assignment, shift_number))
+            conn.commit()
     except:
         conn.rollback()
     finally:
@@ -975,6 +994,7 @@ def update_time_window(block, start_time, end_time):
             cur = conn.cursor()
             update_query = 'UPDATE time_window SET start_time = ?, end_time = ?  WHERE block = ?'
             cur.execute(update_query, (start_time, end_time, block))
+            conn.commit()
     except:
         conn.rollback()
     finally:
@@ -988,6 +1008,7 @@ def update_discipline_abbreviation(discipline, new_abbreviation):
             cur = conn.cursor()
             update_query = 'UPDATE disciplines SET abbreviation = ? WHERE discipline = ?'
             cur.execute(update_query, (new_abbreviation, discipline))
+            conn.commit()
     except:
         conn.rollback()
     finally:
@@ -1207,8 +1228,6 @@ if __name__ == '__main__':
     tutors3 = [None, 'Morty', 'Summer', None, 'James']
     create_tables(disciplines_list)
     reboot_database(disciplines_list, 'No')
-    add_block(1)
-    print(get_block_number())
-    add_block(2)
-    print(get_block_number())
+    add_tutor('Moises', 'Moises email')
+    add_tutor('Moises', 'Moises email')
 
