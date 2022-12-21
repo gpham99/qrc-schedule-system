@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { exportComponentAsJPEG } from "react-component-export-image";
 
 const Schedule = () => {
-  const [submitMessage, setSubmitMessage] = useState("");
+  const [submitMessage, setSubmitMessage] = useState(null);
   const [unChangedMasterSchedule, setUnchangedMasterSchedule] = useState({});
   const [isChanged, setIsChanged] = useState({});
   const [masterSchedule, setMasterSchedule] = useState({});
@@ -34,7 +34,7 @@ const Schedule = () => {
 
   const submitChange = (event) => {
     event.preventDefault();
-    console.log(editedSchedule);
+    // console.log(editedSchedule);
 
     fetch("http://52.12.35.11:8080/api/update_master_schedule", {
       method: "POST",
@@ -47,10 +47,12 @@ const Schedule = () => {
         return response.json();
       })
       .then(function (data) {
+        // console.log("the data coming out of save action: ", data);
         setSubmitMessage(data);
       });
 
     setEditMode(1 - editMode);
+    window.scrollTo(0, 0);
   };
 
   return (
@@ -81,7 +83,6 @@ const Schedule = () => {
               </section>
             )}
           </div>
-
           {/* pencil button */}
           <div className="d-flex justify-content-end pl-4 pr-4">
             {editMode === 0 ? (
@@ -109,20 +110,14 @@ const Schedule = () => {
             )}
           </div>
 
-          {/* This is where the submit message is set and alert is shown somehow */}
-          {submitMessage.length > 0 && (
+          {/* This is where the submit message is set and alert is shown */}
+          {submitMessage !== null && submitMessage.length === 0 && (
             <div
-              class="alert alert-danger m-4 alert-dismissible fade show"
+              class="alert alert-success m-4 alert-dismissible fade show"
               role="alert"
             >
               <div className="m-3 text-left">
-                {Array.from(new Set(submitMessage)).map((msg) => (
-                  <p>{msg}</p>
-                ))}
-                <p>
-                  If you made any other changes that are not shown in the error
-                  message above, please reload the page to see them.
-                </p>
+                Please reload the page to see the changes you've made.
               </div>
               <button
                 type="button"
@@ -135,14 +130,19 @@ const Schedule = () => {
             </div>
           )}
 
-          {/* This is when the submit message is length 0 but not an empty string */}
-          {submitMessage !== "" && submitMessage.length === 0 && (
+          {submitMessage !== null && submitMessage.length > 0 && (
             <div
-              class="alert alert-success m-4 alert-dismissible fade show"
+              class="alert alert-danger m-4 alert-dismissible fade show"
               role="alert"
             >
               <div className="m-3 text-left">
-                Please reload the page to see the changes you've made.
+                {submitMessage.map((msg) => (
+                  <p>{msg}</p>
+                ))}
+                <p>
+                  If you made any other changes that are not shown in the error
+                  message above, please reload the page to see them.
+                </p>
               </div>
               <button
                 type="button"
@@ -179,10 +179,6 @@ const Schedule = () => {
                       <div class="d-flex flex-column">
                         {masterSchedule[num]?.map((shift_tutor, index) => (
                           <>
-                            {console.log(
-                              "THIS IS THE SCHEDULE THING: ",
-                              shift_tutor
-                            )}
                             {editMode === 0 ? (
                               <>
                                 {shift_tutor["tutor"] && (
@@ -532,7 +528,6 @@ const Schedule = () => {
               </tbody>
             </table>
           </div>
-
           {/* This is to make the export as JPEG button download it as a JPEG */}
           <div className="p-2">
             {editMode === 0 ? (

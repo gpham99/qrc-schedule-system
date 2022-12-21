@@ -32,7 +32,7 @@ const Profile = () => {
         setMaximumShiftCapacity(data["shift_capacity"]);
         setPersonalDisciplines(data["disciplines"]);
         setEditedPersonalDisciplines({ ...data["disciplines"] });
-        setAvailabilityStatus(data["status"]);
+        setAvailabilityStatus(data["this_block_unavailable"]);
         setLaStatus(data["this_block_la"]);
       });
   }, []);

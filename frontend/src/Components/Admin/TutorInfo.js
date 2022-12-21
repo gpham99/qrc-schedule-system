@@ -145,14 +145,14 @@ const TutorInfo = () => {
                       class="form-check-input"
                       type="checkbox"
                       value=""
-                      checked={edittedTutorsInfo[key]["status"]}
+                      checked={edittedTutorsInfo[key]["this_block_unavailable"]}
                       disabled={editMode === 0 ? true : false}
                       onChange={(e) => {
                         let edittedTutorsInfoCopy = {
                           ...edittedTutorsInfo,
                         };
-                        edittedTutorsInfoCopy[key]["status"] =
-                          !edittedTutorsInfoCopy[key]["status"];
+                        edittedTutorsInfoCopy[key]["this_block_unavailable"] =
+                          !edittedTutorsInfoCopy[key]["this_block_unavailable"];
                         setEdittedTutorsInfo(edittedTutorsInfoCopy);
                       }}
                     />
