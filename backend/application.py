@@ -435,7 +435,7 @@ def set_time_window():
     current_block = get_block_number()
     if new_block:
         current_block = (current_block+1)%8
-        add_block(current_block)
+    add_block(current_block)
     add_time_window(current_block, start_time, end_time)
     return {"msg": "Time window successfully set"}
     
@@ -482,11 +482,9 @@ def set_schedule_skeleton():
         for d in range(len(disciplines)):
             if data[str(i)][d].split(',')[1] == 'True':
                 skeleton_list[d].append(i)
-    print(skeleton_list)
     for d in range(len(disciplines)):
         shift_list = skeleton_list[d]
         update_discipline_shift_availability(disciplines[d], shift_list)
-        print(disciplines[d], shift_list)
     return {"msg": "Schedule skeleton updated"}
 
 @application.route('/api/tutor/get_availability', methods = ['GET'])
@@ -587,6 +585,7 @@ def get_block():
 def is_within_window():
     now = time.time()
     start_time, end_time = get_time_window(get_block_number())
+    print(start_time, now, end_time)
     return str(now > start_time and now < end_time)
 
 #Wipe the master schedule in preparation to make a new one 
@@ -600,6 +599,7 @@ def wipe_all_choices():
 
 #take in the tutors' chosen shifts and use them to create the master schedule
 def write_master_schedule():
+    
     pass
 
 
