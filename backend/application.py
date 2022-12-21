@@ -17,6 +17,7 @@ from dateutil import parser
 UPLOAD_FOLDER = '.'
 ALLOWED_EXTENSIONS = {'xls', 'xlsx', 'xlsm', 'xlsb', 'odf', 'ods', 'odt'}
 SHIFT_SLOTS = 20
+ROSTER_PATH = 'roster.' #will need to append extension
 
 # print a nice greeting.
 def say_hello(username = "Team"):
@@ -313,11 +314,8 @@ def upload_roster():
         return "No selected file"
     if file and allowed_file(file.filename):
         filename = secure_filename(file.filename)
-        if 'ROSTER' in application.config:
-            os.remove(application.config['ROSTER'])
-        file.save(os.path.join(application.config['UPLOAD_FOLDER'], filename))
-        application.config['ROSTER'] = filename
-        result = read_roster(filename)
+        file.save(os.path.join(application.config['UPLOAD_FOLDER'], ROSTER_PATH + file.filename.split('.')[1]))
+        result = read_roster(ROSTER_PATH + file.filename.split('.')[1])
         print(result)
         return result
     return "File format not accepted"
@@ -420,9 +418,10 @@ def remove_admin():
 
 @application.route('/api/last_excel_file')
 def last_excel_file():
-    if 'ROSTER' in application.config:
-        filepath = application.config['ROSTER']
-        return prepare_excel_file(filepath)
+    #find the last file
+    for file in os.listdir(UPLOAD_FOLDER):
+        if file.startswith('roster'):
+            return prepare_excel_file(file)
     else:
         return None
 
@@ -454,28 +453,41 @@ def get_discipline_list():
 @application.route('/api/get_schedule_skeleton')
 @jwt_required()
 def get_schedule_skeleton():
-    ret = {}
+    ret = []
     disciplines = sorted(get_disciplines())
+    shifts_offered = []
+    abbreviations = [display(get_discipline_abbreviation(discipline)) for discipline in disciplines]
+    for i in range(len(disciplines)):
+        shifts_offered.append(ast.literal_eval(get_discipline_shifts_offered(disciplines[i])))
     for i in range(SHIFT_SLOTS):
-        ret[i] = []
-    for discipline in disciplines:
-        shifts_offered = ast.literal_eval(get_discipline_shifts_offered(discipline))
-        for i in range(SHIFT_SLOTS):
-            if i in shifts_offered:
-                ret[i].append((display(discipline),True))
+        discipline_list = []
+        for d in range(len(disciplines)):
+            if i in shifts_offered[d]:
+                discipline_list.append(abbreviations[d]+",True")
             else:
-                ret[i].append((display(discipline),False))
+                discipline_list.append(abbreviations[d]+",False")
+        ret.append(discipline_list)
     return ret
 
-
-@application.route('/api/set_schedule_skeleton')
+@application.route('/api/set_schedule_skeleton', methods = ['POST'])
+@jwt_required()
 def set_schedule_skeleton():
     data = request.get_json()
-    disciplines = get_disciplines()
-    for discipline in disciplines:
-        shift_list = data[display(discipline)]
-        update_discipline_shift_availability(discipline, shift_list)
-    return "Schedule skeleton updated"
+    disciplines = sorted(get_disciplines())
+    abbreviations = [display(get_discipline_abbreviation(discipline)) for discipline in disciplines]
+    skeleton_list = []
+    for i in range(len(disciplines)):
+        skeleton_list.append([])
+    for i in range(SHIFT_SLOTS):
+        for d in range(len(disciplines)):
+            if data[str(i)][d].split(',')[1] == 'True':
+                skeleton_list[d].append(i)
+    print(skeleton_list)
+    for d in range(len(disciplines)):
+        shift_list = skeleton_list[d]
+        update_discipline_shift_availability(disciplines[d], shift_list)
+        print(disciplines[d], shift_list)
+    return {"msg": "Schedule skeleton updated"}
 
 @application.route('/api/tutor/get_availability', methods = ['GET'])
 @jwt_required()
@@ -488,8 +500,8 @@ def get_availability():
         favorited = False
         shift_dict = {}
         for discipline in tutoring_disciplines:
-            shifts_offered = get_discipline_shifts_offered(discipline)
-            if str(i) in shifts_offered:
+            shifts_offered = ast.literal_eval(get_discipline_shifts_offered(discipline))
+            if i in shifts_offered:
                 all_possible_disciplines.append(display(get_discipline_abbreviation(discipline)))
                 available_tutors_string_form = get_discipline_shift(discipline, i)
                 if available_tutors_string_form is not None:
@@ -565,17 +577,28 @@ def set_tutors_information():
             update_status(email)
     return {'msg': 'Updates complete'}
 
-@application.route('/api/get_block_number', methods = ['GET'])
+@application.route('/api/get_block', methods = ['GET'])
 @jwt_required()
-def get_block_number():
-    print(get_block_number())
+def get_block():
     block_number = int(get_block_number())
     return {'block': block_number}
 
-def wipe_master_schedule():
-    pass
-#wipe tutor’s personal schedule and choices for the block
+@application.route('/api/is_within_window', methods = ['GET'])
+def is_within_window():
+    now = time.time()
+    start_time, end_time = get_time_window(get_block_number())
+    return str(now > start_time and now < end_time)
 
+#Wipe the master schedule in preparation to make a new one 
+def wipe_master_schedule():
+    clear_table('master_schedule')
+    
+
+#wipe tutors' choices out of the database to prepare for a new block
+def wipe_all_choices():
+    pass
+
+#take in the tutors' chosen shifts and use them to create the master schedule
 def write_master_schedule():
     pass
 
