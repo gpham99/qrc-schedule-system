@@ -4,12 +4,12 @@ from Database import create_tables, add_tutor
 from ast import literal_eval
 
 class User:
-    def __init__(self, email, name, group=None, status = 0, shift_capacity=1, tutoring_disciplines=[],\
+    def __init__(self, email, name, group=None, this_block_unavailable = 0, shift_capacity=1, tutoring_disciplines=[],\
         this_block_la=0, next_block_la=0, individual_tutor=0, favorited_shifts=[]):
         self.id = email
         self.group = group
         self.name = name
-        self.unavailable = status
+        self.this_block_unavailable = this_block_unavailable
         self.shift_capacity = shift_capacity
         if isinstance(tutoring_disciplines, list):
             self.disciplines = tutoring_disciplines
