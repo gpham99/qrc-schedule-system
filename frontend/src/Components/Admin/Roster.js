@@ -1,69 +1,100 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { OutTable, ExcelRenderer } from "react-excel-renderer";
 
 const Roster = () => {
-  // const [file, setFile] = useState(null);
-  // const [uploadStatus, setUploadStatus] = useState("");
+  const [file, setFile] = useState([]);
 
-  // const handleFileChange = (event) => {
-  //   if (event.target.files) {
-  //     setFile(event.target.files[0]);
-  //   }
-  // };
+  useEffect(() => {
+    fetch("http://52.12.35.11:8080/api/last_excel_file", {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    })
+      .then((response) => {
+        let res = response.json();
+        //setFile(res);
+        return res;
+      })
+      .then((data) => {
+        setFile(data);
+      });
+  }, []);
 
-  // const handleSubmit = (event) => {
-  //   event.preventDefault();
-  //   const formData = new FormData();
-  //   formData.append("File", file);
-
-  //   fetch("http://52.12.35.11:8080/api/upload_roster", {
-  //     method: "POST",
-  //     mode: "no-cors",
-  //     body: formData,
-  //     headers: {
-  //       "Content-Type": "multipart/form-data",
-  //     },
-  //   }).then((response) => {
-  //     console.log(response);
-  //     // console.log("response: ", response);
-  //     // response.json();
-  //     // console.log("response.json: ", response.json());
-  //   });
-  //   // .then((result) => {
-  //   //   console.log("Success:", result);
-  //   // })
-  //   // .catch((error) => {
-  //   //   console.error("Error:", error);
-  //   // });
-  // };
+  const tableHeaders = file?.slice(0, 1);
+  const tableData = file?.slice(1);
 
   return (
-    <div className="container align-items-center bg-light">
-      <div className="row p-4 justify-content-center">
-        <p>
-          If your roster has any changes, please upload it here. This includes
-          adding or removing a tutor.
-        </p>
-      </div>
+    <>
+      <div className="container align-items-center bg-light">
+        <div className="row p-4 justify-content-center"></div>
+        <div className="row p-4 justify-content-center">
+          <div>
+            <button
+              type="button"
+              class="btn btn-primary"
+              data-toggle="modal"
+              data-target=".bd-example-modal-lg"
+            >
+              View the last uploaded excel file
+            </button>
 
-      <div className="row p-4 justify-content-center">
-        <a href="#">
-          <button type="button" className="btn btn-info">
-            View the last uploaded Excel sheet
-          </button>
-        </a>
+            <div
+              class="modal fade bd-example-modal-lg responsive"
+              tabindex="-1"
+              role="dialog"
+              aria-labelledby="myLargeModalLabel"
+              aria-hidden="true"
+            >
+              <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <button
+                      type="button"
+                      class="close"
+                      data-dismiss="modal"
+                      aria-label="Close"
+                    >
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                  </div>
+                  <div class="p-4 table-responsive">
+                    <table class="table table-bordered ">
+                      {console.log("headers", tableHeaders)}
+                      <thead class="table-dark">
+                        <tr>
+                          <th class="col-sm-4">First Name</th>
+                          <th class="col-sm-4">Last Name</th>
+                          <th class="col-sm-4">Email</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {tableData?.map((tutorInfo) => (
+                          <tr>
+                            <td>{tutorInfo[0]}</td>
+                            <td>{tutorInfo[1]}</td>
+                            <td>{tutorInfo[2]}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="row p-4 justify-content-center">
+          <form
+            enctype="multipart/form-data"
+            action="http://52.12.35.11:8080/api/upload_roster"
+            method="POST"
+          >
+            <input type="file" id="myFile" name="filename" />
+            <input type="submit" />
+          </form>
+        </div>
       </div>
-
-      <div className="row p-4 justify-content-center">
-        <form
-          enctype="multipart/form-data"
-          action="http://52.12.35.11:8080/api/upload_roster"
-          method="POST"
-        >
-          <input type="file" id="myFile" name="filename" />
-          <input type="submit" />
-        </form>
-      </div>
-    </div>
+    </>
   );
 };
 
