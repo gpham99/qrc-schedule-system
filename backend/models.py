@@ -1,19 +1,27 @@
 import pandas as pd
 import traceback
-from databaseTest import create_tables, add_tutor
+from Database import create_tables, add_tutor
+from ast import literal_eval
 
 class User:
-    def __init__(self, email, name, group=None, status = 0, shift_capacity=1, tutoring_disciplines=[],\
-        this_block_la=0, next_block_la=0, individual_tutor=0):
+    def __init__(self, email, name, group=None, this_block_unavailable = 0, shift_capacity=1, tutoring_disciplines=[],\
+        this_block_la=0, next_block_la=0, individual_tutor=0, favorited_shifts=[]):
         self.id = email
         self.group = group
         self.name = name
-        self.status = status
+        self.this_block_unavailable = this_block_unavailable
         self.shift_capacity = shift_capacity
-        self.disciplines = tutoring_disciplines
+        if isinstance(tutoring_disciplines, list):
+            self.disciplines = tutoring_disciplines
+        else:
+            self.disciplines = literal_eval(tutoring_disciplines)
         self.this_block_la = this_block_la
         self.next_block_la = next_block_la
         self.individual_tutor = individual_tutor
+        if isinstance(tutoring_disciplines, list):
+            self.favorited_shifts = favorited_shifts
+        else:
+            self.favorited_shifts = literal_eval(favorited_shifts)
 
     def __repr__(self):
         return "User (email=%s, group=%s)"%(self.email, str(self.group))
@@ -41,12 +49,37 @@ def read_roster(roster_file):
     except:
         return "Error reading file. Please ensure you submitted an Excel file."
         traceback.print_exc()
+    errors = ""
     if len(output) > 0:
+        ALLOWED_CHARS_NAME = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 -'"
+        ALLOWED_CHARS_EMAIL = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_@."
         for tutor in output:
-            print(tutor)
-            add_tutor(tutor[0], tutor[1])
-        return "File successfully read, tutors added to database"
+            #print(tutor)
+            valid_tutor = True
+            if tutor[1].endswith("@coloradocollege.edu"):
+                for char in tutor[0]:
+                    if char not in ALLOWED_CHARS_NAME:
+                        errors += "Tutor " + tutor[1] + " not added to database; invalid character detected in name: " + char
+                        valid_tutor = False
+                        break
+                for char in tutor[1]:
+                    if char not in ALLOWED_CHARS_EMAIL:
+                        errors += "Tutor " + tutor[1] + " not added to database; invalid character detected in name: " + char
+                        valid_tutor = False
+                        break
+                if valid_tutor:
+                    add_tutor(tutor[0], tutor[1])
+            else:
+                errors += "Tutor " + tutor[1] + " not added to database, please ensure that their email ends in '@coloradocollege.edu'\n"
+        return errors + "File successfully read, all other tutors added to database"
     return "No tutors found in file"
 
 
+#process Excel file and return it in an easily legible format
+def prepare_excel_file(filename):
+    df = pd.read_excel(filename)
+    output = [[column for column in df.columns]]
+    for i in range(len(df.index)):
+        output.append([num for num in df.iloc[i,:]])
+    return output
 

@@ -1,27 +1,108 @@
-import React from "react";
-
-// true is 1 and false is 0
-const lst2 = [
-  ["Jessica Hannebert", 1, 0],
-  ["Pralad Mishra", 0, 1],
-];
+import React, { useEffect, useState } from "react";
+import Unauthorized from "../../ErrorPages/Unauthorized";
 
 const TutorInfo = () => {
+  // grab the access token from the local storage
+  const accessToken = localStorage.getItem("access_token");
+
+  const [tutorsInfo, setTutorsInfo] = useState({});
+
+  const [editMode, setEditMode] = useState(0); // 0 is false, 1 is true
+
+  const [edittedTutorsInfo, setEdittedTutorsInfo] = useState({});
+
+  // if access token is null, then this person is not authorized, show page 401 -> authorized state is false
+  // else if they have an access token, verify first
+  const [isAuthorized, setIsAuthorized] = useState(() => {
+    if (accessToken === null) {
+      return false;
+    } else {
+      return null;
+    }
+  });
+
+  useEffect(() => {
+    if (isAuthorized !== false) {
+      const requestOptions = {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "JWT " + accessToken.replace(/["]+/g, ""),
+        },
+      };
+
+      fetch(
+        "http://52.12.35.11:8080/api/get_tutors_information",
+        requestOptions
+      )
+        .then((response) => {
+          let res = response.json();
+          console.log("res: ", res);
+          return res;
+        })
+        .then((data) => {
+          if ("error" in data) {
+            setIsAuthorized(false);
+          } else {
+            console.log("data: ", data);
+            setTutorsInfo(data);
+            setEdittedTutorsInfo({ ...data });
+            setIsAuthorized(true);
+          }
+        });
+    }
+  }, []);
+
+  const toggleEditMode = () => {
+    setEditMode(1 - editMode);
+  };
+
+  const submitChange = () => {
+    console.log("this is the editted tutors info: ", edittedTutorsInfo);
+
+    const requestOptions = {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "JWT " + accessToken.replace(/["]+/g, ""),
+      },
+      body: JSON.stringify(edittedTutorsInfo),
+    };
+
+    fetch("http://52.12.35.11:8080/api/set_tutors_information", requestOptions)
+      .then((response) => {
+        let res = response.json();
+        return res;
+      })
+      .then((data) => {
+        console.log("finish submit data: ", data);
+      });
+
+    setEditMode(1 - editMode);
+  };
+
   return (
     <div class="container bg-light p-4">
       {/* title and description */}
       <div class="d-flex justify-content-center p-4">
-        <section>
-          <p class="text-left">
-            You can view the tutor's current Availablility status and LA status.
-          </p>
-          <p class="text-left">To make any changes, go to Edit.</p>
-        </section>
+        {editMode === 0 ? (
+          <section>
+            <p class="text-left">
+              You can view the tutor's current Availablility status and LA
+              status.
+            </p>
+            <p class="text-left">To make any changes, go to Edit.</p>
+          </section>
+        ) : (
+          <section>
+            <p class="text-left">You are in Edit Mode right now.</p>
+          </section>
+        )}
       </div>
+
       {/* pencil button */}
       <div class="d-flex justify-content-end p-4">
-        <a href="#">
-          <button class="btn btn-info">
+        {editMode === 0 ? (
+          <button class="btn btn-info" onClick={toggleEditMode}>
             <span class="p-1"> Edit </span>
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -38,8 +119,13 @@ const TutorInfo = () => {
               />
             </svg>
           </button>
-        </a>
+        ) : (
+          <button class="btn btn-info" onClick={toggleEditMode}>
+            <span class="p-1"> Cancel </span>
+          </button>
+        )}
       </div>
+
       {/* table */}
       <div class="p-4 table-responsive">
         <table class="table table-bordered table-fixed">
@@ -47,49 +133,66 @@ const TutorInfo = () => {
             <tr>
               <th class="col-sm-4">Tutor</th>
               <th class="col-sm-4">LA Status</th>
-              <th class="col-sm-4">Availablility Status</th>
+              <th class="col-sm-4">Unavailable</th>
             </tr>
           </thead>
           <tbody>
-            {/* lets take a fake example of what we are able to fetch */}
-
-            {lst2.map((subarr) => (
+            {Object.keys(tutorsInfo).map((key) => (
               <tr>
-                {subarr.map((item) => (
-                  <>
-                    {item === 0 && (
-                      <td>
-                        <input
-                          class="form-check-input"
-                          type="checkbox"
-                          value=""
-                          id="flexCheckDisabled"
-                          disabled
-                        />
-                      </td>
-                    )}
-                    {item === 1 && (
-                      <td>
-                        <input
-                          class="form-check-input"
-                          type="checkbox"
-                          value=""
-                          id="flexCheckCheckedDisabled"
-                          checked
-                          disabled
-                        />
-                      </td>
-                    )}
-                    {item !== 1 && item !== 0 && item && (
-                      <td class="text-left">{item}</td>
-                    )}
-                  </>
-                ))}
+                <td>{tutorsInfo[key]["name"]}</td>
+                <td>
+                  {
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      value=""
+                      checked={edittedTutorsInfo[key]["this_block_la"]}
+                      disabled={editMode === 0 ? true : false}
+                      onChange={(e) => {
+                        let edittedTutorsInfoCopy = {
+                          ...edittedTutorsInfo,
+                        };
+                        edittedTutorsInfoCopy[key]["this_block_la"] =
+                          !edittedTutorsInfoCopy[key]["this_block_la"];
+                        setEdittedTutorsInfo(edittedTutorsInfoCopy);
+                      }}
+                    />
+                  }
+                </td>
+
+                <td>
+                  {
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      value=""
+                      checked={edittedTutorsInfo[key]["this_block_unavailable"]}
+                      disabled={editMode === 0 ? true : false}
+                      onChange={(e) => {
+                        let edittedTutorsInfoCopy = {
+                          ...edittedTutorsInfo,
+                        };
+                        edittedTutorsInfoCopy[key]["this_block_unavailable"] =
+                          !edittedTutorsInfoCopy[key]["this_block_unavailable"];
+                        setEdittedTutorsInfo(edittedTutorsInfoCopy);
+                      }}
+                    />
+                  }
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
+
+      {/* submit change button */}
+      {editMode === 1 && (
+        <div className="p-2">
+          <button type="button" className="btn btn-info" onClick={submitChange}>
+            Save Changes
+          </button>
+        </div>
+      )}
     </div>
   );
 };
