@@ -138,8 +138,9 @@ def login():
         in_system, group = check_login()
 
         # Already logged in
-        #return redirect('http://44.230.115.148:80/'+group+'?username='+session['username'])
-        return redirect('http://44.230.115.148:80/'+group+'?username='+session['username']+'&token='+token)
+        return redirect('http://44.230.115.148:80/'+group+'?username='+session['username'])
+    #THIS LINE IS WHAT NEEDS TO BE FIXED, THIS IS WHERE WE GET REDIRECTED    
+    #return redirect('http://44.230.115.148:80/'+group+'?username='+session['username']+'&token='+token)
 
     next = request.args.get('next')
     ticket = request.args.get('ticket')
