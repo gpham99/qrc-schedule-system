@@ -1,80 +1,65 @@
+#custom database functions
 from Database import *
 import time
+#Flask
 from flask import Flask, request, session, redirect, url_for
-from cas import CASClient
 from flask_cors import CORS
+#authentication
+from cas import CASClient
+#for parsing lists
 import ast
+#for file IO
 import os
+#custom data functions
 from models import read_roster, User, prepare_excel_file
 from werkzeug.utils import secure_filename
+#for database IO
 from utility import display, sanitize 
+#JSON Web Tokens
 from flask_jwt import JWT, jwt_required, current_identity
-#from security import authenticate, identity
+import jwt as pyjwt
 import json
+from security import authenticate, identity
+#for setting JWT expiration
 from datetime import timedelta
+#for parsing time window
 from dateutil import parser
+#for the scheduling algorithm
 from copy import deepcopy
 from statistics import stdev
 from random import sample, choice
 
+#roster path variables for the list of tutors
 UPLOAD_FOLDER = '.'
 ALLOWED_EXTENSIONS = {'xls', 'xlsx', 'xlsm', 'xlsb', 'odf', 'ods', 'odt'}
-SHIFT_SLOTS = 20
 ROSTER_PATH = 'roster.' #will need to append extension
 
-# print a nice greeting.
-def say_hello(username = "Team"):
-    return '<p>Hello %s!</p>\n' % username
+#total shifts
+SHIFT_SLOTS = 20
+#everyone in the system has a CC email
+EMAIL_SUFFIX = '@coloradocollege.edu'
 
-# some bits of text for the page.
-header_text = '''
-    <html>\n<head> <title>EB Flask Test</title> </head>\n<body>'''
-home_link = '<p><a href="/">Back</a></p>\n'
-footer_text = '</body>\n</html>'
-sso_link = '<p><a href="/login">Log in using SSO</a></p>'
+#link to display on the page if a student logs in but is not in the system
 logout_link = '<p><a href="/cas_logout">Log out of CAS</a></p>'
 
-# EB looks for an 'application' callable by default.
+#set up Flask app
 application = Flask(__name__)
 CORS(application)
 application.secret_key = ';sufhiagr3yugfjcnkdlmsx0-w9u4fhbuewiejfigehbjrs'
 application.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
+#set up CAS
 cas_client = CASClient(
     version=3,    
-    service_url='http://52.12.35.11:8080/',
+    service_url='http://44.230.115.148:8080/',
     server_url='https://cas.coloradocollege.edu/cas/'
 )
 
-def authenticate(username, password):
-    print("In authenticate: " + username)
-    username = username.lower()
-    if not username.endswith("@coloradocollege.edu"):
-        username += "@coloradocollege.edu"
-    if 'username' not in session:
-        session['username'] = username
-    in_system, group = check_user(username)
-    print("in_system, group: ", in_system, group)
-    if in_system:
-        if group == 'tutor':
-            tutor_entry = get_single_tutor_info(username)
-            return User(username, tutor_entry[1], group, tutor_entry[2], tutor_entry[3], tutor_entry[4], tutor_entry[5], tutor_entry[6],
-            tutor_entry[7], tutor_entry[8])
-        elif group == 'admin':
-            admin_entry = get_admin_info(username)
-            return User(username, admin_entry[1], group)
-        elif group == 'superuser':
-            superuser_entry = get_superuser_info(username)
-            return User(username, superuser_entry[1], group)
-    return None
-
-def identity(payload):
-    email = payload['identity']
-    return authenticate(email, "")
-
+#set up JWT
 jwt = JWT(application, authenticate, identity)
 application.config["JWT_EXPIRATION_DELTA"] = timedelta(seconds=86400)
 
+#check if an uploaded file is the correct format
 def allowed_file(filename):
     return '.' in filename and \
             filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -83,7 +68,7 @@ def check_login():
     if 'username' in session:
         try:
             application.logger.debug("try")
-            in_system, group = check_user(session['username']+"@coloradocollege.edu")
+            in_system, group = check_user(session['username']+EMAIL_SUFFIX)
         except:
             print(session['username'] + " not in system")
             return False, "Logged out"
@@ -123,8 +108,16 @@ def index():
         session['username'] = user
         session['email'] = attributes['email']
         in_system, group = check_login()
+        payload_data = {
+                'username': user
+                }
+        my_secret = application.secret_key
+        token = jwt.encode(
+            payload=payload_data,
+            key=my_secret
+        )
         if not next:
-            return redirect('http://52.12.35.11:80/'+group+'?username='+session['username'])
+            return redirect('http://44.230.115.148:80/'+group+'?username='+session['username']+'&token='+token)
         return redirect(next)
 
 @application.route('/profile')
@@ -145,7 +138,8 @@ def login():
         in_system, group = check_login()
 
         # Already logged in
-        return redirect('http://52.12.35.11:80/'+group+'?username='+session['username'])
+        #return redirect('http://44.230.115.148:80/'+group+'?username='+session['username'])
+        return redirect('http://44.230.115.148:80/'+group+'?username='+session['username']+'&token='+token)
 
     next = request.args.get('next')
     ticket = request.args.get('ticket')
@@ -173,6 +167,15 @@ def logout_callback():
     
 @application.route('/api/time')
 def get_current_time():
+    payload_data = {
+        'username': 'j_hannebert@coloradocollege.edu'
+        }
+    my_secret = application.secret_key
+    token = pyjwt.encode(
+        payload=payload_data,
+        key=my_secret
+    )
+    return redirect('http://44.230.115.148:80/'+'?token='+str(token))
     return {'time': time.time()}
 
 @application.route('/api/login_status')
