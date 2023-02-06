@@ -31,7 +31,7 @@ const Internal = () => {
         },
       };
 
-      fetch("http://52.12.35.11:8080/api/get_admins", requestOptions)
+      fetch("http://44.230.115.148:8080/api/get_admins", requestOptions)
         .then((response) => {
           let res = response.json();
           return res;
@@ -116,7 +116,7 @@ const Internal = () => {
       },
     };
 
-    fetch("http://52.12.35.11:8080/api/remove_admin", requestOptions)
+    fetch("http://44.230.115.148:8080/api/remove_admin", requestOptions)
       .then((response) => {
         let res = response.json();
         return res;
@@ -139,7 +139,7 @@ const Internal = () => {
     // console.log("isNameSanitized: ", isNameSanitized);
 
     if (isEmailSanitized && isNameSanitized) {
-      fetch("http://52.12.35.11:8080/api/add_admin", {
+      fetch("http://44.230.115.148:8080/api/add_admin", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

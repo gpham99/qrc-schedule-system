@@ -29,7 +29,7 @@ const TimeWindow = () => {
         },
       };
 
-      fetch("http://52.12.35.11:8080/api/time_window", requestOptions)
+      fetch("http://44.230.115.148:8080/api/time_window", requestOptions)
         .then((response) => {
           let res = response.json();
           console.log("res: ", res);
@@ -55,7 +55,7 @@ const TimeWindow = () => {
   // func to post to database
   const createTimeWindow = (e) => {
     // console.log(newBlock);
-    fetch("http://52.12.35.11:8080/api/set_time_window", {
+    fetch("http://44.230.115.148:8080/api/set_time_window", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

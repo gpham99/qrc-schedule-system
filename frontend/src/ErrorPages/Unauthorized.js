@@ -14,7 +14,7 @@ const Unauthorized = () => {
         </div>
         <h2 class="text-white m-4">Uh Oh</h2>
         <h5 class="text-white m-3">You do not have access to this page!</h5>
-        <a href="http://52.12.35.11/">
+        <a href="http://44.230.115.148/">
           <button class="btn btn-light m-3">Go Home</button>
         </a>
       </div>
