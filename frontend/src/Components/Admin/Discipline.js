@@ -1,7 +1,11 @@
 import React from "react";
 import { useEffect, useState } from "react";
+import Unauthorized from "../../ErrorPages/Unauthorized";
 
 const Discipline = () => {
+  // grab the access token from the local storage
+  const accessToken = localStorage.getItem("access_token");
+
   // disciplines contains both the full name and the abbreviation of every discipline
   const [sanitizeCheck, setSanitizeCheck] = useState(true);
   const [submitMessage, setSubmitMessage] = useState("");
@@ -9,21 +13,51 @@ const Discipline = () => {
   const [disciplineName, setDisciplineName] = useState("");
   const [disciplineAbv, setDisciplineAbv] = useState("");
 
+  // if access token is null, then this person is not authorized, show page 401 -> authorized state is false
+  // else if they have an access token, verify first
+  const [isAuthorized, setIsAuthorized] = useState(() => {
+    if (accessToken === null) {
+      return false;
+    } else {
+      return null;
+    }
+  });
+
   useEffect(() => {
-    fetch("http://52.12.35.11:8080/api/add_remove_disciplines")
-      .then((res) => res.json())
-      .then((data) => {
-        setDisciplines(data);
-      });
+    if (isAuthorized !== false) {
+      const requestOptions = {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "JWT " + accessToken.replace(/["]+/g, ""),
+        },
+      };
+
+      fetch("http://44.230.115.148:8080/api/fetch_disciplines", requestOptions)
+        .then((response) => {
+          let res = response.json();
+          return res;
+        })
+        .then((data) => {
+          if ("error" in data) {
+            setIsAuthorized(false);
+          } else {
+            setIsAuthorized(true);
+            setDisciplines(data);
+          }
+        });
+    }
   }, [disciplines]);
 
-  const removeDiscipline = (disciplineName) => {
-    fetch("http://52.12.35.11:8080/api/remove_discipline", {
+  const removeDiscipline = (dName) => {
+    fetch("http://44.230.115.148:8080/api/remove_discipline", {
       method: "POST",
+      Authorization: "JWT " + accessToken.replace(/["]+/g, ""),
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(disciplineName),
+      body: JSON.stringify({
+        disciplineName: dName,
+      }),
     });
   };
 
@@ -66,12 +100,11 @@ const Discipline = () => {
 
   const handleClick = (e) => {
     let isSanitized = sanitizeInput(disciplineName, disciplineAbv);
-    console.log("is it sanitized?: ", isSanitized);
     setSanitizeCheck(isSanitized);
-
     if (isSanitized === true) {
-      fetch("http://52.12.35.11:8080/api/add_discipline", {
+      fetch("http://44.230.115.148:8080/api/add_discipline", {
         method: "POST",
+        Authorization: "JWT " + accessToken.replace(/["]+/g, ""),
         headers: {
           "Content-Type": "application/json",
         },
@@ -79,16 +112,17 @@ const Discipline = () => {
           name: disciplineName,
           abv: disciplineAbv,
         }),
-      }).then((response) => {
-        let res = response.json();
-        if (200 <= res.status <= 299) {
-          console.log("Discipline added successfully");
-          setSubmitMessage("Success");
-        } else {
-          console.log("Failed to add discipline");
-          setSubmitMessage("Fail");
-        }
-      });
+      })
+        .then((response) => {
+          let res = response.json();
+          return res;
+        })
+        .then((data) => {
+          setSubmitMessage(data["msg"]);
+        });
+
+      setDisciplineName("");
+      setDisciplineAbv("");
     }
   };
 
@@ -102,6 +136,11 @@ const Discipline = () => {
       <div class="row p-4 justify-content-center">
         <p>You can add a new discipline or remove an existing one here.</p>
       </div>
+
+      <div class="row justify-content-center">
+        <p>Please don't remove one of the five offered disciplines.</p>
+      </div>
+
       <div class="d-flex justify-content-end p-4">
         <button
           type="button"
@@ -188,7 +227,7 @@ const Discipline = () => {
         </div>
       )}
 
-      {submitMessage === "Fail" && (
+      {submitMessage !== "Success" && submitMessage !== "" && (
         <div
           class="alert alert-warning m-4 alert-dismissible fade show"
           role="alert"
@@ -247,7 +286,6 @@ const Discipline = () => {
                 <td>{val[0]}</td>
                 <td>{val[1]}</td>
                 <td>
-                  <button class="btn btn-link">Edit</button>
                   <button
                     class="btn btn-link"
                     onClick={(e) => {
