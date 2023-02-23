@@ -17,7 +17,7 @@ const FileNotFound = () => {
           The page you are looking for is not available!
         </h5>
         <a href="https://www.coloradocollege.edu/">
-          <a href="http://52.12.35.11/">
+          <a href="http://44.230.115.148/">
             <button class="btn btn-light m-3">Go Home</button>
           </a>
         </a>

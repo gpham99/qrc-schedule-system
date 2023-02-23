@@ -1,8 +1,12 @@
 import React, { useState, useEffect, useRef } from "react";
 import { exportComponentAsJPEG } from "react-component-export-image";
+import Unauthorized from "../../ErrorPages/Unauthorized";
 
 const Schedule = () => {
-  const [submitMessage, setSubmitMessage] = useState("");
+  // grab the access token from the local storage
+  const accessToken = localStorage.getItem("access_token");
+
+  const [submitMessage, setSubmitMessage] = useState(null);
   const [unChangedMasterSchedule, setUnchangedMasterSchedule] = useState({});
   const [isChanged, setIsChanged] = useState({});
   const [masterSchedule, setMasterSchedule] = useState({});
@@ -10,15 +14,39 @@ const Schedule = () => {
   const [editMode, setEditMode] = useState(0);
   const componentRef = useRef();
 
+  // if access token is null, then this person is not authorized, show page 401 -> authorized state is false
+  // else if they have an access token, verify first
+  const [isAuthorized, setIsAuthorized] = useState(() => {
+    if (accessToken === null) {
+      return false;
+    } else {
+      return null;
+    }
+  });
+
   useEffect(() => {
-    fetch("http://52.12.35.11:8080/api/master_schedule")
-      .then((res) => res.json())
-      .then((data) => {
-        // this set master schedule sets the data of the master schedule after fetching it
-        setMasterSchedule(data);
-        // we set the unchanged master schedule to a deep clone of the current master schedule
-        setUnchangedMasterSchedule(structuredClone(data));
-      });
+    if (isAuthorized !== false) {
+      const requestOptions = {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "JWT " + accessToken.replace(/["]+/g, ""),
+        },
+      };
+
+      fetch("http://44.230.115.148:8080/api/master_schedule", requestOptions)
+        .then((res) => res.json())
+        .then((data) => {
+          if ("error" in data) {
+            setIsAuthorized(false);
+          } else {
+            setIsAuthorized(true);
+            // this set master schedule sets the data of the master schedule after fetching it
+            setMasterSchedule(data);
+            // we set the unchanged master schedule to a deep clone of the current master schedule
+            setUnchangedMasterSchedule(structuredClone(data));
+          }
+        });
+    }
   }, []);
 
   // This method shifts between the editable and non editable view of the schedule
@@ -34,12 +62,13 @@ const Schedule = () => {
 
   const submitChange = (event) => {
     event.preventDefault();
-    console.log(editedSchedule);
+    // console.log(editedSchedule);
 
-    fetch("http://52.12.35.11:8080/api/update_master_schedule", {
+    fetch("http://44.230.115.148:8080/api/update_master_schedule", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        Authorization: "JWT " + accessToken.replace(/["]+/g, ""),
       },
       body: JSON.stringify(editedSchedule),
     })
@@ -47,10 +76,12 @@ const Schedule = () => {
         return response.json();
       })
       .then(function (data) {
+        // console.log("the data coming out of save action: ", data);
         setSubmitMessage(data);
       });
 
     setEditMode(1 - editMode);
+    window.scrollTo(0, 0);
   };
 
   return (
@@ -81,7 +112,6 @@ const Schedule = () => {
               </section>
             )}
           </div>
-
           {/* pencil button */}
           <div className="d-flex justify-content-end pl-4 pr-4">
             {editMode === 0 ? (
@@ -109,20 +139,14 @@ const Schedule = () => {
             )}
           </div>
 
-          {/* This is where the submit message is set and alert is shown somehow */}
-          {submitMessage.length > 0 && (
+          {/* This is where the submit message is set and alert is shown */}
+          {submitMessage !== null && submitMessage.length === 0 && (
             <div
-              class="alert alert-danger m-4 alert-dismissible fade show"
+              class="alert alert-success m-4 alert-dismissible fade show"
               role="alert"
             >
               <div className="m-3 text-left">
-                {Array.from(new Set(submitMessage)).map((msg) => (
-                  <p>{msg}</p>
-                ))}
-                <p>
-                  If you made any other changes that are not shown in the error
-                  message above, please reload the page to see them.
-                </p>
+                Please reload the page to see the changes you've made.
               </div>
               <button
                 type="button"
@@ -135,14 +159,19 @@ const Schedule = () => {
             </div>
           )}
 
-          {/* This is when the submit message is length 0 but not an empty string */}
-          {submitMessage !== "" && submitMessage.length === 0 && (
+          {submitMessage !== null && submitMessage.length > 0 && (
             <div
-              class="alert alert-success m-4 alert-dismissible fade show"
+              class="alert alert-danger m-4 alert-dismissible fade show"
               role="alert"
             >
               <div className="m-3 text-left">
-                Please reload the page to see the changes you've made.
+                {submitMessage.map((msg) => (
+                  <p>{msg}</p>
+                ))}
+                <p>
+                  If you made any other changes that are not shown in the error
+                  message above, please reload the page to see them.
+                </p>
               </div>
               <button
                 type="button"
@@ -179,10 +208,6 @@ const Schedule = () => {
                       <div class="d-flex flex-column">
                         {masterSchedule[num]?.map((shift_tutor, index) => (
                           <>
-                            {console.log(
-                              "THIS IS THE SCHEDULE THING: ",
-                              shift_tutor
-                            )}
                             {editMode === 0 ? (
                               <>
                                 {shift_tutor["tutor"] && (
@@ -532,7 +557,6 @@ const Schedule = () => {
               </tbody>
             </table>
           </div>
-
           {/* This is to make the export as JPEG button download it as a JPEG */}
           <div className="p-2">
             {editMode === 0 ? (

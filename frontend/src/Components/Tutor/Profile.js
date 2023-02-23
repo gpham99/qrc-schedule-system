@@ -2,29 +2,77 @@ import React, { useState, useEffect } from "react";
 
 const Profile = () => {
   const [userInfo, setUserInfo] = useState({});
+  const [maximumShiftCapacity, setMaximumShiftCapacity] = useState(0);
+  const [personalDisciplines, setPersonalDisciplines] = useState([]);
+  const [edittedPersonalDisciplines, setEditedPersonalDisciplines] = useState(
+    []
+  );
+  const [availabilityStatus, setAvailabilityStatus] = useState(null);
+  const [laStatus, setLaStatus] = useState(null);
 
   // grab the access token from the local storage
   const accessToken = localStorage.getItem("access_token");
 
-  // call get_tutor_info and pass the access token as authorization header
+  // if access token is null, then this person is not authorized, show page 401 -> authorized state is false
+  // else if they have an access token, verify first
+  const [isAuthorized, setIsAuthorized] = useState(() => {
+    if (accessToken === null) {
+      return false;
+    } else {
+      return null;
+    }
+  });
+
+  // call /api/tutor/get_info and pass the access token as authorization header
   useEffect(() => {
+    if (isAuthorized !== false) {
+      const requestOptions = {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "JWT " + accessToken.replace(/["]+/g, ""),
+        },
+      };
+
+      fetch("http://44.230.115.148:8080/api/tutor/get_info", requestOptions)
+        .then((response) => {
+          let res = response.json();
+          return res;
+        })
+        .then((data) => {
+          setUserInfo(data);
+          setMaximumShiftCapacity(data["shift_capacity"]);
+          setPersonalDisciplines(data["disciplines"]);
+          setEditedPersonalDisciplines({ ...data["disciplines"] });
+          setAvailabilityStatus(data["this_block_unavailable"]);
+          setLaStatus(data["this_block_la"]);
+        });
+    }
+  }, []);
+
+  // the function to handle the update button
+  const handleUpdate = (e) => {
+    e.preventDefault();
     const requestOptions = {
+      method: "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: "JWT " + accessToken.replace(/["]+/g, ""),
       },
+      body: JSON.stringify({
+        shift_capacity: maximumShiftCapacity,
+        disciplines: edittedPersonalDisciplines,
+      }),
     };
 
-    fetch("http://52.12.35.11:8080/api/get_tutor_info", requestOptions)
+    fetch("http://44.230.115.148:8080/api/tutor/update_info", requestOptions)
       .then((response) => {
         let res = response.json();
         return res;
       })
       .then((data) => {
-        console.log("data: ", data);
-        setUserInfo(data);
+        console.log(data);
       });
-  }, []);
+  };
 
   return (
     <div class="bg-light p-4 d-flex flex-column align-items-center justify-content-center">
@@ -53,12 +101,13 @@ const Profile = () => {
                 </td>
               </tr>
               <tr>
-                <td>Availablility status this block: </td>
+                <td>Unavailable this block: </td>
                 <td>
                   <input
                     type="checkbox"
                     data-toggle="toggle"
                     data-size="lg"
+                    checked={availabilityStatus}
                     disabled
                   />
                 </td>
@@ -70,6 +119,7 @@ const Profile = () => {
                     type="checkbox"
                     data-toggle="toggle"
                     data-size="lg"
+                    checked={laStatus}
                     disabled
                   />
                 </td>
@@ -94,80 +144,52 @@ const Profile = () => {
               <tr>
                 <td>Disciplines</td>
                 <td>
-                  <div class="form-check">
-                    <input
-                      class="form-check-input"
-                      type="checkbox"
-                      value=""
-                      id="flexCheckDefault"
-                    />
-                    <label class="form-check-label" for="flexCheckDefault">
-                      Mathematics
-                    </label>
-                  </div>
-                  <div class="form-check">
-                    <input
-                      class="form-check-input"
-                      type="checkbox"
-                      value=""
-                      id="flexCheckDefault"
-                    />
-                    <label class="form-check-label" for="flexCheckDefault">
-                      Computer Science
-                    </label>
-                  </div>
-                  <div class="form-check">
-                    <input
-                      class="form-check-input"
-                      type="checkbox"
-                      value=""
-                      id="flexCheckDefault"
-                    />
-                    <label class="form-check-label" for="flexCheckDefault">
-                      Physics
-                    </label>
-                  </div>
-                  <div class="form-check">
-                    <input
-                      class="form-check-input"
-                      type="checkbox"
-                      value=""
-                      id="flexCheckDefault"
-                    />
-                    <label class="form-check-label" for="flexCheckDefault">
-                      Economics
-                    </label>
-                  </div>
-                  <div class="form-check">
-                    <input
-                      class="form-check-input"
-                      type="checkbox"
-                      value=""
-                      id="flexCheckDefault"
-                    />
-                    <label class="form-check-label" for="flexCheckDefault">
-                      Molecular Biology/Chemistry
-                    </label>
-                  </div>
+                  {personalDisciplines.map((discipline, index) => (
+                    <div class="form-check" key={index}>
+                      <input
+                        class="form-check-input"
+                        type="checkbox"
+                        value=""
+                        checked={edittedPersonalDisciplines[index][1]}
+                        onChange={(e) => {
+                          let edittedPersonalDisciplinesCopy = {
+                            ...edittedPersonalDisciplines,
+                          };
+                          edittedPersonalDisciplinesCopy[index][1] =
+                            !edittedPersonalDisciplinesCopy[index][1];
+                          setEditedPersonalDisciplines(
+                            edittedPersonalDisciplinesCopy
+                          );
+                        }}
+                      />
+                      <label class="form-check-label">{discipline[0]}</label>
+                    </div>
+                  ))}
                 </td>
               </tr>
               <tr>
                 <td>Maximum Shift Capacity</td>
                 <td>
                   <input
-                    type="number"
-                    id="tentacles"
-                    name="tentacles"
                     min="0"
                     max="20"
+                    value={maximumShiftCapacity}
+                    onChange={(e) => {
+                      e.preventDefault();
+                      setMaximumShiftCapacity(e.target.value);
+                    }}
+                    type="range"
+                    class="form-range"
+                    step="1"
                   />
+                  <label class="pl-3">{maximumShiftCapacity}</label>
                 </td>
               </tr>
             </tbody>
           </table>
         </div>
         <div>
-          <button type="button" class="btn btn-info">
+          <button type="submit" class="btn btn-info" onClick={handleUpdate}>
             Update
           </button>
         </div>

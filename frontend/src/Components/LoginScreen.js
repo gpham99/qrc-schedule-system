@@ -17,7 +17,7 @@ const LoginScreen = () => {
       <div class="h-75 bg-info d-flex justify-content-center align-items-center">
         <div class="bg-light p-5 shadow">
           <h3 class="p-5">Welcome to the QRC Scheduling System!</h3>
-          <a href="http://52.12.35.11:8080/login">
+          <a href="http://44.230.115.148:8080/login">
             <button>Log in with SSO</button>
           </a>
         </div>

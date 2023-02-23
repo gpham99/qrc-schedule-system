@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
 import Schedule from "./Tutor/Schedule";
 import Profile from "./Tutor/Profile";
-import { Route, Routes, useSearchParams } from "react-router-dom";
+import { Route, Routes, useSearchParams, useNavigate } from "react-router-dom";
 import Unauthorized from "../ErrorPages/Unauthorized";
 
 const Tutor = () => {
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [name, setName] = useState(() => {
     return searchParams.get("username") || null;
@@ -27,21 +28,22 @@ const Tutor = () => {
       }),
     };
     if (isAuthorized === null) {
-      fetch("http://52.12.35.11:8080/auth", requestOptions)
+      fetch("http://44.230.115.148:8080/auth", requestOptions)
         .then(function (response) {
-          return response.json();
+          let res = response.json();
+          return res;
         })
         .then(function (data) {
-          if (data["access_token"] === undefined) {
-            setIsAuthorized(false);
-          } else {
-            setIsAuthorized(true);
+          let isAuthorized = "access_token" in data;
+          setIsAuthorized(isAuthorized);
+          if (isAuthorized) {
             localStorage.setItem(
               "access_token",
               JSON.stringify(data["access_token"])
             );
           }
         });
+      navigate("/tutor", { replace: true });
     }
   }, []);
 
@@ -58,7 +60,7 @@ const Tutor = () => {
 
             <div class="d-flex flex-row justify-content-end pr-4">
               <a
-                href="http://52.12.35.11:8080/logout"
+                href="http://44.230.115.148:8080/logout"
                 onClick={() => {
                   localStorage.clear();
                 }}
@@ -68,7 +70,7 @@ const Tutor = () => {
               </a>
 
               <a
-                href="http://52.12.35.11:8080/cas_logout"
+                href="http://44.230.115.148:8080/cas_logout"
                 onClick={() => {
                   localStorage.clear();
                 }}
