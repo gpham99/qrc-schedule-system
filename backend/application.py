@@ -149,7 +149,8 @@ def login():
             payload=payload_data,
             key=my_secret
         )
-        return redirect('http://44.230.115.148:80/'+'?token='+str(token))
+        return redirect('http://44.230.115.148:80/'+group+'?username='+session['username']+'&token='+str(token))
+        #return redirect('http://44.230.115.148:80/'+'?token='+str(token))
 
     next = request.args.get('next')
     ticket = request.args.get('ticket')
@@ -370,6 +371,8 @@ def update_tutors_in_master_schedule():
     abbreviations = get_abbreviations()
     for i in range(len(abbreviations)):
         abbreviations[i] = display(abbreviations[i])
+    #JSON post format:
+    #{shift_index
     result = request.get_json()
     output = []
     for key in result.keys():
