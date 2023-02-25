@@ -333,12 +333,12 @@ def upload_roster():
         return {"msg": "No selected file"}
     if file and allowed_file(file.filename):
         filename = secure_filename(file.filename)
-        result = read_roster(file)
+        result = read_roster(filename)
         if result.endswith("all other tutors added to database"):
-            for file in os.listdir(UPLOAD_FOLDER):
-                if file.startswith('roster'):
-                    os.remove(file)
-            file.save(os.path.join(application.config['UPLOAD_FOLDER'], ROSTER_PATH + file.filename.split('.')[1]))
+            for existing_file in os.listdir(UPLOAD_FOLDER):
+                if existing_file.startswith('roster'):
+                    os.remove(existing_file)
+            file.save(os.path.join(application.config['UPLOAD_FOLDER'], ROSTER_PATH + filename.split('.')[1]))
         print(result)
         return {"msg": result}
     return {"msg": "File format not accepted"}
