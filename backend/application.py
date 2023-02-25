@@ -333,7 +333,7 @@ def upload_roster():
         return {"msg": "No selected file"}
     if file and allowed_file(file.filename):
         filename = secure_filename(file.filename)
-        result = read_roster(filename)
+        result = read_roster(file)
         if result.endswith("all other tutors added to database"):
             for existing_file in os.listdir(UPLOAD_FOLDER):
                 if existing_file.startswith('roster'):
