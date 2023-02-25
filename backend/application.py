@@ -335,6 +335,9 @@ def upload_roster():
         filename = secure_filename(file.filename)
         result = read_roster(ROSTER_PATH + file.filename.split('.')[1])
         if result.endswith("all other tutors added to database"):
+            for file in os.listdir(UPLOAD_FOLDER):
+                if file.startswith('roster'):
+                    os.remove(file)
             file.save(os.path.join(application.config['UPLOAD_FOLDER'], ROSTER_PATH + file.filename.split('.')[1]))
         print(result)
         return {"msg": result}
