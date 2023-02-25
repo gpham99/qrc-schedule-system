@@ -333,8 +333,9 @@ def upload_roster():
         return {"msg": "No selected file"}
     if file and allowed_file(file.filename):
         filename = secure_filename(file.filename)
-        file.save(os.path.join(application.config['UPLOAD_FOLDER'], ROSTER_PATH + file.filename.split('.')[1]))
         result = read_roster(ROSTER_PATH + file.filename.split('.')[1])
+        if result.endswith("all other tutors added to database"):
+            file.save(os.path.join(application.config['UPLOAD_FOLDER'], ROSTER_PATH + file.filename.split('.')[1]))
         print(result)
         return {"msg": result}
     return {"msg": "File format not accepted"}
@@ -372,17 +373,19 @@ def update_tutors_in_master_schedule():
     for i in range(len(abbreviations)):
         abbreviations[i] = display(abbreviations[i])
     #JSON post format:
-    #{shift_index
+    #{3,"M" : "j_hannebert"
+    # 5,"CH/MB" : "m_padilla"}
     result = request.get_json()
     output = []
     for key in result.keys():
         shift_index, discipline_abbreviation = key.split(',')
-        new_tutor_username = result[key]
-        if new_tutor_username == "":
+        new_tutor_firstname = result[key]
+        if new_tutor_firstname == "":
             update_master_schedule_single_discipline(shift_index, disciplines[abbreviations.index(discipline_abbreviation)], None)
             #output += "Shift removed successfully\n"
         else:
-            user = authenticate(new_tutor_username, "")
+            user = find_first_name(new_tutor_firstname)
+            #user = authenticate(new_tutor_username, "")
             if user != None:
                 #print(user.id, shift_index, discipline_abbreviation)
                 discipline_to_change = disciplines[abbreviations.index(discipline_abbreviation)]
@@ -392,7 +395,7 @@ def update_tutors_in_master_schedule():
                 else:
                     output.append("Error: Tutor " + user.id + " is not eligible to tutor " + display(discipline_to_change) + "\n")
             else:
-                output.append("Error: " + new_tutor_username + " not found in database, please check your spelling\n")
+                output.append("Error: " + new_tutor_firstname + " not found in database, please check your spelling\n")
     return list(set(output))
     
 @application.route('/api/add_discipline', methods=['POST'])
@@ -449,6 +452,7 @@ def last_excel_file():
     #find the last file
     for file in os.listdir(UPLOAD_FOLDER):
         if file.startswith('roster'):
+            print(prepare_excel_file(file))
             return prepare_excel_file(file)
     else:
         return None
