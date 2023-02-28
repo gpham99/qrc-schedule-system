@@ -5,6 +5,7 @@ import Unauthorized from "../../ErrorPages/Unauthorized";
 const Discipline = () => {
   // grab the access token from the local storage
   const accessToken = localStorage.getItem("access_token");
+  console.log(accessToken);
 
   // disciplines contains both the full name and the abbreviation of every discipline
   const [sanitizeCheck, setSanitizeCheck] = useState(true);
