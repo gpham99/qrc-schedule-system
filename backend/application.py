@@ -455,8 +455,9 @@ def last_excel_file():
     #find the last file
     for file in os.listdir(UPLOAD_FOLDER):
         if file.startswith('roster'):
-            print(prepare_excel_file(file))
-            return prepare_excel_file(file)
+            output = prepare_excel_file(file)
+            print("Roster: " + str(output))
+            return output
     else:
         return None
 
