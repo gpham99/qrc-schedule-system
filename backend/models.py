@@ -64,7 +64,7 @@ def read_roster(roster_file):
                         break
                 for char in tutor[1]:
                     if char not in ALLOWED_CHARS_EMAIL:
-                        errors += "Tutor " + tutor[1] + " not added to database; invalid character detected in name: " + char
+                        errors += "Tutor " + tutor[1] + " not added to database; invalid character detected in email: " + char
                         valid_tutor = False
                         break
                 if valid_tutor:
@@ -77,9 +77,9 @@ def read_roster(roster_file):
 
 #process Excel file and return it in an easily legible format
 def prepare_excel_file(filename):
-    df = pd.read_excel(filename)
-    output = [[column for column in df.columns]]
-    for i in range(len(df.index)):
-        output.append([num for num in df.iloc[i,:]])
-    return output
+    #df = pd.read_excel(filename)
+    #output = [[column for column in df.columns]]
+    #for i in range(len(df.index)):
+    #    output.append([num for num in df.iloc[i,:]])
+    return "Hi!"
 
