@@ -162,7 +162,7 @@ def add_tutor(name, email):
                             'this_block_la, next_block_la, individual_tutor, favorite_shifts, absence) '
                             'VALUES(?, ?, ?, ?, ?, ?, ?,?, ?, ?)',
                             (email, name, status, shift_cap, tutoring_disciplines, this_block_la,
-                             next_block_la, individual_tutor,favorite_shifts, absence))
+                             next_block_la, individual_tutor, favorite_shifts, absence))
             # If the user is being put into the roster and the name
             elif data[1] == name:
                 email, name, status, shift_cap, tutoring_disciplines, this_block_la, next_block_la, individual_tutor, \
@@ -1349,6 +1349,25 @@ def get_occur(roster):
     return occur
 
 
+# given username return first name,and also last inital if multiple people have the same first name
+def find_from_username(username):
+    roster = get_roster()
+    occur = get_occur(roster)
+    if get_single_tutor_info(username) is not None:
+        _, data, _, _, _, _, _, _, _, _ = get_single_tutor_info(username)
+        name = data.split()
+        if occur[name[0].lower()] == 1:
+            return name[0]
+        elif occur[name[0].lower()] > 1 and len(name) == 1:
+            return name[0]
+        elif occur[name[0].lower()] > 1:
+            return name[0] + ' ' + name[1][0]
+        else:
+            return None
+    else:
+        return None
+
+
 if __name__ == '__main__':
     disciplines_list = ["CS", "Math", "Econ", "Physics", "CHBC"]
     tutors1 = ['James Jones', 'Rick Sanchez', 'May June', "Jerry Smith", 'Jerry Mouse']
@@ -1356,12 +1375,11 @@ if __name__ == '__main__':
     clear_table('tutors')
     add_tutor('James Jones', 'other email')
     add_tutor('James May', ' james email')
-
-    print(find_first_name('James.m'))
-    print(find_first_name('jerry.m'))
-    print(find_first_name('jameS.j'))
-    print(find_first_name('james.m'))
-    print(find_first_name('james'))
+    add_tutor('Jones May', "new email")
+    print(get_single_tutor_info('other email'))
+    print(find_from_username('other email'))
+    print(find_from_username('new email'))
+    print(find_from_username('false email'))
 
 
 # database changes
