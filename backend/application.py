@@ -28,11 +28,13 @@ from dateutil import parser
 from copy import deepcopy
 from statistics import stdev
 from random import sample, choice
+#for saving uploaded roster files
+import pandas as pd
 
 #roster path variables for the list of tutors
 UPLOAD_FOLDER = '.'
 ALLOWED_EXTENSIONS = {'xls', 'xlsx', 'xlsm', 'xlsb', 'odf', 'ods', 'odt'}
-ROSTER_PATH = 'roster.' #will need to append extension
+ROSTER_PATH = 'roster.csv'
 
 #total shifts
 SHIFT_SLOTS = 20
@@ -333,12 +335,12 @@ def upload_roster():
         return {"msg": "No selected file"}
     if file and allowed_file(file.filename):
         filename = secure_filename(file.filename)
-        result = read_roster(file)
-        if result.endswith("all other tutors added to database"):
+        result, data = read_roster(file)
+        if data != None:
             for existing_file in os.listdir(UPLOAD_FOLDER):
                 if existing_file.startswith('roster'):
                     os.remove(existing_file)
-            file.save(os.path.join(application.config['UPLOAD_FOLDER'], ROSTER_PATH + filename.split('.')[1]))
+            data.to_csv(os.path.join(application.config['UPLOAD_FOLDER'], ROSTER_PATH))
         print(result)
         return {"msg": result}
     return {"msg": "File format not accepted"}
