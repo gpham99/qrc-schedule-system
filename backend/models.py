@@ -77,6 +77,7 @@ def read_roster(roster_file):
 
 #process Excel file and return it in an easily legible format
 def prepare_excel_file(filename):
+    print(filename)
     #df = pd.read_excel(filename)
     #output = [[column for column in df.columns]]
     #for i in range(len(df.index)):
