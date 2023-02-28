@@ -45,9 +45,9 @@ def read_roster(roster_file):
             tutor_tuple = (full_names[i], df['email address'][i].lower())
             output.append(tutor_tuple)
     except KeyError:
-        return "Error reading file. Please ensure your columns are named \"first name\", \"last name\", and \"email address\"."
+        return "Error reading file. Please ensure your columns are named \"first name\", \"last name\", and \"email address\".", None
     except:
-        return "Error reading file. Please ensure you submitted an Excel file."
+        return "Error reading file. Please ensure you submitted an Excel file.", None
         traceback.print_exc()
     errors = ""
     if len(output) > 0:
@@ -64,20 +64,20 @@ def read_roster(roster_file):
                         break
                 for char in tutor[1]:
                     if char not in ALLOWED_CHARS_EMAIL:
-                        errors += "Tutor " + tutor[1] + " not added to database; invalid character detected in name: " + char
+                        errors += "Tutor " + tutor[1] + " not added to database; invalid character detected in email: " + char
                         valid_tutor = False
                         break
                 if valid_tutor:
                     add_tutor(tutor[0], tutor[1])
             else:
                 errors += "Tutor " + tutor[1] + " not added to database, please ensure that their email ends in '@coloradocollege.edu'\n"
-        return errors + "File successfully read, all other tutors added to database"
-    return "No tutors found in file"
+        return errors + "File successfully read, all other tutors added to database", df
+    return "No tutors found in file", None
 
 
 #process Excel file and return it in an easily legible format
 def prepare_excel_file(filename):
-    df = pd.read_excel(filename)
+    df = pd.read_csv(filename)
     output = [[column for column in df.columns]]
     for i in range(len(df.index)):
         output.append([num for num in df.iloc[i,:]])

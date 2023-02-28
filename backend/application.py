@@ -28,11 +28,13 @@ from dateutil import parser
 from copy import deepcopy
 from statistics import stdev
 from random import sample, choice
+#for saving uploaded roster files
+import pandas as pd
 
 #roster path variables for the list of tutors
 UPLOAD_FOLDER = '.'
 ALLOWED_EXTENSIONS = {'xls', 'xlsx', 'xlsm', 'xlsb', 'odf', 'ods', 'odt'}
-ROSTER_PATH = 'roster.' #will need to append extension
+ROSTER_PATH = 'roster.csv'
 
 #total shifts
 SHIFT_SLOTS = 20
@@ -112,12 +114,12 @@ def index():
                 'username': user
                 }
         my_secret = application.secret_key
-        token = jwt.encode(
+        token = pyjwt.encode(
             payload=payload_data,
             key=my_secret
         )
         if not next:
-            return redirect('http://44.230.115.148:80/'+group+'?username='+session['username']+'&token='+token)
+            return redirect('http://44.230.115.148:80/'+group+'?username='+session['username']+'&token='+str(token))
         return redirect(next)
 
 @application.route('/profile')
@@ -138,9 +140,19 @@ def login():
         in_system, group = check_login()
 
         # Already logged in
-        return redirect('http://44.230.115.148:80/'+group+'?username='+session['username'])
+    #    return redirect('http://44.230.115.148:80/'+group+'?username='+session['username'])
     #THIS LINE IS WHAT NEEDS TO BE FIXED, THIS IS WHERE WE GET REDIRECTED    
     #return redirect('http://44.230.115.148:80/'+group+'?username='+session['username']+'&token='+token)
+        payload_data = {
+            'username': 'j_hannebert@coloradocollege.edu'
+            }
+        my_secret = application.secret_key
+        token = pyjwt.encode(
+            payload=payload_data,
+            key=my_secret
+        )
+        return redirect('http://44.230.115.148:80/'+group+'?username='+session['username']+'&token='+str(token))
+        #return redirect('http://44.230.115.148:80/'+'?token='+str(token))
 
     next = request.args.get('next')
     ticket = request.args.get('ticket')
@@ -323,8 +335,12 @@ def upload_roster():
         return {"msg": "No selected file"}
     if file and allowed_file(file.filename):
         filename = secure_filename(file.filename)
-        file.save(os.path.join(application.config['UPLOAD_FOLDER'], ROSTER_PATH + file.filename.split('.')[1]))
-        result = read_roster(ROSTER_PATH + file.filename.split('.')[1])
+        result, data = read_roster(file)
+        if type(data) == pd.DataFrame:
+            for existing_file in os.listdir(UPLOAD_FOLDER):
+                if existing_file.startswith('roster'):
+                    os.remove(existing_file)
+            data.to_csv(os.path.join(application.config['UPLOAD_FOLDER'], ROSTER_PATH), index = False)
         print(result)
         return {"msg": result}
     return {"msg": "File format not accepted"}
@@ -361,16 +377,20 @@ def update_tutors_in_master_schedule():
     abbreviations = get_abbreviations()
     for i in range(len(abbreviations)):
         abbreviations[i] = display(abbreviations[i])
+    #JSON post format:
+    #{3,"M" : "j_hannebert"
+    # 5,"CH/MB" : "m_padilla"}
     result = request.get_json()
     output = []
     for key in result.keys():
         shift_index, discipline_abbreviation = key.split(',')
-        new_tutor_username = result[key]
-        if new_tutor_username == "":
+        new_tutor_firstname = result[key]
+        if new_tutor_firstname == "":
             update_master_schedule_single_discipline(shift_index, disciplines[abbreviations.index(discipline_abbreviation)], None)
             #output += "Shift removed successfully\n"
         else:
-            user = authenticate(new_tutor_username, "")
+            user = find_first_name(new_tutor_firstname)
+            #user = authenticate(new_tutor_username, "")
             if user != None:
                 #print(user.id, shift_index, discipline_abbreviation)
                 discipline_to_change = disciplines[abbreviations.index(discipline_abbreviation)]
@@ -380,7 +400,7 @@ def update_tutors_in_master_schedule():
                 else:
                     output.append("Error: Tutor " + user.id + " is not eligible to tutor " + display(discipline_to_change) + "\n")
             else:
-                output.append("Error: " + new_tutor_username + " not found in database, please check your spelling\n")
+                output.append("Error: " + new_tutor_firstname + " not found in database, please check your spelling\n")
     return list(set(output))
     
 @application.route('/api/add_discipline', methods=['POST'])
@@ -437,7 +457,8 @@ def last_excel_file():
     #find the last file
     for file in os.listdir(UPLOAD_FOLDER):
         if file.startswith('roster'):
-            return prepare_excel_file(file)
+            output = prepare_excel_file(file)
+            return output
     else:
         return None
 

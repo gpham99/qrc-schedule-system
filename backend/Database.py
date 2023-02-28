@@ -63,15 +63,18 @@ import sqlite3 as sql
 # update_this_block_la(email)
 # update_next_block_la(email)
 # update_individual_tutor(email)
+# update_absence(email)
 # update_discipline_shifts(discipline, shift_number, new_available_tutors)
 # update_master_schedule(shift_number,all_disciplines, new_assignments)
 # update_time_window(block, start_time, end_time)
 # update_discipline_abbreviation(discipline, abbreviation)
 
 # 9 Other functions to help with the basic keeping of the database
+# reset_absence(email)
 # reconfigure_database(new_disciplines_list)
 # list_all_tables(exceptions)
 # check_time(current_time, block)
+# clear_absences()
 # reboot_database(all_disciplines, exceptions)
 
 
@@ -116,7 +119,7 @@ def create_tables(all_disciplines):
     # create the tutors table
     conn.execute('CREATE TABLE IF NOT EXISTS tutors(email TEXT, name TEXT, status INTEGER,shift_capacity '
                  'INTEGER, tutoring_disciplines TEXT, this_block_la INTEGER, next_block_la INTEGER, '
-                 'individual_tutor INTEGER, favorite_shifts TEXT,  PRIMARY KEY (email))')
+                 'individual_tutor INTEGER, favorite_shifts TEXT, absence INTEGER, PRIMARY KEY (email))')
     # create the admins table
     conn.execute('CREATE TABLE IF NOT EXISTS admins(email TEXT, name TEXT, PRIMARY KEY (email)) ')
     # create the disciplines table
@@ -145,6 +148,7 @@ def add_tutor(name, email):
     individual_tutor = 0
     tutoring_disciplines = '[]'
     favorite_shifts = '[]'
+    absence = 0
     try:
         with sql.connect("database.db") as conn:
             cur = conn.cursor()
@@ -155,21 +159,21 @@ def add_tutor(name, email):
             # If the user doesn't exist add a new user
             if data is None:
                 cur.execute('INSERT OR IGNORE INTO tutors(email, name, status, shift_capacity, tutoring_disciplines, '
-                            'this_block_la, next_block_la, individual_tutor, favorite_shifts) '
-                            'VALUES(?, ?, ?, ?, ?, ?, ?,?, ?)', (email, name, status, shift_cap, tutoring_disciplines,
-                                                                 this_block_la, next_block_la, individual_tutor,
-                                                                          favorite_shifts))
+                            'this_block_la, next_block_la, individual_tutor, favorite_shifts, absence) '
+                            'VALUES(?, ?, ?, ?, ?, ?, ?,?, ?, ?)',
+                            (email, name, status, shift_cap, tutoring_disciplines, this_block_la,
+                             next_block_la, individual_tutor,favorite_shifts, absence))
             # If the user is being put into the roster and the name
             elif data[1] == name:
                 email, name, status, shift_cap, tutoring_disciplines, this_block_la, next_block_la, individual_tutor, \
-                    favorite_shifts = data
+                    favorite_shifts, absence = data
                 delete_query = 'DELETE FROM tutors WHERE email = ?'
                 cur.execute(delete_query, (email,))
                 cur.execute('INSERT OR IGNORE INTO tutors(email, name, status, shift_capacity, tutoring_disciplines, '
-                            'this_block_la, next_block_la, individual_tutor, favorite_shifts) '
-                            'VALUES(?, ?, ?, ?, ?, ?, ?,?, ?)', (email, name, status, shift_cap, tutoring_disciplines,
-                                                                 this_block_la, next_block_la, individual_tutor,
-                                                                 favorite_shifts))
+                            'this_block_la, next_block_la, individual_tutor, favorite_shifts, absence) '
+                            'VALUES(?, ?, ?, ?, ?, ?, ?,?, ?, ?)',
+                            (email, name, status, shift_cap, tutoring_disciplines, this_block_la, next_block_la,
+                             individual_tutor, favorite_shifts, absence))
             # else update the name of the user
             else:
                 update_query = 'UPDATE tutors SET name = ? WHERE email = ?'
@@ -180,19 +184,20 @@ def add_tutor(name, email):
                 data = cur.fetchone()
                 print(data)
                 email, name, status, shift_cap, tutoring_disciplines, this_block_la, next_block_la, individual_tutor, \
-                    favorite_shifts = data
+                    favorite_shifts, absence = data
                 delete_query = 'DELETE FROM tutors WHERE email = ?'
                 cur.execute(delete_query, (email,))
                 cur.execute('INSERT OR IGNORE INTO tutors(email, name, status, shift_capacity, tutoring_disciplines, '
-                            'this_block_la, next_block_la, individual_tutor, favorite_shifts) '
-                            'VALUES(?, ?, ?, ?, ?, ?, ?,?, ?)', (email, name, status, shift_cap, tutoring_disciplines,
-                                                                 this_block_la, next_block_la, individual_tutor,
-                                                                 favorite_shifts))
+                            'this_block_la, next_block_la, individual_tutor, favorite_shifts, absence) '
+                            'VALUES(?, ?, ?, ?, ?, ?, ?,?, ?, ?)',
+                            (email, name, status, shift_cap, tutoring_disciplines, this_block_la, next_block_la,
+                             individual_tutor,favorite_shifts, absence))
             conn.commit()
     except:
         conn.rollback()
     finally:
         conn.close()
+
 
 # Function to add superusers
 def add_superuser(name, email):
@@ -296,6 +301,7 @@ def add_time_window(block, start_date, end_date):
 
             cur = conn.cursor()
             select_query = 'SELECT * FROM time_window WHERE block = ?'
+            cur.execute(select_query, (block,))
             data = cur.fetchone()
             if data is None:
                 sql_query = 'INSERT OR IGNORE INTO time_window(block, start_time, end_time) VALUES (?, ?, ?)'
@@ -720,6 +726,20 @@ def get_favorite_shifts(user):
         conn.close()
 
 
+# Function to get a user's absence
+def get_absence(user):
+    try:
+        with sql.connect("database.db") as conn:
+            cur = conn.cursor()
+            cur.execute("SELECT * FROM tutors WHERE email = ?", (user,))
+            data = list(cur.fetchone())
+            return data[9]
+    except:
+        conn.rollback()
+    finally:
+        conn.close()
+
+
 # function to check if the user is in the system
 # Will return a boolean based on answer as well as the table the user has access to
 def check_user(user):
@@ -769,6 +789,8 @@ def check_abbreviation(abbreviation):
 # 5 = this_block_la
 # 6 = next_block_la
 # 7 = individual_tutor
+# 8 = favorite_shifts
+# 9 = absence
 # Function that will update the user's status
 def update_status(email):
     try:
@@ -912,6 +934,30 @@ def update_favorite_shifts(user, new_favorite_shifts):
         conn.close()
 
 
+# Function to update the user's la status during the current block
+def update_absence(email):
+    try:
+        with sql.connect("database.db") as conn:
+            cur = conn.cursor()
+            sql_select_query = 'SELECT * FROM tutors WHERE email=? '
+            cur.execute(sql_select_query, (email,))
+            data = cur.fetchone()
+            # if the absence is active turn it off
+            if data[9] == 1:
+                # update absence to 0
+                update_query = 'UPDATE tutors SET absence = 0 WHERE email = ?'
+            # else turn it on
+            elif data[9] == 0:
+                # do stuff to turn it on
+                update_query = 'UPDATE tutors SET absence = 1 WHERE email = ?'
+            cur.execute(update_query, (email,))
+            conn.commit()
+    except:
+        conn.rollback()
+    finally:
+        conn.close()
+
+
 # Function to update the shifts of the disciplines
 def update_discipline_shifts(discipline, shift_number, new_available_tutors):
     try:
@@ -1034,6 +1080,20 @@ def update_discipline_abbreviation(discipline, new_abbreviation):
         conn.close()
 
 
+# Function to update the user's la status during the current block
+def reset_absence(email):
+    try:
+        with sql.connect("database.db") as conn:
+            cur = conn.cursor()
+            update_query = 'UPDATE tutors SET absence = 0 WHERE email = ?'
+            cur.execute(update_query, (email,))
+            conn.commit()
+    except:
+        conn.rollback()
+    finally:
+        conn.close()
+
+
 # Function that will return a list of all tables
 def list_all_tables(exceptions):
     try:
@@ -1075,6 +1135,17 @@ def check_time(current_time, block):
         conn.rollback()
     finally:
         conn.close()
+
+
+# Function to clear all absences in roster
+def clear_absences():
+    roster = get_roster()
+    email_list = []
+    for data in roster:
+        email, _, _, _, _, _, _, _, _, _ = data
+        email_list.append(email)
+    for email in email_list:
+        reset_absence(email)
 
 
 # Function to reboot the database in its entirety (mostly for testing)
@@ -1240,16 +1311,57 @@ def wipe(discipline):
     delete_table(discipline)
 
 
+# Function to check if a user is in there by looking name
+# returns the row of user data if it exists and a None if not
+def find_first_name(attempted_name):
+    roster = get_roster()
+    occur = get_occur(roster)
+    new_name = attempted_name.split('.')
+    for name in roster:
+        _, data, _, _, _, _, _, _, _, _ = name
+        split_data = data.split(' ')
+        # if the name is in the roster
+        if new_name[0].lower() == split_data[0].lower():
+            # check if there are multiple occurences of that name
+            if occur[new_name[0].lower()] == 1:
+                return name
+            # if the bane was put in without further info
+            elif occur[new_name[0].lower()] > 1 and len(new_name) ==1:
+                return name
+            # if name was put in and also the first letter of last name matches
+            elif new_name[1].lower() == split_data[1][0].lower():
+                return name
+    # if name is not in the database
+    return None
+
+
+# Function to see how many times certain names occur in the function
+def get_occur(roster):
+    occur = {}
+    for name in roster:
+        _, data, _, _, _, _, _, _, _, _ = name
+        name = data.split(' ')
+        first_name = name[0].lower()
+        if first_name not in occur:
+            occur[first_name] = 1
+        else:
+            occur[first_name] = occur[first_name] + 1
+    return occur
+
+
 if __name__ == '__main__':
     disciplines_list = ["CS", "Math", "Econ", "Physics", "CHBC"]
-    tutors1 = ['Joe', 'Rick', None, 'Jerry', 'Paul']
-    tutors2 = ['Joe', 'Jerry', None, "Beth", None]
-    tutors3 = [None, 'Morty', 'Summer', None, 'James']
-    add_tutor('James', "James email")
-    add_tutor('Joe', "Joe email")
-    add_tutor('Jessica', "Jessica email")
-    add_tutor('James', 'James email')
-    add_tutor('Joseph', 'Joe email')
-    print(get_table_contents('tutors'))
+    tutors1 = ['James Jones', 'Rick Sanchez', 'May June', "Jerry Smith", 'Jerry Mouse']
+    tutors2 = ['James email', 'Rick Email', 'May email', "Jerry email", 'Joe email']
+    clear_table('tutors')
+    add_tutor('James Jones', 'other email')
+    add_tutor('James May', ' james email')
+
+    print(find_first_name('James.m'))
+    print(find_first_name('jerry.m'))
+    print(find_first_name('jameS.j'))
+    print(find_first_name('james.m'))
+    print(find_first_name('james'))
 
 
+# database changes
