@@ -82,5 +82,5 @@ def prepare_excel_file(filename):
     output = [[column for column in df.columns]]
     for i in range(len(df.index)):
         output.append([num for num in df.iloc[i,:]])
-    return "Hi!"
+    return output
 

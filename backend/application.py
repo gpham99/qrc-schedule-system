@@ -336,11 +336,11 @@ def upload_roster():
     if file and allowed_file(file.filename):
         filename = secure_filename(file.filename)
         result, data = read_roster(file)
-        if data != None:
+        if type(data) == pd.DataFrame:
             for existing_file in os.listdir(UPLOAD_FOLDER):
                 if existing_file.startswith('roster'):
                     os.remove(existing_file)
-            data.to_csv(os.path.join(application.config['UPLOAD_FOLDER'], ROSTER_PATH))
+            data.to_csv(os.path.join(application.config['UPLOAD_FOLDER'], ROSTER_PATH), index = False)
         print(result)
         return {"msg": result}
     return {"msg": "File format not accepted"}
