@@ -390,7 +390,7 @@ def update_tutors_in_master_schedule():
             #output += "Shift removed successfully\n"
         else:
             user = find_first_name(new_tutor_firstname)
-            #user = authenticate(new_tutor_username, "")
+            user = authenticate(user[0], "")
             if user != None:
                 #print(user.id, shift_index, discipline_abbreviation)
                 discipline_to_change = disciplines[abbreviations.index(discipline_abbreviation)]
