@@ -41,6 +41,8 @@ def authenticate(username, password):
     if 'username' in session:
         in_system, group = check_login()
         username = session['username']
+    else:
+        username = 'j_hannebert'
     if not username.endswith(EMAIL_SUFFIX):
         username = username + EMAIL_SUFFIX
     in_system, group = check_user(username)
