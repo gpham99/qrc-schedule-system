@@ -11,17 +11,17 @@ const Profile = () => {
   const [laStatus, setLaStatus] = useState(null);
 
   // grab the access token from the local storage
-  //const accessToken = localStorage.getItem("access_token");
+  const accessToken = localStorage.getItem("access_token");
 
-  // if access token is null, then this person is not authorized, show page 401 -> authorized state is false
-  // else if they have an access token, verify first
-  // const [isAuthorized, setIsAuthorized] = useState(() => {
-  //   if (accessToken === null) {
-  //     return false;
-  //   } else {
-  //     return null;
-  //   }
-  // });
+  i//f access token is null, then this person is not authorized, show page 401 -> authorized state is false
+  //else if they have an access token, verify first
+  const [isAuthorized, setIsAuthorized] = useState(() => {
+    if (accessToken === null) {
+      return null;
+    } else {
+      return null;
+    }
+  });
 
   // call /api/tutor/get_info and pass the access token as authorization header
   useEffect(() => {
