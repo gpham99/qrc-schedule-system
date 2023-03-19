@@ -37,9 +37,9 @@ EMAIL_SUFFIX = '@coloradocollege.edu'
 
 def authenticate(username, password):
     print("In authenticate: " + username)
-    username = username.lower()
-    if not username.endswith(EMAIL_SUFFIX):
-        username += EMAIL_SUFFIX
+    if 'username' in session:
+        in_system, group = check_login()
+        username = session['username']
     in_system, group = check_user(username)
     print("in_system, group: ", in_system, group)
     if in_system:
@@ -58,12 +58,6 @@ def authenticate(username, password):
 def identity(payload):
     email = payload['identity']
     return authenticate(email, "")
-    email = username + EMAIL_SUFFIX
-    in_system, group = check_user(email)
-    if in_system:
-        tutor_entry = get_single_tutor_info(email)
-        return User(email, tutor_entry[1], group, tutor_entry[2], tutor_entry[3], tutor_entry[4], tutor_entry[5], tutor_entry[6],
-        tutor_entry[7])
 
 #roster path variables for the list of tutors
 UPLOAD_FOLDER = '.'
