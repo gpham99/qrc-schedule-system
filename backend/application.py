@@ -79,6 +79,7 @@ def check_login():
         application.logger.debug("No username in session; unable to find user")
         in_system, group = False, "Logged out"
     #return the identity of the user: boolean, "superuser"/"admin"/"tutor"
+    print("From check_login: ", in_system, group)
     return in_system, group
 
 # general-purpose index page; will never be seen; usually just used to redirect users who aren't logged in
