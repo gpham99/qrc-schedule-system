@@ -36,10 +36,13 @@ import pandas as pd
 EMAIL_SUFFIX = '@coloradocollege.edu'
 
 def authenticate(username, password):
+
     print("In authenticate: " + username)
     if 'username' in session:
         in_system, group = check_login()
         username = session['username']
+    if not username.endswith(EMAIL_SUFFIX):
+        username = username + EMAIL_SUFFIX
     in_system, group = check_user(username)
     print("in_system, group: ", in_system, group)
     if in_system:
