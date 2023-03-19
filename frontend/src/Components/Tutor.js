@@ -10,13 +10,13 @@ const Tutor = () => {
   const [name, setName] = useState(() => {
     return searchParams.get("username") || null;
   });
-  const [isAuthorized, setIsAuthorized] = useState(() => {
-    if (localStorage.getItem("access_token") == null) {
-      return null;
-    } else {
-      return true;
-    }
-  });
+  // const [isAuthorized, setIsAuthorized] = useState(() => {
+  //   if (localStorage.getItem("access_token") == null) {
+  //     return null;
+  //   } else {
+  //     return true;
+  //   }
+  // });
 
   useEffect(() => {
     const requestOptions = {
