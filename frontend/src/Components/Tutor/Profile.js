@@ -71,7 +71,7 @@ const Profile = () => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: "JWT " + accessToken.replace(/["]+/g, ""),
+    //    Authorization: "JWT " + accessToken.replace(/["]+/g, ""),
       },
       body: JSON.stringify({
         shift_capacity: maximumShiftCapacity,
