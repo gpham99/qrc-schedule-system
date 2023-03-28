@@ -45,6 +45,7 @@ const Profile = () => {
 
   useEffect(() => {
     const requestOptions = {
+            credentials: 'include',
             headers: {
               "Content-Type": "application/json",
             },
@@ -69,6 +70,7 @@ const Profile = () => {
     e.preventDefault();
     const requestOptions = {
       method: "POST",
+      credentials: 'include',
       headers: {
         "Content-Type": "application/json",
     //    Authorization: "JWT " + accessToken.replace(/["]+/g, ""),
