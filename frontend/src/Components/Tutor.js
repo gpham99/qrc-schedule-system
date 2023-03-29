@@ -24,7 +24,7 @@ const Tutor = () => {
       headers: { "Content-Type": "application/json" },
     };
     if (isAuthorized === null) {
-      fetch("http://44.230.115.148:8080/get-token", requestOptions)
+      fetch("http://44.230.115.148:8080/api/get-token", requestOptions)
         .then(function (response) {
           let res = response.json();
           console.log("Res ", res);
