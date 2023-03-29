@@ -125,7 +125,7 @@ def profile(method=['GET']):
 @application.route('/from-cas')
 def from_cas(method=['GET']):
     group = 'tutor'
-    return session['token']
+    return {'token': session['token']}
 
 #Routed here from CAS?
 @application.route('/login')
