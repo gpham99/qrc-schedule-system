@@ -1,8 +1,13 @@
 from models import User
 from Database import check_user, get_single_tutor_info
+from random import random
+import time
 
 #everyone in the system has a CC email
 EMAIL_SUFFIX = '@coloradocollege.edu'
+
+#how long an auth token should last, in seconds - currently one week
+AUTH_LENGTH = 604800
 
 def authenticate(username, password):
     print("In authenticate: " + username)
@@ -34,3 +39,35 @@ def identity(payload):
         return User(email, tutor_entry[1], group, tutor_entry[2], tutor_entry[3], tutor_entry[4], tutor_entry[5], tutor_entry[6],
         tutor_entry[7])
 
+
+#helper class for authentication - keeps track of auth tokens and token expiration
+class QSSAuth:
+    def __init__(self):
+        self.token = random.randint(100000000000)
+        self.init_time = time.time()
+
+    #token is expired if too much time has passed since it was created
+    def expired(self):
+        return time.time() > self.init_time + AUTH_LENGTH
+    
+class Authenticator:
+    def __init__(self):
+        self.userdict = {}
+
+    def add_user(self, username):
+        if not username.endswith(EMAIL_SUFFIX):
+            username = username + EMAIL_SUFFIX
+        token = QSSAuth()
+        self.userdict[username] = token
+        return token.token
+
+    def get_user(self, token):
+        for username in self.userdict:
+            if self.userdict[username].token == token:
+                if self.userdict[username].expired():
+                    #log out the user
+                    self.userdict.pop(username)
+                    return "EXPIRED"
+                return username
+        return "INVALID TOKEN"
+    
