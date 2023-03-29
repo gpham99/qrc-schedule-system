@@ -43,7 +43,7 @@ def identity(payload):
 #helper class for authentication - keeps track of auth tokens and token expiration
 class QSSAuth:
     def __init__(self):
-        self.token = random.randint(100000000000)
+        self.token = random.randint(0, 100000000000)
         self.init_time = time.time()
 
     #token is expired if too much time has passed since it was created
