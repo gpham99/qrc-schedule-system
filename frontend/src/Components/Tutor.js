@@ -20,20 +20,18 @@ const Tutor = () => {
 
   useEffect(() => {
     const requestOptions = {
-      method: "POST",
+      method: "GET",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        username: name,
-        password: "pass",
-      }),
     };
     if (isAuthorized === null) {
-      fetch("http://44.230.115.148:8080/auth", requestOptions)
+      fetch("http://44.230.115.148:8080/get-token", requestOptions)
         .then(function (response) {
           let res = response.json();
+          console.log("Res ", res);
           return res;
         })
         .then(function (data) {
+          console.log("Data ", data);
           let isAuthorized = "access_token" in data;
           setIsAuthorized(isAuthorized);
           if (isAuthorized) {

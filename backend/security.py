@@ -58,6 +58,18 @@ class Authenticator:
         if not username.endswith(EMAIL_SUFFIX):
             username = username + EMAIL_SUFFIX
         token = QSSAuth()
+        #make sure we don't accidentally give two people the same token
+        duplicate = True
+        while duplicate:
+            duplicate = False
+            for user in self.userdict:
+                if self.userdict[user].token == token.token:
+                    duplicate = True
+                if self.userdict[username].expired(): #while we're here, may as well clean out the dict
+                    #log out the user
+                    self.userdict.pop(username)
+            if duplicate:
+                token = QSSAuth()
         self.userdict[username] = token
         return token.token
 
@@ -70,4 +82,10 @@ class Authenticator:
                     return "EXPIRED"
                 return username
         return "INVALID TOKEN"
+    
+    def logout_user(self, username):
+        if not username.endswith(EMAIL_SUFFIX):
+            username = username + EMAIL_SUFFIX
+        if username in self.userdict:
+            self.userdict.pop(username)
     

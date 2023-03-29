@@ -107,12 +107,11 @@ def index():
             #enter the user into the auth system
             token = auth.add_user(user)
             session['token'] = token
-            return redirect(url_for('from_cas'))
+            return redirect('http://44.230.115.148:80/'+group)
         return redirect(next)
 
 #usually unused, replaced with API - delete?
 @application.route('/profile')
-@cross_origin(supports_credentials=True)
 def profile(method=['GET']):
     application.logger.debug('session when you hit profile: %s', session)
     in_system, group = check_login()
@@ -122,10 +121,9 @@ def profile(method=['GET']):
         return 'You are not authorized to access this site. <a href="/logout">Exit</a>'
     return 'Login required. <a href="/login">Login</a>', 403
 
-@application.route('/from-cas')
-def from_cas(method=['GET']):
-    group = 'tutor'
-    return {'token': session['token']}
+@application.route('/api/get-token')
+def get_token(method=['GET']):
+    return {'access_token': session['token']}
 
 #Routed here from CAS?
 @application.route('/login')
@@ -134,7 +132,7 @@ def login():
     next = request.args.get('next')
     ticket = request.args.get('ticket')
     if not ticket:
-        #TODO: check for auth token!!
+        if ''
         #return redirect('http://44.230.115.148:80/'+group)
         #not logged in yet
         #redirect to CAS login
@@ -165,6 +163,8 @@ def login():
 #Log out user via CAS
 @application.route('/cas_logout')
 def logout():
+    username = auth.get_user(request.headers['Authorization'])
+    auth.logout_user(username)
     redirect_url = url_for('logout_callback', _external=True)
     application.logger.debug('Redirect logout URL: %s', redirect_url)
     cas_logout_url = cas_client.get_logout_url(redirect_url)
@@ -176,7 +176,9 @@ def logout():
 #Log out user via QSS
 @application.route('/logout')
 def logout_callback():
+    username = auth.get_user(request.headers['Authorization'])
     session.clear()
+    auth.logout_user(username)
     return redirect("https://www.coloradocollege.edu/")
 
 #Test API page; can be removed in final code  
