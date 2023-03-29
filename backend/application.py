@@ -177,9 +177,12 @@ def logout():
 #Log out user via QSS
 @application.route('/logout')
 def logout_callback():
-    username = auth.get_user(request.headers['Authorization'])
+    try:
+        username = auth.get_user(request.headers['Authorization'])
+        auth.logout_user(username)
+    except:
+        pass
     session.clear()
-    auth.logout_user(username)
     return redirect("https://www.coloradocollege.edu/")
 
 #Test API page; can be removed in final code  
