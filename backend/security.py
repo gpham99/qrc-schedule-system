@@ -1,6 +1,6 @@
 from models import User
 from Database import check_user, get_single_tutor_info
-from random import random
+import random
 import time
 
 #everyone in the system has a CC email
