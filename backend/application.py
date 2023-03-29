@@ -130,36 +130,37 @@ def from_cas(method=['GET']):
 #Routed here from CAS?
 @application.route('/login')
 def login():
-    application.logger.debug('Session at login: %s', session)
-
-    if 'username' in session:
-        in_system, group = check_login()
-
-        # Already logged in
-    #comment out all the below
-    #    return redirect('http://44.230.115.148:80/'+group+'?username='+session['username'])
-    #THIS LINE IS WHAT NEEDS TO BE FIXED, THIS IS WHERE WE GET REDIRECTED    
-    #return redirect('http://44.230.115.148:80/'+group+'?username='+session['username']+'&token='+token)
-        payload_data = {
-            'username': 'j_hannebert@coloradocollege.edu'
-            }
-        my_secret = application.secret_key
-        token = pyjwt.encode(
-            payload=payload_data,
-            key=my_secret
-        )
-        #return redirect('http://44.230.115.148:80/'+group+'?username='+session['username']+'&token='+str(token))
-        #return redirect('http://44.230.115.148:80/'+'?token='+str(token))
-        return redirect('http://44.230.115.148:80/'+group)
-
-    #next = request.args.get('next')
+    #just in case CAS wants to redirect us (doesn't usually happen)
+    next = request.args.get('next')
     ticket = request.args.get('ticket')
-
     if not ticket:
-        # No ticket, the request came from end user, send to CAS login
+        #TODO: check for auth token!!
+        #return redirect('http://44.230.115.148:80/'+group)
+        #not logged in yet
+        #redirect to CAS login
         cas_login_url = cas_client.get_login_url()
         application.logger.debug('Sending to CAS login URL: %s', cas_login_url)
         return redirect(cas_login_url) # the return of this is /ticket?=...
+
+    application.logger.debug('ticket: %s', ticket)
+    user, attributes, pgtiou = cas_client.verify_ticket(ticket)
+    #make username case consistent
+    user = user.lower()
+    application.logger.debug(
+        'CAS verify ticket response: user: %s, attributes: %s, pgtiou: %s', user, attributes, pgtiou)
+
+    if not user:
+        return 'Failed to verify ticket. <a href="/login">Login</a>'
+    else:  # Successful login
+        in_system, group = check_login(user)
+        if not in_system: #not found in database, unauthorized user (probably a CC student not in the tutor database)
+            return Response(response="Unauthorized", status=401)
+        if not next:
+            #enter the user into the auth system
+            token = auth.add_user(user)
+            session['token'] = token
+            return redirect(url_for(from_cas))
+        return redirect(next)
 
 #Log out user via CAS
 @application.route('/cas_logout')
