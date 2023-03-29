@@ -107,7 +107,7 @@ def index():
             #enter the user into the auth system
             token = auth.add_user(user)
             session['token'] = token
-            return redirect(url_for(from_cas))
+            return redirect(url_for('from_cas'))
         return redirect(next)
 
 #usually unused, replaced with API - delete?
@@ -159,7 +159,7 @@ def login():
             #enter the user into the auth system
             token = auth.add_user(user)
             session['token'] = token
-            return redirect(url_for(from_cas))
+            return redirect(url_for('from_cas'))
         return redirect(next)
 
 #Log out user via CAS
