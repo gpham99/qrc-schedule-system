@@ -132,7 +132,8 @@ def login():
     next = request.args.get('next')
     ticket = request.args.get('ticket')
     if not ticket:
-        if ''
+        #check if auth token
+        #if ''
         #return redirect('http://44.230.115.148:80/'+group)
         #not logged in yet
         #redirect to CAS login
