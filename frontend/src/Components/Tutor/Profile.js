@@ -56,6 +56,7 @@ const Profile = () => {
           return res;
         })
         .then((data) => {
+          console.log(data);
           setUserInfo(data);
           setMaximumShiftCapacity(data["shift_capacity"]);
           setPersonalDisciplines(data["disciplines"]);
