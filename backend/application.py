@@ -3,6 +3,7 @@ from Database import *
 import time
 #Flask
 from flask import Flask, request, session, redirect, url_for, Response, cross_origin
+from flask.ext.session import Session
 from flask_cors import CORS
 #authentication
 from cas import CASClient
@@ -86,6 +87,9 @@ application = Flask(__name__)
 CORS(application)
 application.secret_key = ';sufhiagr3yugfjcnkdlmsx0-w9u4fhbuewiejfigehbjrs'
 application.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+SESSION_TYPE = 'redis'
+application.config.from_object(__name__)
+Session(application)
 
 #set up CAS
 cas_client = CASClient(
@@ -121,7 +125,6 @@ def check_login():
 
 # general-purpose index page; will never be seen; usually just used to redirect users who aren't logged in
 @application.route('/')
-@cross_origin(supports_credentials=True)
 def index():
     #figure out the user's identity within the system (superuser/admin/tutor) (this code is unused)
     in_system, group = check_login()
@@ -177,7 +180,6 @@ def index():
 
 #usually unused, replaced with API - delete?
 @application.route('/profile')
-@cross_origin(supports_credentials=True)
 def profile(method=['GET']):
     application.logger.debug('session when you hit profile: %s', session)
     in_system, group = check_login()
@@ -243,6 +245,10 @@ def logout_callback():
 @application.route('/api/time')
 def get_current_time():
         return {'time': time.time()}
+
+@application.route('ticket')
+def ticket():
+    return {'username': session['username']}
 
 #API to return login status; delete?
 # @application.route('/api/login_status')
