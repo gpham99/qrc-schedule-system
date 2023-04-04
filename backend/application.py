@@ -87,7 +87,7 @@ application = Flask(__name__)
 CORS(application)
 application.secret_key = ';sufhiagr3yugfjcnkdlmsx0-w9u4fhbuewiejfigehbjrs'
 application.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-SESSION_TYPE = 'redis'
+SESSION_TYPE = 'filesystem'
 application.config.from_object(__name__)
 Session(application)
 
