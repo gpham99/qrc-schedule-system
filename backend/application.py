@@ -2,8 +2,8 @@
 from Database import *
 import time
 #Flask
-from flask import Flask, request, session, redirect, url_for, Response, cross_origin
-from flask.ext.session import Session
+from flask import Flask, request, session, redirect, url_for, Response
+from flask_session import Session
 from flask_cors import CORS
 #authentication
 from cas import CASClient
@@ -191,7 +191,6 @@ def profile(method=['GET']):
 
 #Routed here from CAS?
 @application.route('/login')
-@cross_origin(supports_credentials=True)
 def login():
     application.logger.debug('Session at login: %s', session)
 
@@ -246,7 +245,7 @@ def logout_callback():
 def get_current_time():
         return {'time': time.time()}
 
-@application.route('ticket')
+@application.route('/ticket')
 def ticket():
     return {'username': session['username']}
 
