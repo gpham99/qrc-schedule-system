@@ -88,6 +88,7 @@ CORS(application)
 application.secret_key = ';sufhiagr3yugfjcnkdlmsx0-w9u4fhbuewiejfigehbjrs'
 application.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 SESSION_TYPE = 'filesystem'
+SESSION_COOKIE_HTTPONLY = False
 application.config.from_object(__name__)
 Session(application)
 
