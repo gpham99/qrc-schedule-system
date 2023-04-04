@@ -380,20 +380,21 @@ def tutor_info():
         return Response(response="Unauthorized", status=401)
     
     result = {}
-    result['username'] = current_identity.id
-    result['name'] = current_identity.name
+    result['username'] = session['username']
+    result['name'] = session['username']
+    #current_identity = 
     all_disciplines = get_disciplines()
     all_disciplines = sorted(all_disciplines)
-    disciplines = []
-    for discipline in all_disciplines:
-        if discipline in current_identity.disciplines:
-            disciplines.append((display(discipline), True))
-        else:
-            disciplines.append((display(discipline), False))
-    result['disciplines'] = disciplines
-    result['shift_capacity'] = current_identity.shift_capacity
-    result['this_block_unavailable'] = True if current_identity.this_block_unavailable == 1 else False
-    result['this_block_la'] = True if current_identity.this_block_la == 1 else False
+    # disciplines = []
+    # for discipline in all_disciplines:
+    #     if discipline in current_identity.disciplines:
+    #         disciplines.append((display(discipline), True))
+    #     else:
+    #         disciplines.append((display(discipline), False))
+    # result['disciplines'] = disciplines
+    # result['shift_capacity'] = current_identity.shift_capacity
+    # result['this_block_unavailable'] = True if current_identity.this_block_unavailable == 1 else False
+    # result['this_block_la'] = True if current_identity.this_block_la == 1 else False
     return result
 
 @application.route('/api/upload_roster', methods=['PUT','POST'])
