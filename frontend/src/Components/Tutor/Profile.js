@@ -11,34 +11,52 @@ const Profile = () => {
   const [laStatus, setLaStatus] = useState(null);
 
   // grab the access token from the local storage
-  const accessToken = localStorage.getItem("access_token");
+  //const accessToken = localStorage.getItem("access_token");
 
-  // if access token is null, then this person is not authorized, show page 401 -> authorized state is false
-  // else if they have an access token, verify first
-  const [isAuthorized, setIsAuthorized] = useState(() => {
-    if (accessToken === null) {
-      return false;
-    } else {
-      return null;
-    }
-  });
+  //if access token is null, then this person is not authorized, show page 401 -> authorized state is false
+  //else if they have an access token, verify first
+  //const [isAuthorized, setIsAuthorized] = useState(false)
 
   // call /api/tutor/get_info and pass the access token as authorization header
-  useEffect(() => {
-    if (isAuthorized !== false) {
-      const requestOptions = {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "JWT " + accessToken.replace(/["]+/g, ""),
-        },
-      };
+  // useEffect(() => {
+  //   if (isAuthorized !== false) {
+  //     const requestOptions = {
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //         Authorization: "JWT " + accessToken.replace(/["]+/g, ""),
+  //       },
+  //     };
 
-      fetch("http://44.230.115.148:8080/api/tutor/get_info", requestOptions)
+  //     fetch("http://44.230.115.148:8080/api/tutor/get_info", requestOptions)
+  //       .then((response) => {
+  //         let res = response.json();
+  //         return res;
+  //       })
+  //       .then((data) => {
+  //         setUserInfo(data);
+  //         setMaximumShiftCapacity(data["shift_capacity"]);
+  //         setPersonalDisciplines(data["disciplines"]);
+  //         setEditedPersonalDisciplines({ ...data["disciplines"] });
+  //         setAvailabilityStatus(data["this_block_unavailable"]);
+  //         setLaStatus(data["this_block_la"]);
+  //       });
+  //   }
+  // }, []);
+
+  useEffect(() => {
+    const requestOptions = {
+            credentials: 'include',
+            headers: {
+              "Content-Type": "application/json",
+            },
+          };
+        fetch("http://44.230.115.148:8080/api/tutor/get_info", requestOptions)
         .then((response) => {
           let res = response.json();
           return res;
         })
         .then((data) => {
+          console.log(data);
           setUserInfo(data);
           setMaximumShiftCapacity(data["shift_capacity"]);
           setPersonalDisciplines(data["disciplines"]);
@@ -46,17 +64,17 @@ const Profile = () => {
           setAvailabilityStatus(data["this_block_unavailable"]);
           setLaStatus(data["this_block_la"]);
         });
-    }
-  }, []);
+  })
 
   // the function to handle the update button
   const handleUpdate = (e) => {
     e.preventDefault();
     const requestOptions = {
       method: "POST",
+      credentials: 'include',
       headers: {
         "Content-Type": "application/json",
-        Authorization: "JWT " + accessToken.replace(/["]+/g, ""),
+    //    Authorization: "JWT " + accessToken.replace(/["]+/g, ""),
       },
       body: JSON.stringify({
         shift_capacity: maximumShiftCapacity,

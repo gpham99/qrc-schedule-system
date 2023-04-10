@@ -12,7 +12,7 @@ const Tutor = () => {
   });
   const [isAuthorized, setIsAuthorized] = useState(() => {
     if (localStorage.getItem("access_token") == null) {
-      return null;
+      return true;
     } else {
       return true;
     }
