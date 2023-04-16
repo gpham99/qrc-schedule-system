@@ -33,42 +33,6 @@ from random import sample, choice
 #for saving uploaded roster files
 import pandas as pd
 
-#the following can be removed once the requests to "auth" have been removed from the frontend
-#everyone in the system has a CC email
-EMAIL_SUFFIX = '@coloradocollege.edu'
-
-def authenticate(username, password):
-
-    print("In authenticate: " + username)
-    if 'username' in session:
-        in_system, group = check_login()
-        username = session['username']
-    else:
-        username = 'j_hannebert'
-    if not username.endswith(EMAIL_SUFFIX):
-        username = username + EMAIL_SUFFIX
-    in_system, group = check_user(username)
-    print("in_system, group: ", in_system, group)
-    if in_system:
-        if group == 'tutor':
-            tutor_entry = get_single_tutor_info(username)
-            return User(username, tutor_entry[1], group, tutor_entry[2], tutor_entry[3], tutor_entry[4], tutor_entry[5], tutor_entry[6],
-            tutor_entry[7], tutor_entry[8])
-        elif group == 'admin':
-            admin_entry = get_admin_info(username)
-            return User(username, admin_entry[1], group)
-        elif group == 'superuser':
-            superuser_entry = get_superuser_info(username)
-            return User(username, superuser_entry[1], group)
-    return None
-
-def auth_hack(arg1, arg2):
-    return User("j_hannebert", "j_hannebert")
-
-def identity(payload):
-    email = payload['identity']
-    return auth_hack(email, "")
-
 #roster path variables for the list of tutors
 UPLOAD_FOLDER = '.'
 ALLOWED_EXTENSIONS = {'xls', 'xlsx', 'xlsm', 'xlsb', 'odf', 'ods', 'odt'}
@@ -98,10 +62,6 @@ cas_client = CASClient(
     service_url='http://44.230.115.148:8080/',
     server_url='https://cas.coloradocollege.edu/cas/'
 )
-
-#set up JWT
-jwt = JWT(application, auth_hack, identity)
-application.config["JWT_EXPIRATION_DELTA"] = timedelta(seconds=86400)
 
 #check if an uploaded file is the correct format
 def allowed_file(filename):
@@ -143,10 +103,11 @@ def index():
     next = request.args.get('next')
     ticket = request.args.get('ticket')
     if not ticket:
-        #there is some user that keeps hitting this line so it is probably best to keep protection of some sort here
-        #but this line needs to be fixed as it no longer works
-        #redirect to login?
-        return header_text + say_hello() + footer_text + sso_link
+        #redirect to CAS login
+        cas_login_url = cas_client.get_login_url()
+        application.logger.debug('Sending to CAS login URL: %s', cas_login_url)
+        return redirect(cas_login_url) # the return of this is /ticket?=...
+
 
     application.logger.debug('ticket: %s', ticket)
     user, attributes, pgtiou = cas_client.verify_ticket(ticket)
@@ -161,34 +122,10 @@ def index():
         session['username'] = user
         session['email'] = attributes['email']
         in_system, group = check_login()
-        #delete
-        payload_data = {
-                'username': user
-                }
-        my_secret = application.secret_key
-        token = pyjwt.encode(
-            payload=payload_data,
-            key=my_secret
-        )
-        #TODO: redirect...but where? Login again w/ message?
-        #if not in_system:
-            #return redirect()
         if not next:
             #TODO: have other things check session
             return redirect('http://44.230.115.148:80/'+group)
-            #return redirect('http://44.230.115.148:80/'+group+'?username='+session['username']+'&token='+str(token))
         return redirect(next)
-
-#usually unused, replaced with API - delete?
-@application.route('/profile')
-def profile(method=['GET']):
-    application.logger.debug('session when you hit profile: %s', session)
-    in_system, group = check_login()
-    if in_system:
-        return 'Logged in as {}. Your email address is {}. <a href="/logout">Exit</a>'.format(session['username'], session['email'])
-    elif group == "None":
-        return 'You are not authorized to access this site. <a href="/logout">Exit</a>'
-    return 'Login required. <a href="/login">Login</a>', 403
 
 #Routed here from CAS?
 @application.route('/login')
@@ -197,25 +134,8 @@ def login():
 
     if 'username' in session:
         in_system, group = check_login()
-
-        # Already logged in
-    #comment out all the below
-    #    return redirect('http://44.230.115.148:80/'+group+'?username='+session['username'])
-    #THIS LINE IS WHAT NEEDS TO BE FIXED, THIS IS WHERE WE GET REDIRECTED    
-    #return redirect('http://44.230.115.148:80/'+group+'?username='+session['username']+'&token='+token)
-        payload_data = {
-            'username': 'j_hannebert@coloradocollege.edu'
-            }
-        my_secret = application.secret_key
-        token = pyjwt.encode(
-            payload=payload_data,
-            key=my_secret
-        )
-        #return redirect('http://44.230.115.148:80/'+group+'?username='+session['username']+'&token='+str(token))
-        #return redirect('http://44.230.115.148:80/'+'?token='+str(token))
         return redirect('http://44.230.115.148:80/'+group)
 
-    #next = request.args.get('next')
     ticket = request.args.get('ticket')
 
     if not ticket:
