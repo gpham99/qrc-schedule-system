@@ -303,7 +303,7 @@ def tutor_info():
     cookie = request.headers.get('Authorization')
 
     s = URLSafeTimedSerializer(
-        application.secret_key, salt='cookie-session',
+        ';sufhiagr3yugfjcnkdlmsx0-w9u4fhbuewiejfigehbjrs', salt='cookie-session',
         serializer=session_json_serializer,
         signer_kwargs={'key_derivation': 'hmac', 'digest_method': sha1}
     )
