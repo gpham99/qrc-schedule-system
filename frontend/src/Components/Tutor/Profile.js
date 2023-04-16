@@ -73,8 +73,6 @@ const Profile = () => {
 
     options.credentials = "include";
 
-    const returnValue = fetchUtils.fetchJson(url, options);
-
     console.log("return Val: ", returnValue);
     return returnValue;
   }
