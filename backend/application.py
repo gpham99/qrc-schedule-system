@@ -295,6 +295,8 @@ def update_tutor_info():
 @application.route('/api/tutor/get_info', methods = ['GET'])
 #@jwt_required()
 def tutor_info():
+    cookie = request.headers.get('Authorization')
+    session = cookie
     #check login status and reject request if needed
     in_system, group = check_login()
     if not in_system:

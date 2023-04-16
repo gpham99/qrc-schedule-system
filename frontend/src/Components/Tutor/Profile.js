@@ -93,8 +93,28 @@ const Profile = () => {
   // });
 
   useEffect(() => {
-    console.log("hi");
-    console.log("cookie: ", Cookies.get("session"))
+    console.log("about to call api");
+    const cookieVal = Cookies.get("session");
+    const requestOptions = {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: cookieVal,
+      },
+    };
+
+    fetch("http://44.230.115.148:8080/api/tutor/get_info", requestOptions)
+      .then((response) => {
+        let res = response.json();
+        return res;
+      })
+      .then((data) => {
+        setUserInfo(data);
+        setMaximumShiftCapacity(data["shift_capacity"]);
+        setPersonalDisciplines(data["disciplines"]);
+        setEditedPersonalDisciplines({ ...data["disciplines"] });
+        setAvailabilityStatus(data["this_block_unavailable"]);
+        setLaStatus(data["this_block_la"]);
+      });
   }, []);
 
   // the function to handle the update button
