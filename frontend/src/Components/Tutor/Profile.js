@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { fetchUtils, Admin, Resource, GET_LIST } from "react-admin";
-import simpleRestProvider from "ra-data-simple-rest";
+import Cookies from "js-cookie";
 
 const Profile = () => {
   const [userInfo, setUserInfo] = useState({});
@@ -80,15 +79,6 @@ const Profile = () => {
     return returnValue;
   }
 
-  useEffect(() => {
-    console.log("calling the api");
-    const dataProvider = simpleRestProvider(
-      "http://44.230.115.148:8080/api/tutor/get_info",
-      fetchJson
-    );
-    console.log(dataProvider.data);
-  }, []);
-
   // console.log("this is the data", dataProvider.data);
 
   // useEffect(() => {
@@ -115,9 +105,10 @@ const Profile = () => {
   //     });
   // });
 
-  // useEffect(() => {
-
-  // }, []);
+  useEffect(() => {
+    console.log("hi");
+    console.log("cookie: ", Cookies.get("session"))
+  }, []);
 
   // the function to handle the update button
   const handleUpdate = (e) => {
