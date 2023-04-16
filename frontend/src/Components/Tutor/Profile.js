@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { fetchUtils, Admin, Resource, GET_LIST } from "react-admin";
-import simpleRestProvider from "ra-data-simple-rest";
+import Cookies from "js-cookie";
 
 const Profile = () => {
   const [userInfo, setUserInfo] = useState({});
@@ -67,30 +66,6 @@ const Profile = () => {
   //     });
   // });
 
-  function fetchJson(url, options = {}) {
-    if (!options.headers) {
-      options.headers = new Headers({ Accept: "application/json" });
-    }
-
-    options.credentials = "include";
-
-    const returnValue = fetchUtils.fetchJson(url, options);
-
-    console.log("return Val: ", returnValue);
-    return returnValue;
-  }
-
-  useEffect(() => {
-    console.log("calling the api");
-    const dataProvider = simpleRestProvider(
-      "http://44.230.115.148:8080/api/tutor/get_info",
-      fetchJson
-    );
-    console.log(dataProvider.data);
-  }, []);
-
-  // console.log("this is the data", dataProvider.data);
-
   // useEffect(() => {
   //   const requestOptions = {
   //     headers: {
@@ -115,9 +90,30 @@ const Profile = () => {
   //     });
   // });
 
-  // useEffect(() => {
+  useEffect(() => {
+    console.log("about to call api");
+    const cookieVal = Cookies.get("session");
+    const requestOptions = {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: cookieVal,
+      },
+    };
 
-  // }, []);
+    fetch("http://44.230.115.148:8080/api/tutor/get_info", requestOptions)
+      .then((response) => {
+        let res = response.json();
+        return res;
+      })
+      .then((data) => {
+        setUserInfo(data);
+        setMaximumShiftCapacity(data["shift_capacity"]);
+        setPersonalDisciplines(data["disciplines"]);
+        setEditedPersonalDisciplines({ ...data["disciplines"] });
+        setAvailabilityStatus(data["this_block_unavailable"]);
+        setLaStatus(data["this_block_la"]);
+      });
+  }, []);
 
   // the function to handle the update button
   const handleUpdate = (e) => {
