@@ -33,6 +33,11 @@ from random import sample, choice
 #for saving uploaded roster files
 import pandas as pd
 
+#deserialization of cookies
+from hashlib import sha1
+from flask.sessions import session_json_serializer
+from itsdangerous import URLSafeTimedSerializer
+
 #roster path variables for the list of tutors
 UPLOAD_FOLDER = '.'
 ALLOWED_EXTENSIONS = {'xls', 'xlsx', 'xlsm', 'xlsb', 'odf', 'ods', 'odt'}
@@ -296,7 +301,14 @@ def update_tutor_info():
 #@jwt_required()
 def tutor_info():
     cookie = request.headers.get('Authorization')
-    session = cookie
+
+    s = URLSafeTimedSerializer(
+        application.secret_key, salt='cookie-session',
+        serializer=session_json_serializer,
+        signer_kwargs={'key_derivation': 'hmac', 'digest_method': sha1}
+    )
+    session_data = s.loads(cookie)
+    print(session_data)
     #check login status and reject request if needed
     in_system, group = check_login()
     if not in_system:
