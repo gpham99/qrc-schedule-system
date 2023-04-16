@@ -301,13 +301,16 @@ def update_tutor_info():
 #@jwt_required()
 def tutor_info():
     cookie = request.headers.get('Authorization')
+    from flask.sessions import TaggedJSONSerializer
+    salt = 'cookie-session'
+    serializer = TaggedJSONSerializer()
+    signer_kwargs = {
+        'key_derivation': 'hmac',
+        'digest_method': sha1
+    }
+    s = URLSafeTimedSerializer(application.secret_key, salt=salt, serializer=serializer, signer_kwargs=signer_kwargs)
 
-    s = URLSafeTimedSerializer(
-        ';sufhiagr3yugfjcnkdlmsx0-w9u4fhbuewiejfigehbjrs', salt='cookie-session',
-        serializer=session_json_serializer,
-        signer_kwargs={'key_derivation': 'hmac', 'digest_method': sha1}
-    )
-    session_data = s.loads(cookie)
+    session_data = s.loads('b.'+cookie)
     print(session_data)
     #check login status and reject request if needed
     in_system, group = check_login()
