@@ -66,17 +66,6 @@ const Profile = () => {
   //     });
   // });
 
-  function fetchJson(url, options = {}) {
-    if (!options.headers) {
-      options.headers = new Headers({ Accept: "application/json" });
-    }
-
-    options.credentials = "include";
-
-    console.log("return Val: ", returnValue);
-    return returnValue;
-  }
-
   // console.log("this is the data", dataProvider.data);
 
   // useEffect(() => {
