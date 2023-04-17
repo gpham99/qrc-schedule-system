@@ -672,24 +672,16 @@ def time_window():
     return {'start_date':start_date, 'end_date':end_date}
 
 
-"""
 #take in the tutors' chosen shifts and use them to create the master schedule
 def write_master_schedule():
     #Get the list of all disciplines
     disciplines = get_disciplines()
     tutors = []
-    avail_tables = []
     open_shifts = []
     #open_shifts: The schedule skeleton / list of shifts per discipline that could be taken
     for i in range(len(disciplines)):
         open_shifts.append(ast.literal_eval(get_discipline_shifts_offered(disciplines[i])))
 
-
-    for i in range(len(disciplines)):
-        dictionary = {}
-        for j in range(len(open_shifts[i])):
-            dictionary[open_shifts[i][j]] = []
-            avail_tables.append(dictionary)
     
     avail_tables = []
     for i in range(len(disciplines)):
@@ -711,8 +703,10 @@ def write_master_schedule():
     print("Done")
 
 
-   
-
+""""
+#greedy algorithm to determine a possible allocation of schedule shifts
+#tutors: [] list of User objects representing all tutors in the roster
+#avail_tables: [] 
 def greedy(tutors, avail_tables, open_shifts, favorites):
     attempts = 0
     assigned = 0
@@ -823,8 +817,8 @@ def algorithm(totaltries, tutors, avail_tables, open_shifts, favorites):
         for line in soln[0]:
             print(line)
 
-    return possible_solutions"""
-
+    return possible_solutions
+"""
 
 #     # Setting debug to True enables debug output. This line should be
 #     # removed before deploying a production app.
