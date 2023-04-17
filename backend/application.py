@@ -37,6 +37,8 @@ import pandas as pd
 from hashlib import sha1
 from flask.sessions import session_json_serializer
 from itsdangerous import URLSafeTimedSerializer
+from flask.sessions import open_session
+
 
 #roster path variables for the list of tutors
 UPLOAD_FOLDER = '.'
@@ -300,14 +302,15 @@ def update_tutor_info():
 @application.route('/api/tutor/get_info', methods = ['GET'])
 #@jwt_required()
 def tutor_info():
-    cookie = request.headers.get('Authorization')
+    session_data = open_session(application, request)
+    # cookie = request.headers.get('Authorization')
 
-    s = URLSafeTimedSerializer(
-        ';sufhiagr3yugfjcnkdlmsx0-w9u4fhbuewiejfigehbjrs', salt='cookie-session',
-        serializer=session_json_serializer,
-        signer_kwargs={'key_derivation': 'hmac', 'digest_method': sha1}
-    )
-    session_data = s.loads(cookie)
+    # s = URLSafeTimedSerializer(
+    #     ';sufhiagr3yugfjcnkdlmsx0-w9u4fhbuewiejfigehbjrs', salt='cookie-session',
+    #     serializer=session_json_serializer,
+    #     signer_kwargs={'key_derivation': 'hmac', 'digest_method': sha1}
+    # )
+    # session_data = s.loads(cookie)
     print(session_data)
     #check login status and reject request if needed
     in_system, group = check_login()
