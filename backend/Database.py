@@ -1,8 +1,6 @@
 import sqlite3 as sql
+import ast
 
-
-# import datetime
-# import time
 # The Database file includes:
 
 # 1. the creation of tables
@@ -51,6 +49,12 @@ import sqlite3 as sql
 # get_discipline_abbreviation(discipline)
 # get_time_window(block)
 # get_block()
+# get_master_schedule_columns():
+# get_block_number():
+# get_favorite_shifts(user):
+# get_favorite_shifts_high(user):
+# get_favorite_shifts_med(user):
+# get_favorite_shifts_low(user):
 
 # 7. The ability to check if elements in the database
 # check_user(email)
@@ -76,6 +80,12 @@ import sqlite3 as sql
 # check_time(current_time, block)
 # clear_absences()
 # reboot_database(all_disciplines, exceptions)
+# reconfigure_when_adding()
+# reconfigure_after_deleting()
+# wipe(discipline)
+# find_first_name(attempted_name)
+# get_occur(roster)
+# find_from_username(username)
 
 
 # Function to create the master_schedule
@@ -147,7 +157,7 @@ def add_tutor(name, email):
     next_block_la = 0
     individual_tutor = 0
     tutoring_disciplines = '[]'
-    favorite_shifts = '[]'
+    favorite_shifts = '[[],[],[]]'
     absence = 0
     try:
         with sql.connect("database.db") as conn:
@@ -162,7 +172,7 @@ def add_tutor(name, email):
                             'this_block_la, next_block_la, individual_tutor, favorite_shifts, absence) '
                             'VALUES(?, ?, ?, ?, ?, ?, ?,?, ?, ?)',
                             (email, name, status, shift_cap, tutoring_disciplines, this_block_la,
-                             next_block_la, individual_tutor,favorite_shifts, absence))
+                             next_block_la, individual_tutor, favorite_shifts, absence))
             # If the user is being put into the roster and the name
             elif data[1] == name:
                 email, name, status, shift_cap, tutoring_disciplines, this_block_la, next_block_la, individual_tutor, \
@@ -191,7 +201,7 @@ def add_tutor(name, email):
                             'this_block_la, next_block_la, individual_tutor, favorite_shifts, absence) '
                             'VALUES(?, ?, ?, ?, ?, ?, ?,?, ?, ?)',
                             (email, name, status, shift_cap, tutoring_disciplines, this_block_la, next_block_la,
-                             individual_tutor,favorite_shifts, absence))
+                             individual_tutor, favorite_shifts, absence))
             conn.commit()
     except:
         conn.rollback()
@@ -588,14 +598,14 @@ def get_admin_roster():
 def get_disciplines():
     try:
         with sql.connect("database.db") as conn:
-            disciplines_list = []
+            disciplines = []
             cur = conn.cursor()
             sql_search_query = 'SELECT * FROM disciplines'
             cur.execute(sql_search_query)
             records = cur.fetchall()
             for record in records:
-                disciplines_list.append(record[0])
-            return disciplines_list
+                disciplines.append(record[0])
+            return disciplines
     except:
         conn.rollback()
     finally:
@@ -712,18 +722,32 @@ def get_block_number():
         conn.close()
 
 
-# Function to get a user's preffered shifts
+# Function to get a user's preferred shifts
 def get_favorite_shifts(user):
-    try:
+    while True:
         with sql.connect("database.db") as conn:
             cur = conn.cursor()
             cur.execute("SELECT * FROM tutors WHERE email = ?", (user,))
-            data = list(cur.fetchone())
-            return data[8]
-    except:
-        conn.rollback()
-    finally:
-        conn.close()
+            data = cur.fetchone()
+            return ast.literal_eval(data[8])
+
+
+# Function to get a user's preferred shifts
+def get_favorite_shifts_high(user):
+    favorite_shifts = get_favorite_shifts(user)
+    return favorite_shifts[0]
+
+
+# Function to get a user's preferred shifts
+def get_favorite_shifts_med(user):
+    favorite_shifts = get_favorite_shifts(user)
+    return favorite_shifts[1]
+
+
+# Function to get a user's preferred shifts
+def get_favorite_shifts_low(user):
+    favorite_shifts = get_favorite_shifts(user)
+    return favorite_shifts[2]
 
 
 # Function to get a user's absence
@@ -926,6 +950,7 @@ def update_favorite_shifts(user, new_favorite_shifts):
             cur = conn.cursor()
             update_query = 'UPDATE tutors SET favorite_shifts = ? WHERE email = ?'
             favored_shifts = str(new_favorite_shifts)
+            print(favored_shifts)
             cur.execute(update_query, (favored_shifts, user))
             conn.commit()
     except:
@@ -1311,7 +1336,7 @@ def wipe(discipline):
     delete_table(discipline)
 
 
-# Function to check if a user is in there by looking name
+# Function to return user from database with first name or first name and last initial
 # returns the row of user data if it exists and a None if not
 def find_first_name(attempted_name):
     roster = get_roster()
@@ -1322,11 +1347,11 @@ def find_first_name(attempted_name):
         split_data = data.split(' ')
         # if the name is in the roster
         if new_name[0].lower() == split_data[0].lower():
-            # check if there are multiple occurences of that name
+            # check if there are multiple occurrences of that name
             if occur[new_name[0].lower()] == 1:
                 return name
             # if the bane was put in without further info
-            elif occur[new_name[0].lower()] > 1 and len(new_name) ==1:
+            elif occur[new_name[0].lower()] > 1 and len(new_name) == 1:
                 return name
             # if name was put in and also the first letter of last name matches
             elif new_name[1].lower() == split_data[1][0].lower():
@@ -1349,19 +1374,39 @@ def get_occur(roster):
     return occur
 
 
+# given username return first name,and also last initial if multiple people have the same first name
+def find_from_username(username):
+    roster = get_roster()
+    occur = get_occur(roster)
+    if get_single_tutor_info(username) is not None:
+        _, data, _, _, _, _, _, _, _, _ = get_single_tutor_info(username)
+        name = data.split()
+        if occur[name[0].lower()] == 1:
+            return name[0]
+        elif occur[name[0].lower()] > 1 and len(name) == 1:
+            return name[0]
+        elif occur[name[0].lower()] > 1:
+            return name[0] + ' ' + name[1][0]
+        else:
+            return None
+    else:
+        return None
+
+
 if __name__ == '__main__':
     disciplines_list = ["CS", "Math", "Econ", "Physics", "CHBC"]
+    new_favorite_shifts = [[1, 2, 3, 4, 5], [5, 6], [9, 11]]
     tutors1 = ['James Jones', 'Rick Sanchez', 'May June', "Jerry Smith", 'Jerry Mouse']
     tutors2 = ['James email', 'Rick Email', 'May email', "Jerry email", 'Joe email']
     clear_table('tutors')
     add_tutor('James Jones', 'other email')
     add_tutor('James May', ' james email')
-
-    print(find_first_name('James.m'))
-    print(find_first_name('jerry.m'))
-    print(find_first_name('jameS.j'))
-    print(find_first_name('james.m'))
-    print(find_first_name('james'))
-
-
+    add_tutor('Jones May', "new email")
+    print(get_single_tutor_info('other email'))
+    print(get_favorite_shifts_med('other email'))
+    update_favorite_shifts('other email', new_favorite_shifts)
+    print(get_single_tutor_info('other email'))
+    print(get_favorite_shifts_high('other email'))
+    print(get_favorite_shifts_med('other email'))
+    print(get_favorite_shifts_low('other email'))
 # database changes
