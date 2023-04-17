@@ -446,7 +446,7 @@ def add_new_admin():
 @jwt_required()
 def remove_admin():
     req = request.get_json()
-    admin_email = req['email']
+    admin_email = req['body']['email']
     delete_admins(admin_email)
     return {"msg": "Removed successfully"}
 
