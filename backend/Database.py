@@ -1,9 +1,6 @@
 import sqlite3 as sql
 import ast
 
-
-# import datetime
-# import time
 # The Database file includes:
 
 # 1. the creation of tables
@@ -52,6 +49,12 @@ import ast
 # get_discipline_abbreviation(discipline)
 # get_time_window(block)
 # get_block()
+# get_master_schedule_columns():
+# get_block_number():
+# get_favorite_shifts(user):
+# get_favorite_shifts_high(user):
+# get_favorite_shifts_med(user):
+# get_favorite_shifts_low(user):
 
 # 7. The ability to check if elements in the database
 # check_user(email)
@@ -77,6 +80,12 @@ import ast
 # check_time(current_time, block)
 # clear_absences()
 # reboot_database(all_disciplines, exceptions)
+# reconfigure_when_adding()
+# reconfigure_after_deleting()
+# wipe(discipline)
+# find_first_name(attempted_name)
+# get_occur(roster)
+# find_from_username(username)
 
 
 # Function to create the master_schedule
