@@ -231,21 +231,21 @@ def get_master_schedule():
                             for i in range(len(discipline_list)):
                                 discipline_list[i] = abbreviations[disciplines.index(discipline_list[i])]
                             #output_str = "/".join(discipline_list) + ": " + str(tutor_entry[1])
-                            output_dict = {"tutor": tutor_entry[1],
-                                    "name": find_from_username(email),
+                            output_dict = {"tutor": find_from_username(tutor_entry[1]),
+                                    "email": email,
                                     "discipline": abbreviations[d],
                                     "other_disciplines": "/".join(discipline_list)}
                             shift_list.append(output_dict)
                     if not tutor_found:
                         print("Warning: One tutor (", email, ") not found in database. Omitting corresponding shift.")
                         output_dict = {"tutor": None,
-                                "name": None,
+                                "email": None,
                                 "discipline": abbreviations[d],
                                 "other_disciplines": None}
                         shift_list.append(output_dict)
                 else: #if email == None, implying no tutor signed up
                     output_dict = {"tutor": None,
-                            "name": None,
+                            "email": None,
                             "discipline": abbreviations[d],
                             "other_disciplines": None}
                     shift_list.append(output_dict)
