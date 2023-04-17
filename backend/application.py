@@ -393,7 +393,8 @@ def update_tutors_in_master_schedule():
             #output += "Shift removed successfully\n"
         else:
             user = find_first_name(new_tutor_firstname)
-            user = authenticate(user[0], "")
+            if user != None:
+                user = authenticate(user[0], "")
             if user != None:
                 #print(user.id, shift_index, discipline_abbreviation)
                 discipline_to_change = disciplines[abbreviations.index(discipline_abbreviation)]
@@ -706,7 +707,6 @@ def write_master_schedule():
     print("Done")
 
 
-""""
 #greedy algorithm to determine a possible allocation of schedule shifts
 #tutors: [] list of User objects representing all tutors in the roster
 #avail_tables: [] 
@@ -736,7 +736,7 @@ def greedy(tutors, avail_tables, open_shifts, favorites):
                         if capacities[emails.index(tutor)] > 0:
                             master_schedule[d][shift] = tutor
                             avail_copy[d][shift] = []
-                            capacities[names.index(tutor)] -= 1
+                            capacities[emails.index(tutor)] -= 1
                             assigned += 1
                             assigned_bool = True
                             break
@@ -821,7 +821,8 @@ def algorithm(totaltries, tutors, avail_tables, open_shifts, favorites):
             print(line)
 
     return possible_solutions
-"""
+
+write_master_schedule()
 
 #     # Setting debug to True enables debug output. This line should be
 #     # removed before deploying a production app.
