@@ -107,21 +107,23 @@ const Internal = () => {
   const removeAdmin = (cellAdminEmail) => {
     const requestOptions = {
       method: "POST",
+      body: JSON.stringify({
+        email: cellAdminEmail,
+      }),
       headers: {
         "Content-Type": "application/json",
         Authorization: "JWT " + accessToken.replace(/["]+/g, ""),
-        body: JSON.stringify({
-          email: cellAdminEmail,
-        }),
       },
     };
 
     fetch("http://44.230.115.148:8080/api/remove_admin", requestOptions)
       .then((response) => {
         let res = response.json();
+        console.log(res);
         return res;
       })
       .then((data) => {
+        console.log("This is the data", data);
         if ("error" in data) {
           setIsAuthorized(false);
         }
@@ -143,8 +145,8 @@ const Internal = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: "JWT " + accessToken.replace(/["]+/g, ""),
         },
-        Authorization: "JWT " + accessToken.replace(/["]+/g, ""),
         body: JSON.stringify({
           name: adminName,
           email: adminEmail,
@@ -266,7 +268,7 @@ const Internal = () => {
                   <button
                     class="btn btn-link"
                     onClick={(e) => {
-                      let cellAdminEmail = val[1];
+                      const cellAdminEmail = val[1];
                       removeAdmin(cellAdminEmail);
                     }}
                   >
