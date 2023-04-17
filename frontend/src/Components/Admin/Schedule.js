@@ -42,7 +42,7 @@ const Schedule = () => {
             setIsAuthorized(true);
             // this set master schedule sets the data of the master schedule after fetching it
             setMasterSchedule(data);
-            // we set the unchanged master schedule to a deep clone of the current master schedule
+            // we set the unchanged master xsschedule to a deep clone of the current master schedule
             setUnchangedMasterSchedule(structuredClone(data));
           }
         });
@@ -216,7 +216,7 @@ const Schedule = () => {
                                       {shift_tutor["discipline"]}
                                     </span>
                                     /{shift_tutor["other_disciplines"]}:
-                                    {shift_tutor["tutor"].split(" ")[0]}
+                                    {shift_tutor["firstname"]}
                                   </div>
                                 )}
                               </>
@@ -230,9 +230,7 @@ const Schedule = () => {
                                     class="form-control form-control-sm"
                                     type="text"
                                     value={
-                                      masterSchedule[num][index][
-                                        "email"
-                                      ]?.split("@")[0]
+                                      masterSchedule[num][index]["firstname"]
                                     }
                                     style={{
                                       borderColor: isChanged[num + "," + index]
@@ -262,7 +260,7 @@ const Schedule = () => {
                                           ] === "") ||
                                         masterSchedule[num][index]["email"] ===
                                           unChangedMasterSchedule[num][index][
-                                            "email"
+                                            "firstname"
                                           ]?.split("@")[0];
                                       isChanged_copy[num + "," + index] =
                                         !isSame;
@@ -319,9 +317,7 @@ const Schedule = () => {
                                     class="form-control form-control-sm"
                                     type="text"
                                     value={
-                                      masterSchedule[num][index][
-                                        "email"
-                                      ]?.split("@")[0]
+                                      masterSchedule[num][index]["firstname"]
                                     }
                                     style={{
                                       borderColor: isChanged[num + "," + index]
@@ -407,9 +403,7 @@ const Schedule = () => {
                                     class="form-control form-control-sm"
                                     type="text"
                                     value={
-                                      masterSchedule[num][index][
-                                        "email"
-                                      ]?.split("@")[0]
+                                      masterSchedule[num][index]["firstname"]
                                     }
                                     style={{
                                       borderColor: isChanged[num + "," + index]
@@ -495,9 +489,7 @@ const Schedule = () => {
                                     class="form-control form-control-sm"
                                     type="text"
                                     value={
-                                      masterSchedule[num][index][
-                                        "email"
-                                      ]?.split("@")[0]
+                                      masterSchedule[num][index]["firstname"]
                                     }
                                     style={{
                                       borderColor: isChanged[num + "," + index]
