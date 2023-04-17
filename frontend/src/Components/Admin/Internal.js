@@ -143,8 +143,8 @@ const Internal = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: "JWT " + accessToken.replace(/["]+/g, ""),
         },
-        Authorization: "JWT " + accessToken.replace(/["]+/g, ""),
         body: JSON.stringify({
           name: adminName,
           email: adminEmail,
