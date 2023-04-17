@@ -104,9 +104,9 @@ const Discipline = () => {
     if (isSanitized === true) {
       fetch("http://44.230.115.148:8080/api/add_discipline", {
         method: "POST",
-        Authorization: "JWT " + accessToken.replace(/["]+/g, ""),
         headers: {
           "Content-Type": "application/json",
+          Authorization: "JWT " + accessToken.replace(/["]+/g, ""),
         },
         body: JSON.stringify({
           name: disciplineName,
