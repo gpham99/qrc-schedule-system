@@ -155,11 +155,13 @@ const Profile = () => {
                           let edittedPersonalDisciplinesCopy = {
                             ...edittedPersonalDisciplines,
                           };
+                          console.log("before", edittedPersonalDisciplines);
                           edittedPersonalDisciplinesCopy[index][1] =
                             !edittedPersonalDisciplinesCopy[index][1];
                           setEditedPersonalDisciplines(
                             edittedPersonalDisciplinesCopy
                           );
+                          console.log("after", edittedPersonalDisciplines);
                         }}
                       />
                       <label class="form-check-label">{discipline[0]}</label>
