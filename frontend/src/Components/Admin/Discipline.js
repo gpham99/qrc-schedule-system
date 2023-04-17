@@ -51,9 +51,9 @@ const Discipline = () => {
   const removeDiscipline = (dName) => {
     fetch("http://44.230.115.148:8080/api/remove_discipline", {
       method: "POST",
-      Authorization: "JWT " + accessToken.replace(/["]+/g, ""),
       headers: {
         "Content-Type": "application/json",
+        Authorization: "JWT " + accessToken.replace(/["]+/g, ""),
       },
       body: JSON.stringify({
         disciplineName: dName,
