@@ -1,5 +1,5 @@
 from models import User
-from Database import check_user, get_single_tutor_info
+from Database import *
 
 #everyone in the system has a CC email
 EMAIL_SUFFIX = '@coloradocollege.edu'

@@ -23,5 +23,6 @@ for i in range(2, 19):
 add_to_master_schedule(19, ["Computer_Science", "Mathematics", "Physics", "Economics", "Chemistry$Molecular_Biology"], ["p_mishra@coloradocollege.edu", "m_padilla@coloradocollege.edu", "j_hannebert@coloradocollege.edu", None, "g_pham@coloradocollege.edu"])
 add_admin("Steve_Getty", "sgetty@coloradocollege.edu")
 add_admin("Karen Chui", "kchui@coloradocollege.edu")
+add_admin("Pralad Mishra", "p_mishra@coloradocollege.edu")
 add_block(1)
 add_time_window(1, 1000000, 1000000)
