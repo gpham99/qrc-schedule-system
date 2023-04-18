@@ -692,205 +692,205 @@ def time_window():
 
 
 #take in the tutors' chosen shifts and use them to create the master schedule
-def write_master_schedule():
-    #Get the list of all disciplines
-    disciplines = get_disciplines()
-    tutors = []
-    open_shifts = []
-    avail_tables = []
-    #open_shifts: The schedule skeleton / list of shifts per discipline that could be taken
-    for i in range(len(disciplines)):
-        open_shifts.append(ast.literal_eval(get_discipline_shifts_offered(disciplines[i])))
+# def write_master_schedule():
+#     #Get the list of all disciplines
+#     disciplines = get_disciplines()
+#     tutors = []
+#     open_shifts = []
+#     avail_tables = []
+#     #open_shifts: The schedule skeleton / list of shifts per discipline that could be taken
+#     for i in range(len(disciplines)):
+#         open_shifts.append(ast.literal_eval(get_discipline_shifts_offered(disciplines[i])))
 
-    for i in range(len(disciplines)):
-        dictionary = {}
-        for j in range(len(open_shifts[i])):
-            dictionary[open_shifts[i][j]] = []
-        avail_tables.append(dictionary)
+#     for i in range(len(disciplines)):
+#         dictionary = {}
+#         for j in range(len(open_shifts[i])):
+#             dictionary[open_shifts[i][j]] = []
+#         avail_tables.append(dictionary)
 
-    low_priority = []
-    mid_priority = []
-    high_priority = []
-    avail_tables = []
-    for tutor in get_roster():
-        if tutor[9] == 1: #"absence" is True - tutor has unexcused absences
-            low_priority.append(User(tutor[0], tutor[1], 'tutor', tutor[2], tutor[3], tutor[4], tutor[5], tutor[6], tutor[7], tutor[8], tutor[9]))
-        elif tutor[5] == 1: #"tutor_this_block" is True - tutor is an LA this block
-            mid_priority.append(User(tutor[0], tutor[1], 'tutor', tutor[2], tutor[3], tutor[4], tutor[5], tutor[6], tutor[7], tutor[8], tutor[9]))
-        else:
-            high_priority.append(User(tutor[0], tutor[1], 'tutor', tutor[2], tutor[3], tutor[4], tutor[5], tutor[6], tutor[7], tutor[8], tutor[9]))
-        tutors = [high_priority, mid_priority, low_priority]
-    for i in range(len(disciplines)):
-        for shift in range(SHIFT_SLOTS):
-            #determine which group a tutor falls into
-            avail_tables[i][shift] = get_discipline_shift(disciplines[i], shift)
-            if avail_tables[i][shift] == None:
-                avail_tables[i][shift] = []
+#     low_priority = []
+#     mid_priority = []
+#     high_priority = []
+#     avail_tables = []
+#     for tutor in get_roster():
+#         if tutor[9] == 1: #"absence" is True - tutor has unexcused absences
+#             low_priority.append(User(tutor[0], tutor[1], 'tutor', tutor[2], tutor[3], tutor[4], tutor[5], tutor[6], tutor[7], tutor[8], tutor[9]))
+#         elif tutor[5] == 1: #"tutor_this_block" is True - tutor is an LA this block
+#             mid_priority.append(User(tutor[0], tutor[1], 'tutor', tutor[2], tutor[3], tutor[4], tutor[5], tutor[6], tutor[7], tutor[8], tutor[9]))
+#         else:
+#             high_priority.append(User(tutor[0], tutor[1], 'tutor', tutor[2], tutor[3], tutor[4], tutor[5], tutor[6], tutor[7], tutor[8], tutor[9]))
+#         tutors = [high_priority, mid_priority, low_priority]
+#     for i in range(len(disciplines)):
+#         for shift in range(SHIFT_SLOTS):
+#             #determine which group a tutor falls into
+#             avail_tables[i][shift] = get_discipline_shift(disciplines[i], shift)
+#             if avail_tables[i][shift] == None:
+#                 avail_tables[i][shift] = []
 
-    favorites = []
-    possible_solutions = algorithm(200, tutors, avail_tables, open_shifts, favorites)
+#     favorites = []
+#     possible_solutions = algorithm(200, tutors, avail_tables, open_shifts, favorites)
 
 
-#greedy algorithm to determine a possible allocation of schedule shifts
-#tutors: [] list of User objects representing all tutors in the roster
-#avail_tables: [] data structure representing tutor availability, in the format (and in order of tutor priority):
-#[[{1: [Moises, Jessica], #this dictionary is for the first discipline returned by get_disciplines
-#  3: [Pralad]},
-#  {1: [Moises, Jessica, Giang], #this dictionary is for the second discipline
-#  5: [Moises]}]],
-#[[{1: [Dan, Anusha], #this dictionary is for the first discipline returned by get_disciplines
-#  3: [John]},
-#  {1: [Dan, Anusha, Leo], #this dictionary is for the second discipline
-#  5: [Dan]}]],
-#[[{1: [Josh, Lucy], #this dictionary is for the first discipline returned by get_disciplines
-#  3: [Tyler]},
-#  {1: [Josh, Lucy, Emily], #this dictionary is for the second discipline
-#  5: [Josh]}]],
-#open_shifts: The schedule skeleton / list of shifts per discipline that could be taken
-#in the format:
-# [[1,2,3],[3,4,6],[1,2,4]] #where the lists are lists per discipline in the order returned by get_disciplines
-#priorities: {} dictionary enumerating each tutor's preferences for shifts, in the format:
-#{ 'j_hannebert': [[1,5],[2],[3]],
-#  'p_mishra': [[2],[],[3]]} #where the lists go [[high],[medium],[low]]
-def greedy(tutors, avail_tables, open_shifts):
-    attempts = 0
-    assigned = 0
-    disciplines = get_disciplines()
-    total_shifts = sum([len(shift_list) for shift_list in open_shifts])
-    capacities = [tutor.shift_capacity for tutor in tutors]
-    emails = [tutor.id for tutor in tutors]
-    sum_capacities = sum(capacities)
-    avail_copy = deepcopy(avail_tables) #delete tutors from this one; master schedule will contain only finalized changes
-    master_schedule = []
-    for i in range(len(disciplines)):
-        dictionary = {}
-        for j in range(len(open_shifts[i])):
-            dictionary[open_shifts[i][j]] = ""
-        master_schedule.append(dictionary)
-    while(assigned < total_shifts and assigned < sum_capacities and attempts < 100):
-        for d in sample(list(range(len(disciplines))), len(disciplines)): #go through disciplines in random order
-            shift = sample(open_shifts[d], 1) #select a random shift to fill
-            #let's fill it!
-            if len(avail_copy[d][shift]) > 0:
-                assigned_bool = False
-                for tutor in sample(avail_copy[d][shift],len(avail_copy[d][shift])):
-                    if capacities[emails.index(tutor)] > 0:
-                        master_schedule[d][shift] = tutor
-                        avail_copy[d][shift] = []
-                        capacities[emails.index(tutor)] -= 1
-                        assigned += 1
-                        assigned_bool = True
-                        break
-                if not assigned_bool:
-                    avail_copy[d][shift] = []
-        attempts += 1
-    if assigned == total_shifts:
-        print("Greedy algorithm stopped: all shifts filled")
-    if assigned == sum_capacities:
-        print("Greedy algorithm stopped: tutors maxed out")
-    if attempts >= 100:
-        print("Greedy algorithm stopped: algorithm gave up")
-    #for d in sample(range(len(disciplines)), len(disciplines)):
-    #    for shift in sample(open_shifts[d], len(open_shifts[d])):
-    #        if len(avail_copy[d][shift]) > 0:
-    #            master_schedule[d][shift] = ""
-    return master_schedule, assigned
+# #greedy algorithm to determine a possible allocation of schedule shifts
+# #tutors: [] list of User objects representing all tutors in the roster
+# #avail_tables: [] data structure representing tutor availability, in the format (and in order of tutor priority):
+# #[[{1: [Moises, Jessica], #this dictionary is for the first discipline returned by get_disciplines
+# #  3: [Pralad]},
+# #  {1: [Moises, Jessica, Giang], #this dictionary is for the second discipline
+# #  5: [Moises]}]],
+# #[[{1: [Dan, Anusha], #this dictionary is for the first discipline returned by get_disciplines
+# #  3: [John]},
+# #  {1: [Dan, Anusha, Leo], #this dictionary is for the second discipline
+# #  5: [Dan]}]],
+# #[[{1: [Josh, Lucy], #this dictionary is for the first discipline returned by get_disciplines
+# #  3: [Tyler]},
+# #  {1: [Josh, Lucy, Emily], #this dictionary is for the second discipline
+# #  5: [Josh]}]],
+# #open_shifts: The schedule skeleton / list of shifts per discipline that could be taken
+# #in the format:
+# # [[1,2,3],[3,4,6],[1,2,4]] #where the lists are lists per discipline in the order returned by get_disciplines
+# #priorities: {} dictionary enumerating each tutor's preferences for shifts, in the format:
+# #{ 'j_hannebert': [[1,5],[2],[3]],
+# #  'p_mishra': [[2],[],[3]]} #where the lists go [[high],[medium],[low]]
+# def greedy(tutors, avail_tables, open_shifts):
+#     attempts = 0
+#     assigned = 0
+#     disciplines = get_disciplines()
+#     total_shifts = sum([len(shift_list) for shift_list in open_shifts])
+#     capacities = [tutor.shift_capacity for tutor in tutors]
+#     emails = [tutor.id for tutor in tutors]
+#     sum_capacities = sum(capacities)
+#     avail_copy = deepcopy(avail_tables) #delete tutors from this one; master schedule will contain only finalized changes
+#     master_schedule = []
+#     for i in range(len(disciplines)):
+#         dictionary = {}
+#         for j in range(len(open_shifts[i])):
+#             dictionary[open_shifts[i][j]] = ""
+#         master_schedule.append(dictionary)
+#     while(assigned < total_shifts and assigned < sum_capacities and attempts < 100):
+#         for d in sample(list(range(len(disciplines))), len(disciplines)): #go through disciplines in random order
+#             shift = sample(open_shifts[d], 1) #select a random shift to fill
+#             #let's fill it!
+#             if len(avail_copy[d][shift]) > 0:
+#                 assigned_bool = False
+#                 for tutor in sample(avail_copy[d][shift],len(avail_copy[d][shift])):
+#                     if capacities[emails.index(tutor)] > 0:
+#                         master_schedule[d][shift] = tutor
+#                         avail_copy[d][shift] = []
+#                         capacities[emails.index(tutor)] -= 1
+#                         assigned += 1
+#                         assigned_bool = True
+#                         break
+#                 if not assigned_bool:
+#                     avail_copy[d][shift] = []
+#         attempts += 1
+#     if assigned == total_shifts:
+#         print("Greedy algorithm stopped: all shifts filled")
+#     if assigned == sum_capacities:
+#         print("Greedy algorithm stopped: tutors maxed out")
+#     if attempts >= 100:
+#         print("Greedy algorithm stopped: algorithm gave up")
+#     #for d in sample(range(len(disciplines)), len(disciplines)):
+#     #    for shift in sample(open_shifts[d], len(open_shifts[d])):
+#     #        if len(avail_copy[d][shift]) > 0:
+#     #            master_schedule[d][shift] = ""
+#     return master_schedule, assigned
             
-#calculate how unfair the schedule is for tutors, favoring higher priority tutors
-def tutor_unfairness(schedule, high_priority, mid_priority, low_priority, open_shifts):
-    unfairness_score = 0 #lower is better
-    for tutor in high_priority:
-        #count number of shifts they have been assigned
-        assigned = 0
-        for i in range(len(schedule)):
-            for j in open_shifts[i]:
-                if schedule[i][j] == tutor.name:
-                   assigned += 1
-        score_component = (tutor.shift_capacity - assigned + 1) / (tutor.shift_capacity + 1)
-        unfairness_score += 3 * score_component
-    for tutor in mid_priority:
-        #count number of shifts they have been assigned
-        assigned = 0
-        for i in range(len(schedule)):
-            for j in open_shifts[i]:
-                if schedule[i][j] == tutor.name:
-                   assigned += 1
-        score_component = (tutor.shift_capacity - assigned + 1) / (tutor.shift_capacity + 1)
-        unfairness_score += 2 * score_component
-    for tutor in low_priority:
-        #count number of shifts they have been assigned
-        assigned = 0
-        for i in range(len(schedule)):
-            for j in open_shifts[i]:
-                if schedule[i][j] == tutor.name:
-                   assigned += 1
-        score_component = (tutor.shift_capacity - assigned + 1) / (tutor.shift_capacity + 1)
-        unfairness_score += score_component
-    return unfairness_score
+# #calculate how unfair the schedule is for tutors, favoring higher priority tutors
+# def tutor_unfairness(schedule, high_priority, mid_priority, low_priority, open_shifts):
+#     unfairness_score = 0 #lower is better
+#     for tutor in high_priority:
+#         #count number of shifts they have been assigned
+#         assigned = 0
+#         for i in range(len(schedule)):
+#             for j in open_shifts[i]:
+#                 if schedule[i][j] == tutor.name:
+#                    assigned += 1
+#         score_component = (tutor.shift_capacity - assigned + 1) / (tutor.shift_capacity + 1)
+#         unfairness_score += 3 * score_component
+#     for tutor in mid_priority:
+#         #count number of shifts they have been assigned
+#         assigned = 0
+#         for i in range(len(schedule)):
+#             for j in open_shifts[i]:
+#                 if schedule[i][j] == tutor.name:
+#                    assigned += 1
+#         score_component = (tutor.shift_capacity - assigned + 1) / (tutor.shift_capacity + 1)
+#         unfairness_score += 2 * score_component
+#     for tutor in low_priority:
+#         #count number of shifts they have been assigned
+#         assigned = 0
+#         for i in range(len(schedule)):
+#             for j in open_shifts[i]:
+#                 if schedule[i][j] == tutor.name:
+#                    assigned += 1
+#         score_component = (tutor.shift_capacity - assigned + 1) / (tutor.shift_capacity + 1)
+#         unfairness_score += score_component
+#     return unfairness_score
 
-def discipline_evenness(schedule, open_shifts):
-    shift_counts = []
-    for i in range(len(schedule)):
-        shift_count = 0
-        for j in open_shifts[i]:
-            if schedule[i][j] != '':
-                shift_count += 1
-        shift_counts.append(shift_count)
-    deviation = stdev(shift_counts)
-    return deviation
+# def discipline_evenness(schedule, open_shifts):
+#     shift_counts = []
+#     for i in range(len(schedule)):
+#         shift_count = 0
+#         for j in open_shifts[i]:
+#             if schedule[i][j] != '':
+#                 shift_count += 1
+#         shift_counts.append(shift_count)
+#     deviation = stdev(shift_counts)
+#     return deviation
 
-def algorithm(totaltries, tutors, avail_tables, open_shifts, favorites):
-    high_priority = tutors[0]
-    mid_priority = tutors[1]
-    low_priority = tutors[2]
-    tutors = []
-    tutors.extend(high_priority)
-    tutors.extend(mid_priority)
-    tutors.extend(low_priority)
-    possible_solutions = []
-    for i in range(totaltries):
-        soln, assigned = greedy(tutors, avail_tables, open_shifts)
-        unfairness = tutor_unfairness(soln, high_priority, mid_priority, low_priority, open_shifts)
-        evenness = discipline_evenness(soln, open_shifts)
-        possible_solutions.append((soln, assigned, unfairness, evenness))
-    assigned_amounts = [soln[1] for soln in possible_solutions]
-    maximum = max(assigned_amounts)
-    i = 0
-    while i < len(possible_solutions):
-        soln = possible_solutions[i]
-        if soln[1] != maximum:
-            possible_solutions.remove(soln)
-        else:
-            i+=1
-    unfairness_amounts = [soln[2] for soln in possible_solutions]
-    minimum = min(unfairness_amounts)
-    i = 0
-    while i < len(possible_solutions):
-        soln = possible_solutions[i]
-        if soln[2] != minimum:
-            possible_solutions.remove(soln)
-        else:
-            i+=1
-    evenness_amounts = [soln[3] for soln in possible_solutions]
-    maximum = max(evenness_amounts)
-    i = 0
-    while i < len(possible_solutions):
-        soln = possible_solutions[i]
-        if soln[3] != maximum:
-            possible_solutions.remove(soln)
-        else:
-            i+=1
+# def algorithm(totaltries, tutors, avail_tables, open_shifts, favorites):
+#     high_priority = tutors[0]
+#     mid_priority = tutors[1]
+#     low_priority = tutors[2]
+#     tutors = []
+#     tutors.extend(high_priority)
+#     tutors.extend(mid_priority)
+#     tutors.extend(low_priority)
+#     possible_solutions = []
+#     for i in range(totaltries):
+#         soln, assigned = greedy(tutors, avail_tables, open_shifts)
+#         unfairness = tutor_unfairness(soln, high_priority, mid_priority, low_priority, open_shifts)
+#         evenness = discipline_evenness(soln, open_shifts)
+#         possible_solutions.append((soln, assigned, unfairness, evenness))
+#     assigned_amounts = [soln[1] for soln in possible_solutions]
+#     maximum = max(assigned_amounts)
+#     i = 0
+#     while i < len(possible_solutions):
+#         soln = possible_solutions[i]
+#         if soln[1] != maximum:
+#             possible_solutions.remove(soln)
+#         else:
+#             i+=1
+#     unfairness_amounts = [soln[2] for soln in possible_solutions]
+#     minimum = min(unfairness_amounts)
+#     i = 0
+#     while i < len(possible_solutions):
+#         soln = possible_solutions[i]
+#         if soln[2] != minimum:
+#             possible_solutions.remove(soln)
+#         else:
+#             i+=1
+#     evenness_amounts = [soln[3] for soln in possible_solutions]
+#     maximum = max(evenness_amounts)
+#     i = 0
+#     while i < len(possible_solutions):
+#         soln = possible_solutions[i]
+#         if soln[3] != maximum:
+#             possible_solutions.remove(soln)
+#         else:
+#             i+=1
 
-    # for soln in possible_solutions:
-    #     print(soln[1], soln[2], soln[3])   
-    #     for line in soln[0]:
-    #         print(line)
+#     # for soln in possible_solutions:
+#     #     print(soln[1], soln[2], soln[3])   
+#     #     for line in soln[0]:
+#     #         print(line)
 
-    return possible_solutions
+#     return possible_solutions
 
-write_master_schedule()
+# write_master_schedule()
 
-#     # Setting debug to True enables debug output. This line should be
-#     # removed before deploying a production app.
-#     application.debug = True
-#     application.run()
+# #     # Setting debug to True enables debug output. This line should be
+# #     # removed before deploying a production app.
+# #     application.debug = True
+# #     application.run()
