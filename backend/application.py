@@ -709,8 +709,8 @@ def write_master_schedule():
         for j in range(len(open_shifts[i])):
             dictionary[open_shifts[i][j]] = []
         table1.append(deepcopy(dictionary))
-        table2.append((deepcopy(dictionary))
-        table3.append((deepcopy(dictionary))
+        table2.append(deepcopy(dictionary))
+        table3.append(deepcopy(dictionary))
 
     low_priority = []
     mid_priority = []
