@@ -245,9 +245,14 @@ const Schedule = () => {
                                       let master_schedule_copy = {
                                         ...masterSchedule,
                                       };
+
                                       master_schedule_copy[num][index][
                                         "email"
                                       ] = new_email;
+                                      master_schedule_copy[num][index][
+                                        "firstname"
+                                      ] = new_email;
+
                                       setMasterSchedule(master_schedule_copy);
 
                                       let isChanged_copy = { ...isChanged };
@@ -332,9 +337,14 @@ const Schedule = () => {
                                       let master_schedule_copy = {
                                         ...masterSchedule,
                                       };
+
                                       master_schedule_copy[num][index][
                                         "email"
                                       ] = new_email;
+                                      master_schedule_copy[num][index][
+                                        "firstname"
+                                      ] = new_email;
+
                                       setMasterSchedule(master_schedule_copy);
 
                                       let isChanged_copy = { ...isChanged };
@@ -418,9 +428,14 @@ const Schedule = () => {
                                       let master_schedule_copy = {
                                         ...masterSchedule,
                                       };
+
                                       master_schedule_copy[num][index][
                                         "email"
                                       ] = new_email;
+                                      master_schedule_copy[num][index][
+                                        "firstname"
+                                      ] = new_email;
+
                                       setMasterSchedule(master_schedule_copy);
 
                                       let isChanged_copy = { ...isChanged };
@@ -507,6 +522,10 @@ const Schedule = () => {
                                       master_schedule_copy[num][index][
                                         "email"
                                       ] = new_email;
+                                      master_schedule_copy[num][index][
+                                        "firstname"
+                                      ] = new_email;
+
                                       setMasterSchedule(master_schedule_copy);
 
                                       let isChanged_copy = { ...isChanged };

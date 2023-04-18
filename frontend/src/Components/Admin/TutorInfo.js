@@ -68,7 +68,10 @@ const TutorInfo = () => {
       body: JSON.stringify(edittedTutorsInfo),
     };
 
-    fetch("http://44.230.115.148:8080/api/set_tutors_information", requestOptions)
+    fetch(
+      "http://44.230.115.148:8080/api/set_tutors_information",
+      requestOptions
+    )
       .then((response) => {
         let res = response.json();
         return res;
@@ -134,6 +137,7 @@ const TutorInfo = () => {
               <th class="col-sm-4">Tutor</th>
               <th class="col-sm-4">LA Status</th>
               <th class="col-sm-4">Unavailable</th>
+              <th class="col-sm-4">Unexcuses Absences</th>
             </tr>
           </thead>
           <tbody>
@@ -174,6 +178,26 @@ const TutorInfo = () => {
                         };
                         edittedTutorsInfoCopy[key]["this_block_unavailable"] =
                           !edittedTutorsInfoCopy[key]["this_block_unavailable"];
+                        setEdittedTutorsInfo(edittedTutorsInfoCopy);
+                      }}
+                    />
+                  }
+                </td>
+
+                <td>
+                  {
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      value=""
+                      checked={edittedTutorsInfo[key]["absence"]}
+                      disabled={editMode === 0 ? true : false}
+                      onChange={(e) => {
+                        let edittedTutorsInfoCopy = {
+                          ...edittedTutorsInfo,
+                        };
+                        edittedTutorsInfoCopy[key]["absence"] =
+                          !edittedTutorsInfoCopy[key]["absence"];
                         setEdittedTutorsInfo(edittedTutorsInfoCopy);
                       }}
                     />
