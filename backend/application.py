@@ -450,7 +450,7 @@ def add_new_admin():
 @jwt_required()
 def remove_admin():
     req = request.get_json()
-    admin_email = req['body']['email']
+    admin_email = req['email']
     delete_admins(admin_email)
     return {"msg": "Removed successfully"}
 
@@ -598,7 +598,9 @@ def get_tutors_information():
         name = tutor[1]
         this_block_la = True if tutor[5] == 1 else False
         this_block_unavailable = True if tutor[2] == 1 else False
-        tutor_dict = {'name': name, 'this_block_la': this_block_la, 'this_block_unavailable': this_block_unavailable}
+        absence = True if tutor[9] == 1 else False
+        tutor_dict = {'name': name, 'this_block_la': this_block_la, 'this_block_unavailable': this_block_unavailable,
+                      'absence': absence}
         ret[email] = tutor_dict
     ret = {key: val for key, val in sorted(ret.items(), key = lambda ele: ele[0])}
     return ret
@@ -613,10 +615,13 @@ def set_tutors_information():
         this_block_la = True if tutor[5] == 1 else False
         this_block_unavailable = True if tutor[2] == 1 else False
         tutor_dict = data[email]
+        absence = True if tutor[9] == 1 else False
         if tutor_dict['this_block_la'] != this_block_la:
             update_this_block_la(email)
         if tutor_dict['this_block_unavailable'] != this_block_unavailable:
             update_status(email)
+        if tutor_dict['absence'] != absence:
+            update_absence(email)
     return {'msg': 'Updates complete'}
 
 @application.route('/api/get_block', methods = ['GET'])
@@ -709,8 +714,18 @@ def write_master_schedule():
 
 #greedy algorithm to determine a possible allocation of schedule shifts
 #tutors: [] list of User objects representing all tutors in the roster
-#avail_tables: [] 
-def greedy(tutors, avail_tables, open_shifts, favorites):
+#avail_tables: [] data structure representing tutor availability, in the format:
+#[{1: [Moises, Jessica], #this dictionary is for the first discipline returned by get_disciplines
+#  3: [Pralad]},
+#  {1: [Moises, Jessica, Giang], #this dictionary is for the second discipline
+#  5: [Moises]}]
+#open_shifts: The schedule skeleton / list of shifts per discipline that could be taken
+#in the format:
+# [[1,2,3],[3,4,6],[1,2,4]] #where the lists are lists per discipline in the order returned by get_disciplines
+#priorities: {} dictionary enumerating each tutor's preferences for shifts, in the format:
+#{ 'j_hannebert': [[1,5],[2],[3]],
+#  'p_mishra': [[2],[],[3]]} #where the lists go [[high],[medium],[low]]
+def greedy(tutors, avail_tables, open_shifts, priorities):
     attempts = 0
     assigned = 0
     disciplines = get_disciplines()

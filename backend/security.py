@@ -15,7 +15,7 @@ def authenticate(username, password):
         if group == 'tutor':
             tutor_entry = get_single_tutor_info(username)
             return User(username, tutor_entry[1], group, tutor_entry[2], tutor_entry[3], tutor_entry[4], tutor_entry[5], tutor_entry[6],
-            tutor_entry[7], tutor_entry[8])
+            tutor_entry[7], tutor_entry[8], tutor_entry[9])
         elif group == 'admin':
             admin_entry = get_admin_info(username)
             return User(username, admin_entry[1], group)
@@ -27,10 +27,4 @@ def authenticate(username, password):
 def identity(payload):
     email = payload['identity']
     return authenticate(email, "")
-    email = username + EMAIL_SUFFIX
-    in_system, group = check_user(email)
-    if in_system:
-        tutor_entry = get_single_tutor_info(email)
-        return User(email, tutor_entry[1], group, tutor_entry[2], tutor_entry[3], tutor_entry[4], tutor_entry[5], tutor_entry[6],
-        tutor_entry[7])
 

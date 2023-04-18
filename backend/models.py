@@ -5,7 +5,7 @@ from ast import literal_eval
 
 class User:
     def __init__(self, email, name, group=None, this_block_unavailable = 0, shift_capacity=1, tutoring_disciplines=[],\
-        this_block_la=0, next_block_la=0, individual_tutor=0, favorited_shifts=[]):
+        this_block_la=0, next_block_la=0, individual_tutor=0, favorited_shifts=[], absence=0):
         self.id = email
         self.group = group
         self.name = name
@@ -22,6 +22,7 @@ class User:
             self.favorited_shifts = favorited_shifts
         else:
             self.favorited_shifts = literal_eval(favorited_shifts)
+        self.absence = absence
 
     def __repr__(self):
         return "User (email=%s, group=%s)"%(self.email, str(self.group))
