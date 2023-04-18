@@ -697,24 +697,21 @@ def write_master_schedule():
     disciplines = get_disciplines()
     tutors = []
     open_shifts = []
+    avail_tables = []
     #open_shifts: The schedule skeleton / list of shifts per discipline that could be taken
     for i in range(len(disciplines)):
         open_shifts.append(ast.literal_eval(get_discipline_shifts_offered(disciplines[i])))
 
-    table1 = [] #table for highest priority tutors - tutors who have not missed meetings and aren't LAs
-    table2 = [] #table for middle priority tutors - LAs
-    table3 = [] #table for lowest priority tutors - tutors with unexcused absences from meetings
     for i in range(len(disciplines)):
         dictionary = {}
         for j in range(len(open_shifts[i])):
             dictionary[open_shifts[i][j]] = []
-        table1.append(deepcopy(dictionary))
-        table2.append(deepcopy(dictionary))
-        table3.append(deepcopy(dictionary))
+        avail_tables.append(dictionary)
 
     low_priority = []
     mid_priority = []
     high_priority = []
+    avail_tables
     for tutor in get_roster():
         if tutor[9] == 1: #"absence" is True - tutor has unexcused absences
             low_priority.append(User(tutor[0], tutor[1], 'tutor', tutor[2], tutor[3], tutor[4], tutor[5], tutor[6], tutor[7], tutor[8], tutor[9]))
@@ -731,7 +728,6 @@ def write_master_schedule():
                 avail_tables[i][shift] = []
 
     favorites = []
-    avail_tables = [table1, table2, table3]
     possible_solutions = algorithm(200, tutors, avail_tables, open_shifts, favorites)
 
 
