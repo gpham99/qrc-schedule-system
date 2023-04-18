@@ -711,7 +711,7 @@ def write_master_schedule():
     low_priority = []
     mid_priority = []
     high_priority = []
-    avail_tables
+    avail_tables = []
     for tutor in get_roster():
         if tutor[9] == 1: #"absence" is True - tutor has unexcused absences
             low_priority.append(User(tutor[0], tutor[1], 'tutor', tutor[2], tutor[3], tutor[4], tutor[5], tutor[6], tutor[7], tutor[8], tutor[9]))
