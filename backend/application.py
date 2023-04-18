@@ -849,7 +849,7 @@ def algorithm(totaltries, tutors, avail_tables, open_shifts, favorites):
     tutors.extend(low_priority)
     possible_solutions = []
     for i in range(totaltries):
-        soln, assigned = greedy(tutors, avail_tables, open_shifts, favorites)
+        soln, assigned = greedy(tutors, avail_tables, open_shifts)
         unfairness = tutor_unfairness(soln, high_priority, mid_priority, low_priority, open_shifts)
         evenness = discipline_evenness(soln, open_shifts)
         possible_solutions.append((soln, assigned, unfairness, evenness))
