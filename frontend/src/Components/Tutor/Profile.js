@@ -98,7 +98,7 @@ const Profile = () => {
     const requestOptions = {
       headers: {
         "Content-Type": "application/json",
-        Authorization: cookieVal,
+        "Cookie": "session="+cookieVal,
       },
     };
 
