@@ -96,6 +96,7 @@ const Profile = () => {
     console.log("about to call api");
     const cookieVal = Cookies.get("session");
     const requestOptions = {
+      credentials: "include",
       headers: {
         "Content-Type": "application/json",
         Cookie: "session="+cookieVal,
