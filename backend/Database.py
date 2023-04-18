@@ -724,12 +724,16 @@ def get_block_number():
 
 # Function to get a user's preferred shifts
 def get_favorite_shifts(user):
-    while True:
+    try:
         with sql.connect("database.db") as conn:
             cur = conn.cursor()
             cur.execute("SELECT * FROM tutors WHERE email = ?", (user,))
             data = cur.fetchone()
             return ast.literal_eval(data[8])
+    except:
+        conn.rollback()
+    finally:
+        conn.close()
 
 
 # Function to get a user's preferred shifts
@@ -1395,18 +1399,5 @@ def find_from_username(username):
 
 if __name__ == '__main__':
     disciplines_list = ["CS", "Math", "Econ", "Physics", "CHBC"]
-    new_favorite_shifts = [[1, 2, 3, 4, 5], [5, 6], [9, 11]]
     tutors1 = ['James Jones', 'Rick Sanchez', 'May June', "Jerry Smith", 'Jerry Mouse']
     tutors2 = ['James email', 'Rick Email', 'May email', "Jerry email", 'Joe email']
-    clear_table('tutors')
-    add_tutor('James Jones', 'other email')
-    add_tutor('James May', ' james email')
-    add_tutor('Jones May', "new email")
-    print(get_single_tutor_info('other email'))
-    print(get_favorite_shifts_med('other email'))
-    update_favorite_shifts('other email', new_favorite_shifts)
-    print(get_single_tutor_info('other email'))
-    print(get_favorite_shifts_high('other email'))
-    print(get_favorite_shifts_med('other email'))
-    print(get_favorite_shifts_low('other email'))
-# database changes
