@@ -540,7 +540,7 @@ def get_availability():
     for i in range(SHIFT_SLOTS):
         all_possible_disciplines = []
         picked = ""
-        favorited = ""
+        favorited = "Low"
         shift_dict = {}
         for discipline in tutoring_disciplines:
             shifts_offered = ast.literal_eval(get_discipline_shifts_offered(discipline))
@@ -552,6 +552,7 @@ def get_availability():
                     if current_identity.id in available_tutors:
                         picked = display(get_discipline_abbreviation(discipline))
                         for j in range(3):
+                            print(current_identity.favorited_shifts[j])
                             if i in current_identity.favorited_shifts[j]:
                                 favorited = priorities[j]
         shift_dict['all_possible_disciplines'] = all_possible_disciplines
