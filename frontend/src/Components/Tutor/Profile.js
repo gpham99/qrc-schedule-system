@@ -95,11 +95,13 @@ const Profile = () => {
   useEffect(() => {
     console.log("about to call api");
     const cookieVal = Cookies.get("session");
+    setCookie("session", cookieVal);
     const requestOptions = {
       credentials: "include",
+      withCredentials: true,
       headers: {
         "Content-Type": "application/json",
-        Cookie: "session="+cookieVal,
+        //Cookie: "session="+cookieVal,
       },
     };
 
