@@ -534,12 +534,13 @@ def set_schedule_skeleton():
 @application.route('/api/tutor/get_availability', methods = ['GET'])
 @jwt_required()
 def get_availability():
+    priorities = ["High", "Medium", "Low"]
     ret = {}
     tutoring_disciplines = current_identity.disciplines
     for i in range(SHIFT_SLOTS):
         all_possible_disciplines = []
         picked = ""
-        favorited = False
+        favorited = ""
         shift_dict = {}
         for discipline in tutoring_disciplines:
             shifts_offered = ast.literal_eval(get_discipline_shifts_offered(discipline))
@@ -550,8 +551,9 @@ def get_availability():
                     available_tutors = ast.literal_eval(available_tutors_string_form)
                     if current_identity.id in available_tutors:
                         picked = display(get_discipline_abbreviation(discipline))
-                        if i in current_identity.favorited_shifts:
-                            favorited = True
+                        for j in range(3):
+                            if i in current_identity.favorited_shifts[j]:
+                                favorited = priorities[j]
         shift_dict['all_possible_disciplines'] = all_possible_disciplines
         shift_dict['picked'] = picked
         shift_dict['favorited'] = favorited
@@ -729,23 +731,23 @@ def time_window():
 
 #     favorites = []
 #     possible_solutions = algorithm(200, tutors, avail_tables, open_shifts, favorites)
+#     chosen_solution = possible_solutions[0]
+#     #chosen_solution is in the format:
+#     #[{1: "g_pham@coloradocollege.edu", #the first discipline
+#     # 5: "m_padilla@coloradocollege.edu"},
+#     # {2: "j_hannebert@coloradocollege.edu", #the second discipline
+#     # 4: "p_mishra@coloradocollege.edu"}]
+
 
 
 # #greedy algorithm to determine a possible allocation of schedule shifts
 # #tutors: [] list of User objects representing all tutors in the roster
 # #avail_tables: [] data structure representing tutor availability, in the format (and in order of tutor priority):
 # #[[{1: [Moises, Jessica], #this dictionary is for the first discipline returned by get_disciplines
+# #  2: [],
 # #  3: [Pralad]},
 # #  {1: [Moises, Jessica, Giang], #this dictionary is for the second discipline
-# #  5: [Moises]}]],
-# #[[{1: [Dan, Anusha], #this dictionary is for the first discipline returned by get_disciplines
-# #  3: [John]},
-# #  {1: [Dan, Anusha, Leo], #this dictionary is for the second discipline
-# #  5: [Dan]}]],
-# #[[{1: [Josh, Lucy], #this dictionary is for the first discipline returned by get_disciplines
-# #  3: [Tyler]},
-# #  {1: [Josh, Lucy, Emily], #this dictionary is for the second discipline
-# #  5: [Josh]}]],
+# #  2: [Moises]}]]
 # #open_shifts: The schedule skeleton / list of shifts per discipline that could be taken
 # #in the format:
 # # [[1,2,3],[3,4,6],[1,2,4]] #where the lists are lists per discipline in the order returned by get_disciplines
@@ -768,22 +770,53 @@ def time_window():
 #             dictionary[open_shifts[i][j]] = ""
 #         master_schedule.append(dictionary)
 #     while(assigned < total_shifts and assigned < sum_capacities and attempts < 100):
-#         for d in sample(list(range(len(disciplines))), len(disciplines)): #go through disciplines in random order
-#             shift = sample(open_shifts[d], 1) #select a random shift to fill
-#             #let's fill it!
-#             if len(avail_copy[d][shift]) > 0:
-#                 assigned_bool = False
-#                 for tutor in sample(avail_copy[d][shift],len(avail_copy[d][shift])):
-#                     if capacities[emails.index(tutor)] > 0:
-#                         master_schedule[d][shift] = tutor
-#                         avail_copy[d][shift] = []
-#                         capacities[emails.index(tutor)] -= 1
-#                         assigned += 1
-#                         assigned_bool = True
-#                         break
-#                 if not assigned_bool:
-#                     avail_copy[d][shift] = []
-#         attempts += 1
+#         for tutor in sample(tutors,len(tutors)): #choose a tutor at random
+#             #try to give them a shift they want
+#             assigned_bool = False
+#             for priority_list in tutor.favorited_shifts:
+#                 if assigned_bool:
+#                     break #skip on to the next tutor
+#                 for shift_index in priority_list:
+#                     if assigned_bool:
+#                         break #skip on to the next tutor
+#                     #figure out which discipline they actually signed up for, if that shift hasn't been taken
+#                     for i in range(len(disciplines)):
+#                         if assigned_bool:
+#                             break #skip on to the next tutor
+#                         discipline_dict = avail_copy[i]
+#                         #discipline = disciplines[i]
+#                         if discipline_dict[shift_index] != []: #if someone is available to take the shift
+#                             if tutor.id in discipline_dict[shift_index]: #the tutor is available for this shift
+#                                 assigned_bool = True
+#                                 master_schedule[i][shift_index] = tutor.id
+#                                 capacities[emails.index(tutor.id)] -= 1
+#                                 assigned += 1
+#                                 discipline_dict[shift_index] = []
+#                                 priority_list.remove(shift_index)
+#                     if not assigned_bool: #we checked all the disciplines but did not assign the tutor their shift
+#                     #which means the shift has already been taken by someone else
+#                         priority_list.remove(shift_index)
+#         attempts += 1 #we've iterated through all the tutors once; if we do it 100 times that means we probably can't assign more shifts
+
+
+
+
+#         # for d in sample(list(range(len(disciplines))), len(disciplines)): #go through disciplines in random order
+#         #     shift = sample(open_shifts[d], 1) #select a random shift to fill
+#         #     #let's fill it!
+#         #     if len(avail_copy[d][shift]) > 0:
+#         #         assigned_bool = False
+#         #         for tutor in sample(avail_copy[d][shift],len(avail_copy[d][shift])):
+#         #             if capacities[emails.index(tutor)] > 0:
+#         #                 master_schedule[d][shift] = tutor
+#         #                 avail_copy[d][shift] = []
+#         #                 capacities[emails.index(tutor)] -= 1
+#         #                 assigned += 1
+#         #                 assigned_bool = True
+#         #                 break
+#         #         if not assigned_bool:
+#         #             avail_copy[d][shift] = []
+#         # attempts += 1
 #     if assigned == total_shifts:
 #         print("Greedy algorithm stopped: all shifts filled")
 #     if assigned == sum_capacities:
