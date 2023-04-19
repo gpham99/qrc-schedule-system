@@ -34,10 +34,10 @@ from random import sample, choice
 import pandas as pd
 
 #deserialization of cookies
-from hashlib import sha1
-from flask.sessions import session_json_serializer
-from itsdangerous import URLSafeTimedSerializer
-from flask.sessions import open_session
+#from hashlib import sha1
+#from flask.sessions import session_json_serializer
+#from itsdangerous import URLSafeTimedSerializer
+#from flask.sessions import open_session
 
 
 #roster path variables for the list of tutors
