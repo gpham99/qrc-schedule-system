@@ -266,13 +266,26 @@ def add_discipline(discipline, abbreviation, shifts):
 
 
 # Function to add rows to a specific discipline table
+# updates rows that already exist
 def add_shifts(discipline, shift_number, available_tutors):
     try:
         with sql.connect("database.db") as conn:
             cur = conn.cursor()
-            sql_query = 'INSERT OR IGNORE INTO ' + discipline + ' (shift_number, available_tutors) VALUES (?, ?)'
-            cur.execute(sql_query, (shift_number, str(available_tutors)))
-            conn.commit()
+            sql_select_query = 'SELECT * FROM ' + str(discipline) +' WHERE shift_number =? '
+            cur.execute(sql_select_query, (shift_number,))
+            data = cur.fetchone()
+            # If the user doesn't exist add a new user
+            if data is None:
+                add_query = 'INSERT OR IGNORE INTO ' + discipline + ' (shift_number, available_tutors) VALUES (?, ?)'
+                cur.execute(add_query, (shift_number, str(available_tutors)))
+                conn.commit()
+                print("new thing")
+            # if user does exist
+            else:
+                update_query = 'UPDATE ' + discipline + ' SET available_tutors = ? WHERE shift_number = ?'
+                cur.execute(update_query, (str(available_tutors), shift_number))
+                conn.commit()
+                print("existing thing")
     except:
         conn.rollback()
     finally:
@@ -724,12 +737,16 @@ def get_block_number():
 
 # Function to get a user's preferred shifts
 def get_favorite_shifts(user):
-    while True:
+    try:
         with sql.connect("database.db") as conn:
             cur = conn.cursor()
             cur.execute("SELECT * FROM tutors WHERE email = ?", (user,))
             data = cur.fetchone()
             return ast.literal_eval(data[8])
+    except:
+        conn.rollback()
+    finally:
+        conn.close()
 
 
 # Function to get a user's preferred shifts
@@ -989,8 +1006,9 @@ def update_discipline_shifts(discipline, shift_number, new_available_tutors):
         with sql.connect("database.db") as conn:
             cur = conn.cursor()
             update_query = 'UPDATE ' + discipline + ' SET available_tutors = ? WHERE shift_number = ?'
-            cur.execute(update_query, (new_available_tutors, shift_number))
+            cur.execute(update_query, (str(new_available_tutors), shift_number))
             conn.commit()
+            print('updated yes')
     except:
         conn.rollback()
     finally:
@@ -1395,18 +1413,11 @@ def find_from_username(username):
 
 if __name__ == '__main__':
     disciplines_list = ["CS", "Math", "Econ", "Physics", "CHBC"]
-    new_favorite_shifts = [[1, 2, 3, 4, 5], [5, 6], [9, 11]]
     tutors1 = ['James Jones', 'Rick Sanchez', 'May June', "Jerry Smith", 'Jerry Mouse']
     tutors2 = ['James email', 'Rick Email', 'May email', "Jerry email", 'Joe email']
-    clear_table('tutors')
-    add_tutor('James Jones', 'other email')
-    add_tutor('James May', ' james email')
-    add_tutor('Jones May', "new email")
-    print(get_single_tutor_info('other email'))
-    print(get_favorite_shifts_med('other email'))
-    update_favorite_shifts('other email', new_favorite_shifts)
-    print(get_single_tutor_info('other email'))
-    print(get_favorite_shifts_high('other email'))
-    print(get_favorite_shifts_med('other email'))
-    print(get_favorite_shifts_low('other email'))
-# database changes
+    reboot_database(disciplines_list, 'No')
+    add_shifts("Math", 1, ['Rick Email'])
+    print(get_discipline_shift('Math', 1))
+    add_shifts("Math", 1, ['Rick Email', 'May email'])
+    print(get_discipline_shift('Math', 1))
+#add is not allowing update capabilities
