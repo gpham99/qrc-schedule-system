@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { Cookies, setCookie } from "js-cookie";
+import Cookies from "js-cookie";
+import setCookie from "js-cookie";
 
 const Profile = () => {
   const [userInfo, setUserInfo] = useState({});
