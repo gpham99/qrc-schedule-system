@@ -96,7 +96,7 @@ const Profile = () => {
   useEffect(() => {
     console.log("about to call api");
     const cookieVal = Cookies.get("session");
-    setCookie("session", cookieVal);
+    //setCookie("session", cookieVal);
     const requestOptions = {
       credentials: "include",
       withCredentials: true,
