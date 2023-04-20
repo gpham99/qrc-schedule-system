@@ -564,11 +564,6 @@ def get_availability():
 @application.route('/api/tutor/set_availability', methods = ['POST'])
 @jwt_required()
 def set_availability():
-    #check login status and reject request if needed
-    in_system, group = check_login()
-    if not in_system:
-        return Response(response="Unauthorized", status=401)
-    
     req = request.get_json()
     abbreviations = get_abbreviations()
     for i in range(len(abbreviations)):
@@ -576,6 +571,17 @@ def set_availability():
     all_disciplines = get_disciplines()
     favorited_list = [[],[],[]]
     for i in range(SHIFT_SLOTS):
+        for discipline in all_disciplines:
+            available_tutors = get_discipline_shift(discipline, i)
+            if available_tutors is not None:
+                available_tutors = ast.literal_eval(available_tutors)
+            else:
+                available_tutors = []
+            #remove tutor from any shift they had previously selected (give them a "clean slate")
+            if current_identity.id  in available_tutors:
+                available_tutors.remove(current_identity.id)
+                add_shifts(discipline, i, available_tutors)
+        #add tutor to shifts they did pick
         picked = req[str(i)]['picked']
         if picked == '':
             continue
@@ -588,7 +594,9 @@ def set_availability():
             available_tutors = []
         if current_identity.id not in available_tutors:
             available_tutors.append(current_identity.id)
-        add_shifts(discipline, i, available_tutors)
+        add_shifts(discipline, i, available_tutors)   
+        if picked != None and favorited:
+            favorited_list.append(i)
         
         if picked != None and favorited == "Low":
             favorited_list[2].append(i)
