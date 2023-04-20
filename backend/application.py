@@ -645,7 +645,6 @@ def set_tutors_information():
     return {'msg': 'Updates complete'}
 
 @application.route('/api/get_block', methods = ['GET'])
-@jwt_required()
 def get_block():
     block_number = int(get_block_number())
     return {'block': block_number}
