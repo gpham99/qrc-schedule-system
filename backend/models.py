@@ -1,6 +1,6 @@
 import pandas as pd
 import traceback
-from Database import create_tables, add_tutor
+from Database import create_tables, add_tutor, get_roster, delete_tutors
 from ast import literal_eval
 
 class User:
@@ -37,6 +37,9 @@ class User:
 #Method to read in an Excel file and turn it into a legible table
 #roster_file: Accepts a file path or file-like object as the file
 def read_roster(roster_file):
+    #get a list of tutors to compare against
+    existing_tutors = get_roster()
+    emails = [tutor[0] for tutor in existing_tutors]
     df = pd.read_excel(roster_file)
     df.columns = df.columns.str.lower()
     output = []
@@ -69,10 +72,22 @@ def read_roster(roster_file):
                         valid_tutor = False
                         break
                 if valid_tutor:
-                    add_tutor(tutor[0], tutor[1])
+                    if tutor[0] in emails: #this tutor already exists!
+                        for existing_tutor in existing_tutors:
+                            if existing_tutor[0] == tutor[0]:
+                                if not existing_tutor[1] == tutor[1]: #the roster has given us new information on this tutor
+                                    delete_tutors(tutor[0])
+                                    add_tutor(tutor[0], tutor[1])
+                                    emails.remove(tutor[0])
+                        #otherwise, no need to update the database, but we can take them off the list
+                        emails.remove(tutor[0])
+                    else: #this tutor does not already exist
+                        add_tutor(tutor[0], tutor[1])               
             else:
                 errors += "Tutor " + tutor[1] + " not added to database, please ensure that their email ends in '@coloradocollege.edu'\n"
-        return errors + "File successfully read, all other tutors added to database", df
+            for email in emails: #by now, all emails for existing tutors have been removed if the tutors were in the roster
+                delete_tutors(email)
+        return errors + "File successfully read, all tutors added to database", df
     return "No tutors found in file", None
 
 
