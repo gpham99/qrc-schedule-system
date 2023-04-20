@@ -733,18 +733,16 @@ def write_master_schedule():
             if avail_tables[i][shift] == None:
                 avail_tables[i][shift] = []
 
-    favorites = []
-    possible_solutions = algorithm(200, tutors, avail_tables, open_shifts)
-    print("possible_solutions",possible_solutions)
-    chosen_solution = possible_solutions[0]
-    #chosen_solution is in the format:
+    solution = algorithm(200, tutors, avail_tables, open_shifts)
+    print("chosen solution",solution)
+    #solution is in the format:
     #[{1: "g_pham@coloradocollege.edu", #the first discipline
     # 5: "m_padilla@coloradocollege.edu"},
     # {2: "j_hannebert@coloradocollege.edu", #the second discipline
     # 4: "p_mishra@coloradocollege.edu"}]
     for i in range(SHIFT_SLOTS):
         assignments = []
-        for dict in chosen_solution:
+        for dict in solution:
             assignments.append(dict[i])
         add_to_master_schedule(i, disciplines, assignments)
     return({"msg" : "DONE"})
@@ -929,7 +927,7 @@ def algorithm(totaltries, tutors, avail_tables, open_shifts):
     #     for line in soln[0]:
     #         print(line)
 
-    return possible_solutions
+    return possible_solutions[0][0]
 
 # #     # Setting debug to True enables debug output. This line should be
 # #     # removed before deploying a production app.
