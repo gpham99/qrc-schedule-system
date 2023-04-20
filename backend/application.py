@@ -562,7 +562,7 @@ def get_availability():
     return ret
 
 @application.route('/api/tutor/set_availability', methods = ['POST'])
-#@jwt_required()
+@jwt_required()
 def set_availability():
     #check login status and reject request if needed
     in_system, group = check_login()
