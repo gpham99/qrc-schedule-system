@@ -34,6 +34,8 @@ const Schedule = () => {
   // checks if the submission is legal
   const [isLegalSubmission, setIsLegalSubmission] = useState(null);
 
+  const priority_levels = ["Low", "Medium", "High"];
+
   // call /api/tutor/get_schedule and pass the access token as authorization header
   useEffect(() => {
     if (isAuthorized !== false) {
@@ -75,7 +77,7 @@ const Schedule = () => {
           return res;
         })
         .then((data) => {
-          // console.log("availabilities data: ", data);
+          console.log(data);
           setAvailabilities(data);
           setEdittedAvailabilities(structuredClone(data));
         });
@@ -88,17 +90,18 @@ const Schedule = () => {
   };
 
   // check that a cell cannot be favorited if the discipline in that same cell is not picked -> true means illegal
-  const checkDidFavoriteWithoutChoice = () => {
-    for (const [key, value] of Object.entries(edittedAvailabilities)) {
-      if (value["picked"] === "" && value["favorited"] === true) {
-        return true;
-      }
-    }
-    return false;
-  };
+  // const checkDidFavoriteWithoutChoice = () => {
+  //   for (const [key, value] of Object.entries(edittedAvailabilities)) {
+  //     if (value["picked"] === "" && value["favorited"] === true) {
+  //       return true;
+  //     }
+  //   }
+  //   return false;
+  // };
 
   // a function to send the submission
   const sendSubmission = () => {
+    console.log("to send", edittedAvailabilities);
     const requestOptions = {
       method: "POST",
       headers: {
@@ -108,7 +111,10 @@ const Schedule = () => {
       body: JSON.stringify(edittedAvailabilities),
     };
 
-    fetch("http://44.230.115.148:8080/api/tutor/set_availability", requestOptions)
+    fetch(
+      "http://44.230.115.148:8080/api/tutor/set_availability",
+      requestOptions
+    )
       .then((response) => {
         let res = response.json();
         return res;
@@ -228,53 +234,37 @@ const Schedule = () => {
                         .length !== 0 && (
                         //DROPDOWN
                         <div class="d-flex flex-row justify-content-center align-items-center pl-2">
-                          {/* the star button */}
-                          <div class="w-25">
-                            <button
-                              class="p-2 d-flex align-items-center justify-content-center"
-                              onClick={() => {
+                          <div class="w-25 p-2 ">
+                            <DropdownButton
+                              title={edittedAvailabilities[num]["favorited"]}
+                              onSelect={(e) => {
                                 let edittedAvailabilitiesCopy = {
                                   ...edittedAvailabilities,
                                 };
-                                edittedAvailabilitiesCopy[num]["favorited"] =
-                                  !edittedAvailabilitiesCopy[num]["favorited"];
+
+                                edittedAvailabilitiesCopy[num]["favorited"] = e;
+
                                 setEdittedAvailabilities(
                                   edittedAvailabilitiesCopy
                                 );
                               }}
                             >
-                              {edittedAvailabilities[num]["favorited"] ===
-                              true ? (
-                                <svg
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  width="16"
-                                  height="16"
-                                  fill="#e1ad01"
-                                  class="bi bi-star-fill"
-                                  viewBox="0 0 16 16"
+                              {priority_levels.map((level) => (
+                                <Dropdown.Item
+                                  class="dropdown-item"
+                                  eventKey={level}
                                 >
-                                  <path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z" />
-                                </svg>
-                              ) : (
-                                <svg
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  width="16"
-                                  height="16"
-                                  fill="#bebebe"
-                                  class="bi bi-star-fill"
-                                  viewBox="0 0 16 16"
-                                >
-                                  <path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z" />
-                                </svg>
-                              )}
-                            </button>
+                                  {level}
+                                </Dropdown.Item>
+                              ))}
+                            </DropdownButton>
                           </div>
                           {/* the dropdown button */}
                           <div class="p-2 w-75 d-flex flex-justify-start">
                             <DropdownButton
                               title={
                                 edittedAvailabilities[num]["picked"] === ""
-                                  ? "Select"
+                                  ? "None"
                                   : edittedAvailabilities[num]["picked"]
                               }
                               variant={
@@ -286,7 +276,8 @@ const Schedule = () => {
                                 let edittedAvailabilitiesCopy = {
                                   ...edittedAvailabilities,
                                 };
-                                if (e === "Select") {
+
+                                if (e === "None") {
                                   edittedAvailabilitiesCopy[num]["picked"] = "";
                                 } else {
                                   edittedAvailabilitiesCopy[num]["picked"] = e;
@@ -308,8 +299,8 @@ const Schedule = () => {
                               ))}
 
                               <Dropdown.Divider />
-                              <Dropdown.Item eventKey="Select">
-                                <p class="text-secondary p-0 m-0"> Select</p>
+                              <Dropdown.Item eventKey="None">
+                                <p class="text-secondary p-0 m-0"> None</p>
                               </Dropdown.Item>
                             </DropdownButton>
                           </div>
@@ -333,53 +324,39 @@ const Schedule = () => {
                         .length !== 0 && (
                         //DROPDOWN
                         <div class="d-flex flex-row justify-content-center align-items-center pl-2">
-                          {/* the star button */}
-                          <div class="w-25">
-                            <button
-                              class="p-2 d-flex align-items-center justify-content-center"
-                              onClick={() => {
+                          {/*priorities*/}
+                          <div class="w-25 p-2 ">
+                            <DropdownButton
+                              defaultValue={"Low"}
+                              title={edittedAvailabilities[num]["favorited"]}
+                              onSelect={(e) => {
                                 let edittedAvailabilitiesCopy = {
                                   ...edittedAvailabilities,
                                 };
-                                edittedAvailabilitiesCopy[num]["favorited"] =
-                                  !edittedAvailabilitiesCopy[num]["favorited"];
+
+                                edittedAvailabilitiesCopy[num]["favorited"] = e;
+
                                 setEdittedAvailabilities(
                                   edittedAvailabilitiesCopy
                                 );
                               }}
                             >
-                              {edittedAvailabilities[num]["favorited"] ===
-                              true ? (
-                                <svg
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  width="16"
-                                  height="16"
-                                  fill="#e1ad01"
-                                  class="bi bi-star-fill"
-                                  viewBox="0 0 16 16"
+                              {priority_levels.map((level) => (
+                                <Dropdown.Item
+                                  class="dropdown-item"
+                                  eventKey={level}
                                 >
-                                  <path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z" />
-                                </svg>
-                              ) : (
-                                <svg
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  width="16"
-                                  height="16"
-                                  fill="#bebebe"
-                                  class="bi bi-star-fill"
-                                  viewBox="0 0 16 16"
-                                >
-                                  <path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z" />
-                                </svg>
-                              )}
-                            </button>
+                                  {level}
+                                </Dropdown.Item>
+                              ))}
+                            </DropdownButton>
                           </div>
                           {/* the dropdown button */}
                           <div class="p-2 w-75 d-flex flex-justify-start">
                             <DropdownButton
                               title={
                                 edittedAvailabilities[num]["picked"] === ""
-                                  ? "Select"
+                                  ? "None"
                                   : edittedAvailabilities[num]["picked"]
                               }
                               variant={
@@ -391,7 +368,7 @@ const Schedule = () => {
                                 let edittedAvailabilitiesCopy = {
                                   ...edittedAvailabilities,
                                 };
-                                if (e === "Select") {
+                                if (e === "None") {
                                   edittedAvailabilitiesCopy[num]["picked"] = "";
                                 } else {
                                   edittedAvailabilitiesCopy[num]["picked"] = e;
@@ -413,8 +390,8 @@ const Schedule = () => {
                               ))}
 
                               <Dropdown.Divider />
-                              <Dropdown.Item eventKey="Select">
-                                <p class="text-secondary p-0 m-0"> Select</p>
+                              <Dropdown.Item eventKey="None">
+                                <p class="text-secondary p-0 m-0"> None</p>
                               </Dropdown.Item>
                             </DropdownButton>
                           </div>
@@ -437,53 +414,39 @@ const Schedule = () => {
                         .length !== 0 && (
                         //DROPDOWN
                         <div class="d-flex flex-row justify-content-center align-items-center  pl-2">
-                          {/* the star button */}
-                          <div>
-                            <button
-                              class="p-2 d-flex align-items-center justify-content-center"
-                              onClick={() => {
+                          {/*priorities*/}
+                          <div class="w-25 p-2 ">
+                            <DropdownButton
+                              defaultValue={"Low"}
+                              title={edittedAvailabilities[num]["favorited"]}
+                              onSelect={(e) => {
                                 let edittedAvailabilitiesCopy = {
                                   ...edittedAvailabilities,
                                 };
-                                edittedAvailabilitiesCopy[num]["favorited"] =
-                                  !edittedAvailabilitiesCopy[num]["favorited"];
+
+                                edittedAvailabilitiesCopy[num]["favorited"] = e;
+
                                 setEdittedAvailabilities(
                                   edittedAvailabilitiesCopy
                                 );
                               }}
                             >
-                              {edittedAvailabilities[num]["favorited"] ===
-                              true ? (
-                                <svg
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  width="16"
-                                  height="16"
-                                  fill="#e1ad01"
-                                  class="bi bi-star-fill"
-                                  viewBox="0 0 16 16"
+                              {priority_levels.map((level) => (
+                                <Dropdown.Item
+                                  class="dropdown-item"
+                                  eventKey={level}
                                 >
-                                  <path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z" />
-                                </svg>
-                              ) : (
-                                <svg
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  width="16"
-                                  height="16"
-                                  fill="#bebebe"
-                                  class="bi bi-star-fill"
-                                  viewBox="0 0 16 16"
-                                >
-                                  <path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z" />
-                                </svg>
-                              )}
-                            </button>
+                                  {level}
+                                </Dropdown.Item>
+                              ))}
+                            </DropdownButton>
                           </div>
                           {/* the dropdown button */}
                           <div class="p-2 w-75 d-flex flex-justify-start">
                             <DropdownButton
                               title={
                                 edittedAvailabilities[num]["picked"] === ""
-                                  ? "Select"
+                                  ? "None"
                                   : edittedAvailabilities[num]["picked"]
                               }
                               variant={
@@ -495,7 +458,7 @@ const Schedule = () => {
                                 let edittedAvailabilitiesCopy = {
                                   ...edittedAvailabilities,
                                 };
-                                if (e === "Select") {
+                                if (e === "None") {
                                   edittedAvailabilitiesCopy[num]["picked"] = "";
                                 } else {
                                   edittedAvailabilitiesCopy[num]["picked"] = e;
@@ -517,8 +480,8 @@ const Schedule = () => {
                               ))}
 
                               <Dropdown.Divider />
-                              <Dropdown.Item eventKey="Select">
-                                <p class="text-secondary p-0 m-0"> Select</p>
+                              <Dropdown.Item eventKey="None">
+                                <p class="text-secondary p-0 m-0"> None</p>
                               </Dropdown.Item>
                             </DropdownButton>
                           </div>
@@ -541,46 +504,36 @@ const Schedule = () => {
                         .length !== 0 && (
                         //DROPDOWN
                         <div class="d-flex flex-row justify-content-center align-items-center  pl-2">
-                          {/* the star button */}
-                          <div>
-                            <button
-                              class="p-2 d-flex align-items-center justify-content-center"
-                              onClick={() => {
+                          {/*priorities*/}
+                          <div class="w-25 p-2 ">
+                            <DropdownButton
+                              defaultValue={"Low"}
+                              title={
+                                edittedAvailabilities[num]["favorited"] === ""
+                                  ? "Low"
+                                  : edittedAvailabilities[num]["favorited"]
+                              }
+                              onSelect={(e) => {
                                 let edittedAvailabilitiesCopy = {
                                   ...edittedAvailabilities,
                                 };
-                                edittedAvailabilitiesCopy[num]["favorited"] =
-                                  !edittedAvailabilitiesCopy[num]["favorited"];
+
+                                edittedAvailabilitiesCopy[num]["favorited"] = e;
+
                                 setEdittedAvailabilities(
                                   edittedAvailabilitiesCopy
                                 );
                               }}
                             >
-                              {edittedAvailabilities[num]["favorited"] ===
-                              true ? (
-                                <svg
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  width="16"
-                                  height="16"
-                                  fill="#e1ad01"
-                                  class="bi bi-star-fill"
-                                  viewBox="0 0 16 16"
+                              {priority_levels.map((level) => (
+                                <Dropdown.Item
+                                  class="dropdown-item"
+                                  eventKey={level}
                                 >
-                                  <path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z" />
-                                </svg>
-                              ) : (
-                                <svg
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  width="16"
-                                  height="16"
-                                  fill="#bebebe"
-                                  class="bi bi-star-fill"
-                                  viewBox="0 0 16 16"
-                                >
-                                  <path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z" />
-                                </svg>
-                              )}
-                            </button>
+                                  {level}
+                                </Dropdown.Item>
+                              ))}
+                            </DropdownButton>
                           </div>
                           {/* the dropdown button */}
                           <div class="p-2 w-75 d-flex flex-justify-start">
@@ -588,7 +541,7 @@ const Schedule = () => {
                               align="end"
                               title={
                                 edittedAvailabilities[num]["picked"] === ""
-                                  ? "Select"
+                                  ? "None"
                                   : edittedAvailabilities[num]["picked"]
                               }
                               variant={
@@ -600,7 +553,7 @@ const Schedule = () => {
                                 let edittedAvailabilitiesCopy = {
                                   ...edittedAvailabilities,
                                 };
-                                if (e === "Select") {
+                                if (e === "None") {
                                   edittedAvailabilitiesCopy[num]["picked"] = "";
                                 } else {
                                   edittedAvailabilitiesCopy[num]["picked"] = e;
@@ -622,8 +575,8 @@ const Schedule = () => {
                               ))}
 
                               <Dropdown.Divider />
-                              <Dropdown.Item eventKey="Select">
-                                <p class="text-secondary p-0 m-0"> Select</p>
+                              <Dropdown.Item eventKey="None">
+                                <p class="text-secondary p-0 m-0"> None</p>
                               </Dropdown.Item>
                             </DropdownButton>
                           </div>
@@ -643,8 +596,7 @@ const Schedule = () => {
           <button
             class="btn btn-info"
             onClick={(e) => {
-              console.log("editted avails: ", edittedAvailabilities);
-              let didFavoriteWithoutChoice = checkDidFavoriteWithoutChoice();
+              // let didFavoriteWithoutChoice = checkDidFavoriteWithoutChoice();
               // console.log(
               //   "did you favorite something without making a choice: ",
               //   didFavoriteWithoutChoice
@@ -654,10 +606,9 @@ const Schedule = () => {
               //   "the negation of didFavoriteWithoutChoice: ",
               //   !didFavoriteWithoutChoice
               // );
-              setIsLegalSubmission(!didFavoriteWithoutChoice);
-              if (!didFavoriteWithoutChoice) {
-                sendSubmission();
-              }
+              // setIsLegalSubmission(!didFavoriteWithoutChoice);
+              // if (!didFavoriteWithoutChoice) {
+              sendSubmission();
             }}
           >
             Save
