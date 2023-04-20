@@ -248,7 +248,6 @@ def add_discipline(discipline, abbreviation, shifts):
                 cur.execute('INSERT OR IGNORE INTO disciplines (discipline, abbreviation,  available_shifts) '
                             'VALUES(?, ?, ?)', (discipline, abbreviation, str(shifts)))
                 conn.commit()
-
             # else update
             else:
                 update_query = 'UPDATE disciplines SET abbreviation = ?, available_shifts = ? WHERE discipline = ?'
@@ -271,7 +270,7 @@ def add_shifts(discipline, shift_number, available_tutors):
     try:
         with sql.connect("database.db") as conn:
             cur = conn.cursor()
-            sql_select_query = 'SELECT * FROM ' + str(discipline) +' WHERE shift_number =? '
+            sql_select_query = 'SELECT * FROM ' + str(discipline) + ' WHERE shift_number =? '
             cur.execute(sql_select_query, (shift_number,))
             data = cur.fetchone()
             # If the user doesn't exist add a new user
@@ -279,13 +278,11 @@ def add_shifts(discipline, shift_number, available_tutors):
                 add_query = 'INSERT OR IGNORE INTO ' + discipline + ' (shift_number, available_tutors) VALUES (?, ?)'
                 cur.execute(add_query, (shift_number, str(available_tutors)))
                 conn.commit()
-                print("new thing")
             # if user does exist
             else:
                 update_query = 'UPDATE ' + discipline + ' SET available_tutors = ? WHERE shift_number = ?'
                 cur.execute(update_query, (str(available_tutors), shift_number))
                 conn.commit()
-                print("existing thing")
     except:
         conn.rollback()
     finally:
@@ -297,20 +294,45 @@ def add_to_master_schedule(shift_number, all_disciplines, assignments):
     try:
         with sql.connect("database.db") as conn:
             cur = conn.cursor()
-            t_list = (shift_number,)
-            values = "VALUES(?, "
-            sql_query = 'INSERT OR IGNORE INTO master_schedule(shift_number, '
-            for index, tutor in enumerate(assignments):
-                t_list = t_list + (tutor,)
-                if index != len(assignments) - 1:
-                    values = values + "?, "
-                    sql_query = sql_query + all_disciplines[index] + ", "
-                else:
-                    values = values + "?)"
-                    sql_query = sql_query + all_disciplines[index] + ") "
-            sql_query = sql_query + values
-            cur.execute(sql_query, t_list)
-            conn.commit()
+            # check to see if what type of data we have
+            sql_select_query = 'SELECT * FROM master_schedule WHERE shift_number=? '
+            cur.execute(sql_select_query, (shift_number,))
+            data = cur.fetchone()
+            # if the data exists
+            if data is  None:
+                # if no other row exist
+                t_list = (shift_number,)
+                values = "VALUES(?, "
+                sql_query = 'INSERT OR IGNORE INTO master_schedule(shift_number, '
+                for index, tutor in enumerate(assignments):
+                    t_list = t_list + (tutor,)
+                    if index != len(assignments) - 1:
+                        values = values + "?, "
+                        sql_query = sql_query + all_disciplines[index] + ", "
+                    else:
+                        values = values + "?)"
+                        sql_query = sql_query + all_disciplines[index] + ") "
+                sql_query = sql_query + values
+                cur.execute(sql_query, t_list)
+                conn.commit()
+
+            # if another row already exists
+            else:
+                params = ()
+                update_query = 'UPDATE master_schedule SET '
+                # loop through the disciplines to get every column
+                for item, discipline in enumerate(all_disciplines):
+                    if item != len(all_disciplines) - 1:
+                        update_query = update_query + discipline + ' = ?, '
+                    else:
+                        update_query = update_query + discipline + ' = ? '
+
+                    params = params + (assignments[item],)
+
+                params = params + (shift_number,)
+                update_query = update_query + ' WHERE shift_number = ?'
+                cur.execute(update_query, params)
+
     except:
         conn.rollback()
     finally:
@@ -1416,8 +1438,9 @@ if __name__ == '__main__':
     tutors1 = ['James Jones', 'Rick Sanchez', 'May June', "Jerry Smith", 'Jerry Mouse']
     tutors2 = ['James email', 'Rick Email', 'May email', "Jerry email", 'Joe email']
     reboot_database(disciplines_list, 'No')
-    add_shifts("Math", 1, ['Rick Email'])
-    print(get_discipline_shift('Math', 1))
-    add_shifts("Math", 1, ['Rick Email', 'May email'])
-    print(get_discipline_shift('Math', 1))
-#add is not allowing update capabilities
+    add_to_master_schedule(1, disciplines_list, tutors1)
+    print(get_master_schedule_info(1))
+    add_to_master_schedule(1,disciplines_list, tutors2)
+    print(get_master_schedule_info(1))
+
+# add is not allowing update capabilities
