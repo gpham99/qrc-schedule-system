@@ -85,8 +85,8 @@ def read_roster(roster_file):
                         add_tutor(tutor[0], tutor[1])               
             else:
                 errors += "Tutor " + tutor[1] + " not added to database, please ensure that their email ends in '@coloradocollege.edu'\n"
-            for email in emails: #by now, all emails for existing tutors have been removed if the tutors were in the roster
-                delete_tutors(email)
+        for email in emails: #by now, all emails for existing tutors have been removed if the tutors were in the roster
+            delete_tutors(email)
         return errors + "File successfully read, all tutors added to database", df
     return "No tutors found in file", None
 
