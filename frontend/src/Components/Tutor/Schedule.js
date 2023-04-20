@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Dropdown from "react-bootstrap/Dropdown";
 import DropdownButton from "react-bootstrap/DropdownButton";
+import ButtonGroup from "react-bootstrap/ButtonGroup";
 
 const Schedule = () => {
   // grab the access token from the local storage
@@ -233,8 +234,8 @@ const Schedule = () => {
                       {availabilities[num]["all_possible_disciplines"]
                         .length !== 0 && (
                         //DROPDOWN
-                        <div class="d-flex flex-row justify-content-center align-items-center pl-2">
-                          <div class="w-25 p-2 ">
+                        <div class="flex justify-content-center align-items-center pl-2">
+                          <ButtonGroup>
                             <DropdownButton
                               title={edittedAvailabilities[num]["favorited"]}
                               onSelect={(e) => {
@@ -248,6 +249,7 @@ const Schedule = () => {
                                   edittedAvailabilitiesCopy
                                 );
                               }}
+                              variant="secondary"
                             >
                               {priority_levels.map((level) => (
                                 <Dropdown.Item
@@ -258,9 +260,7 @@ const Schedule = () => {
                                 </Dropdown.Item>
                               ))}
                             </DropdownButton>
-                          </div>
-                          {/* the dropdown button */}
-                          <div class="p-2 w-75 d-flex flex-justify-start">
+
                             <DropdownButton
                               title={
                                 edittedAvailabilities[num]["picked"] === ""
@@ -303,7 +303,7 @@ const Schedule = () => {
                                 <p class="text-secondary p-0 m-0"> None</p>
                               </Dropdown.Item>
                             </DropdownButton>
-                          </div>
+                          </ButtonGroup>
                         </div>
                       )}
                     </>
@@ -325,7 +325,7 @@ const Schedule = () => {
                         //DROPDOWN
                         <div class="d-flex flex-row justify-content-center align-items-center pl-2">
                           {/*priorities*/}
-                          <div class="w-25 p-2 ">
+                          <ButtonGroup>
                             <DropdownButton
                               defaultValue={"Low"}
                               title={edittedAvailabilities[num]["favorited"]}
@@ -340,6 +340,7 @@ const Schedule = () => {
                                   edittedAvailabilitiesCopy
                                 );
                               }}
+                              variant="secondary"
                             >
                               {priority_levels.map((level) => (
                                 <Dropdown.Item
@@ -350,9 +351,7 @@ const Schedule = () => {
                                 </Dropdown.Item>
                               ))}
                             </DropdownButton>
-                          </div>
-                          {/* the dropdown button */}
-                          <div class="p-2 w-75 d-flex flex-justify-start">
+
                             <DropdownButton
                               title={
                                 edittedAvailabilities[num]["picked"] === ""
@@ -394,7 +393,7 @@ const Schedule = () => {
                                 <p class="text-secondary p-0 m-0"> None</p>
                               </Dropdown.Item>
                             </DropdownButton>
-                          </div>
+                          </ButtonGroup>
                         </div>
                       )}
                     </>
@@ -414,8 +413,7 @@ const Schedule = () => {
                         .length !== 0 && (
                         //DROPDOWN
                         <div class="d-flex flex-row justify-content-center align-items-center  pl-2">
-                          {/*priorities*/}
-                          <div class="w-25 p-2 ">
+                          <ButtonGroup>
                             <DropdownButton
                               defaultValue={"Low"}
                               title={edittedAvailabilities[num]["favorited"]}
@@ -430,6 +428,7 @@ const Schedule = () => {
                                   edittedAvailabilitiesCopy
                                 );
                               }}
+                              variant="secondary"
                             >
                               {priority_levels.map((level) => (
                                 <Dropdown.Item
@@ -440,9 +439,7 @@ const Schedule = () => {
                                 </Dropdown.Item>
                               ))}
                             </DropdownButton>
-                          </div>
-                          {/* the dropdown button */}
-                          <div class="p-2 w-75 d-flex flex-justify-start">
+
                             <DropdownButton
                               title={
                                 edittedAvailabilities[num]["picked"] === ""
@@ -484,7 +481,7 @@ const Schedule = () => {
                                 <p class="text-secondary p-0 m-0"> None</p>
                               </Dropdown.Item>
                             </DropdownButton>
-                          </div>
+                          </ButtonGroup>
                         </div>
                       )}
                     </>
@@ -505,7 +502,7 @@ const Schedule = () => {
                         //DROPDOWN
                         <div class="d-flex flex-row justify-content-center align-items-center  pl-2">
                           {/*priorities*/}
-                          <div class="w-25 p-2 ">
+                          <ButtonGroup>
                             <DropdownButton
                               defaultValue={"Low"}
                               title={
@@ -524,6 +521,7 @@ const Schedule = () => {
                                   edittedAvailabilitiesCopy
                                 );
                               }}
+                              variant="secondary"
                             >
                               {priority_levels.map((level) => (
                                 <Dropdown.Item
@@ -534,9 +532,7 @@ const Schedule = () => {
                                 </Dropdown.Item>
                               ))}
                             </DropdownButton>
-                          </div>
-                          {/* the dropdown button */}
-                          <div class="p-2 w-75 d-flex flex-justify-start">
+                            {/* the dropdown button */}
                             <DropdownButton
                               align="end"
                               title={
@@ -579,7 +575,7 @@ const Schedule = () => {
                                 <p class="text-secondary p-0 m-0"> None</p>
                               </Dropdown.Item>
                             </DropdownButton>
-                          </div>
+                          </ButtonGroup>
                         </div>
                       )}
                     </>
