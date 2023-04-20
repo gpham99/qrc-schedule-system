@@ -595,8 +595,6 @@ def set_availability():
         if current_identity.id not in available_tutors:
             available_tutors.append(current_identity.id)
         add_shifts(discipline, i, available_tutors)   
-        if picked != None and favorited:
-            favorited_list.append(i)
         
         if picked != None and favorited == "Low":
             favorited_list[2].append(i)
