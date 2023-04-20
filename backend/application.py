@@ -774,7 +774,7 @@ def greedy(tutors, avail_tables, open_shifts):
     master_schedule = []
     for i in range(len(disciplines)):
         dictionary = {}
-        for j in range(len(open_shifts[i])):
+        for j in range(SHIFT_SLOTS):
             dictionary[open_shifts[i][j]] = ""
         master_schedule.append(dictionary)
     while(assigned < total_shifts and assigned < sum_capacities and attempts < 100):
