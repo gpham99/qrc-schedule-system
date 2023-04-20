@@ -22,6 +22,23 @@ const Admin = () => {
       return true;
     }
   });
+  const [blockNum, setBlockNum] = useState(1);
+
+  useEffect(() => {
+    const requestOptions = {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+    };
+
+    fetch("http://44.230.115.148:8080/api/get_block", requestOptions)
+      .then((response) => {
+        return response.json();
+      })
+      .then((data) => {
+        console.log(data);
+        setBlockNum(data["block"]);
+      });
+  }, []);
 
   useEffect(() => {
     const requestOptions = {
@@ -61,7 +78,10 @@ const Admin = () => {
         <div>
           <div class="bg-info">
             <div class="pt-3">
-              <h4 class="text-white text-bold"> Welcome to Block 4!</h4>
+              <h4 class="text-white text-bold">
+                {" "}
+                Welcome to Block {blockNum}!
+              </h4>
             </div>
 
             <div class="d-flex flex-row justify-content-end pr-4">
