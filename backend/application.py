@@ -730,7 +730,7 @@ def write_master_schedule():
         else:
             high_priority.append(User(tutor[0], tutor[1], 'tutor', tutor[2], tutor[3], tutor[4], tutor[5], tutor[6], tutor[7], tutor[8], tutor[9]))
         tutors = [high_priority, mid_priority, low_priority]
-    print("avail_tables: " + avail_tables)
+    print("avail_tables: " + str(avail_tables))
     for i in range(len(disciplines)):
         for shift in range(SHIFT_SLOTS):
             avail_tables[i][shift] = get_discipline_shift(disciplines[i], shift)
