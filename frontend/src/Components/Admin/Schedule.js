@@ -24,6 +24,26 @@ const Schedule = () => {
     }
   });
 
+  const [blockNum, setBlockNum] = useState(1);
+
+  useEffect(() => {
+    const requestOptions = {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+    };
+
+    fetch("http://44.230.115.148:8080/api/get_block", requestOptions)
+      .then((response) => {
+        return response.json();
+      })
+      .then((data) => {
+        console.log("get block return val: ", data);
+        if (data["block"]) {
+          setBlockNum(data["block"]);
+        }
+      });
+  }, []);
+
   useEffect(() => {
     if (isAuthorized !== false) {
       const requestOptions = {
@@ -187,7 +207,7 @@ const Schedule = () => {
           {/* uneditable skeleton of master schedule */}
           <div className="pr-4 pl-4 table-responsive" ref={componentRef}>
             <div class="p-3">
-              <h5>Block 4 Drop-In Schedule</h5>
+              <h5>Block {blockNum} Drop-In Schedule</h5>
             </div>
             <table className="table table-bordered table-sm">
               <thead className="table-dark">

@@ -29,7 +29,10 @@ const ScheduleSkeleton = () => {
         },
       };
 
-      fetch("http://44.230.115.148:8080/api/get_schedule_skeleton", requestOptions)
+      fetch(
+        "http://44.230.115.148:8080/api/get_schedule_skeleton",
+        requestOptions
+      )
         .then((response) => {
           let res = response.json();
           return res;
@@ -62,7 +65,10 @@ const ScheduleSkeleton = () => {
       body: JSON.stringify(edittedScheduleSkeleton),
     };
 
-    fetch("http://44.230.115.148:8080/api/set_schedule_skeleton", requestOptions)
+    fetch(
+      "http://44.230.115.148:8080/api/set_schedule_skeleton",
+      requestOptions
+    )
       .then((response) => {
         let res = response.json();
         return res;
@@ -161,7 +167,7 @@ const ScheduleSkeleton = () => {
               {[0, 1, 2, 3, 4]?.map((num) => (
                 <td key={num}>
                   {editMode === 0 ? (
-                    <div>
+                    <div class="d-flex flex-column align-items-center">
                       {scheduleSkeleton[num]?.map((discipline) => (
                         <>
                           {discipline.split(",")[1] === "True" && (
@@ -223,7 +229,7 @@ const ScheduleSkeleton = () => {
               {[5, 6, 7, 8, 9]?.map((num) => (
                 <td key={num}>
                   {editMode === 0 ? (
-                    <div>
+                    <div class="d-flex flex-column align-items-center">
                       {scheduleSkeleton[num]?.map((discipline) => (
                         <span class="badge badge-dark m-1 pl-3 pr-3">
                           {discipline.split(",")[0]}
@@ -281,7 +287,7 @@ const ScheduleSkeleton = () => {
               {[10, 11, 12, 13, 14]?.map((num) => (
                 <td key={num}>
                   {editMode === 0 ? (
-                    <div>
+                    <div class="d-flex flex-column align-items-center">
                       {scheduleSkeleton[num]?.map((discipline) => (
                         <span class="badge badge-dark m-1 pl-3 pr-3">
                           {discipline.split(",")[0]}
@@ -339,7 +345,7 @@ const ScheduleSkeleton = () => {
               {[15, 16, 17, 18, 19]?.map((num) => (
                 <td key={num}>
                   {editMode === 0 ? (
-                    <div>
+                    <div class="d-flex flex-column align-items-center">
                       {scheduleSkeleton[num]?.map((discipline) => (
                         <span class="badge badge-dark m-1 pl-3 pr-3">
                           {discipline.split(",")[0]}
