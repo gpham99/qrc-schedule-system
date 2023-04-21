@@ -473,8 +473,8 @@ def set_time_window():
     time_data = request.get_json()
     start_time = time.mktime(parser.parse(time_data['start_time']).timetuple())
     end_time = time.mktime(parser.parse(time_data['end_time']).timetuple())
-    block = time_data['block']
-    current_block = get_block_number()
+    block = int(time_data['block'])
+    current_block = int(get_block_number())
     if block != current_block:
         add_block(block)
         add_time_window(block, start_time, end_time)
