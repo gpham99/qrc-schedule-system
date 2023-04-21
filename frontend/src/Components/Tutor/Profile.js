@@ -70,7 +70,7 @@ const Profile = () => {
         return res;
       })
       .then((data) => {
-        console.log(data);
+        console.log("WHAT IS THIS", data["msg"]);
       });
   };
 

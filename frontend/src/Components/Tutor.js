@@ -31,7 +31,7 @@ const Tutor = () => {
         return response.json();
       })
       .then((data) => {
-        console.log("get block return val: ", data);
+        //console.log("get block return val: ", data);
         if (data["block"]) {
           setBlockNum(data["block"]);
         }
@@ -125,7 +125,7 @@ const Tutor = () => {
 
           <div class="p-5">
             <Routes>
-              <Route path=""></Route>
+              <Route path="*" element={<Profile></Profile>}></Route>
               <Route path="schedule" element={<Schedule></Schedule>}></Route>
               <Route path="profile" element={<Profile></Profile>}></Route>
             </Routes>

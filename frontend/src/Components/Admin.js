@@ -168,7 +168,7 @@ const Admin = () => {
 
           <div class="p-5">
             <Routes>
-              <Route path=""></Route>
+              <Route path="*" element={<TimeWindow></TimeWindow>}></Route>
               <Route path="excel" element={<Roster></Roster>}></Route>
               <Route
                 path="tutor-info"
