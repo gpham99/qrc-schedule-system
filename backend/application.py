@@ -756,6 +756,8 @@ def greedy(tutors, avail_tables, open_shifts):
         master_schedule.append(dictionary)
     while(assigned < total_shifts and assigned < sum_capacities and attempts < 100):
         for tutor in sample(tutors,len(tutors)): #choose a tutor at random
+            if capacities[emails.index(tutor.id)] < 1:
+                continue #skip this tutor, they cannot take any more shifts
             #try to give them a shift they want
             assigned_bool = False
             for priority_list in tutor.favorited_shifts:
