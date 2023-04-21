@@ -29,11 +29,8 @@ const Schedule = () => {
   // to people
   const [edittedAvailabilities, setEdittedAvailabilities] = useState({});
 
-  // This will deteremine if the schedule is in edit mode or view mode
-  const [editMode, setEditMode] = useState(0);
-
-  // checks if the submission is legal
-  const [isLegalSubmission, setIsLegalSubmission] = useState(null);
+  // checks if the time window is active
+  const [isActiveTW, setIsActiveTW] = useState("False");
 
   const priority_levels = ["Low", "Medium", "High"];
 
@@ -58,6 +55,23 @@ const Schedule = () => {
         });
     }
   }, []);
+
+  function checkTimeWindow () {
+    fetch("http://44.230.115.148:8080//api/is_within_window").then((response) => {
+      let res = response.json();
+      return res;
+    })
+    .then((data) => {
+      setIsActiveTW(data.msg)
+    })
+  }
+
+  useEffect(() => {
+    const timerId = setInterval(checkTimeWindow, 1000);
+    return function cleanup() {
+      clearInterval(timerId);
+    };
+  }, [])
 
   // call /api/tutor/get_availability and pass the access token as authorization header
   useEffect(() => {
@@ -85,21 +99,6 @@ const Schedule = () => {
     }
   }, [schedule]);
 
-  const toggleEditMode = () => {
-    setEdittedAvailabilities(structuredClone(availabilities));
-    setEditMode(1 - editMode);
-  };
-
-  // check that a cell cannot be favorited if the discipline in that same cell is not picked -> true means illegal
-  // const checkDidFavoriteWithoutChoice = () => {
-  //   for (const [key, value] of Object.entries(edittedAvailabilities)) {
-  //     if (value["picked"] === "" && value["favorited"] === true) {
-  //       return true;
-  //     }
-  //   }
-  //   return false;
-  // };
-
   // a function to send the submission
   const sendSubmission = () => {
     console.log("to send", edittedAvailabilities);
@@ -124,8 +123,6 @@ const Schedule = () => {
         console.log("data: ", data);
         setSubmitMessage(data["msg"]);
       });
-
-    setEditMode(1 - editMode);
   };
 
   return (
@@ -142,36 +139,7 @@ const Schedule = () => {
         </section>
       </div>
 
-      {/* pencil button */}
-      {editMode === 0 ? (
-        <div class="d-flex justify-content-end pl-4 pr-4">
-          <button class="btn btn-info" onClick={toggleEditMode}>
-            <span class="p-1"> Edit </span>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              fill="currentColor"
-              class="bi bi-pencil-square"
-              viewBox="0 0 16 16"
-            >
-              <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
-              <path
-                fill-rule="evenodd"
-                d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"
-              />
-            </svg>
-          </button>
-        </div>
-      ) : (
-        <div class="d-flex justify-content-end pl-4 pr-4">
-          <button class="btn btn-info" onClick={toggleEditMode}>
-            <span class="p-1"> Cancel </span>
-          </button>
-        </div>
-      )}
-
-      {submitMessage !== null && (
+      {(submitMessage !== null && isActiveTW === "True") && (
         <div
           class="alert alert-success m-4 alert-dismissible fade show"
           role="alert"
@@ -189,27 +157,21 @@ const Schedule = () => {
       )}
 
       {/* the alert message */}
-      {isLegalSubmission === false && (
-        <div
-          class="alert alert-warning m-4 alert-dismissible fade show"
-          role="alert"
-        >
-          <div className="m-3 text-left">
-            You cannot favorite a shift without choosing a discipline. Your
-            submission didn't go through. Please edit your choices.
-          </div>
-          <button
-            type="button"
-            class="close"
-            data-dismiss="alert"
-            aria-label="Close"
-          >
-            <span aria-hidden="true">&times;</span>
-          </button>
+      {
+        isActiveTW === "False" && (
+          <div
+        class="alert alert-warning m-4 alert-dismissible fade show"
+        role="alert"
+      >
+        <div className="m-3 text-left">
+          If you just made a selection and the time window is now closed, you might want to reload the page to get your
+          shift results.
         </div>
-      )}
+      </div>
+        )
+      }
 
-      {/* uneditable skeleton of master schedule */}
+      {/* skeleton of master schedule */}
       <div class="p-4 table-responsive">
         <table class="table table-bordered">
           <thead class="table-dark">
@@ -227,7 +189,7 @@ const Schedule = () => {
               <td>2-4 PM</td>
               {[0, 1, 2, 3, 4].map((num) => (
                 <td key={num}>
-                  {editMode === 0 ? (
+                  {isActiveTW === "False" ? (
                     <span class="badge badge-success p-1">{schedule[num]}</span>
                   ) : (
                     <>
@@ -316,7 +278,7 @@ const Schedule = () => {
               <td>4-6 PM</td>
               {[5, 6, 7, 8, 9].map((num) => (
                 <td key={num}>
-                  {editMode === 0 ? (
+                  {isActiveTW === "False"  ? (
                     <span class="badge badge-success p-1">{schedule[num]}</span>
                   ) : (
                     <>
@@ -405,7 +367,7 @@ const Schedule = () => {
               <td>6-8 PM</td>
               {[10, 11, 12, 13, 14].map((num) => (
                 <td key={num}>
-                  {editMode === 0 ? (
+                  {isActiveTW === "False"  ? (
                     <span class="badge badge-success p-1">{schedule[num]}</span>
                   ) : (
                     <>
@@ -493,7 +455,7 @@ const Schedule = () => {
               <td>8-10 PM</td>
               {[15, 16, 17, 18, 19].map((num) => (
                 <td key={num}>
-                  {editMode === 0 ? (
+                  {isActiveTW === "False"  ? (
                     <span class="badge badge-success p-1">{schedule[num]}</span>
                   ) : (
                     <>
@@ -587,23 +549,11 @@ const Schedule = () => {
         </table>
       </div>
 
-      {editMode === 1 && (
+      {isActiveTW === "True" && (
         <div class="p-4">
           <button
             class="btn btn-info"
             onClick={(e) => {
-              // let didFavoriteWithoutChoice = checkDidFavoriteWithoutChoice();
-              // console.log(
-              //   "did you favorite something without making a choice: ",
-              //   didFavoriteWithoutChoice
-              // );
-
-              // console.log(
-              //   "the negation of didFavoriteWithoutChoice: ",
-              //   !didFavoriteWithoutChoice
-              // );
-              // setIsLegalSubmission(!didFavoriteWithoutChoice);
-              // if (!didFavoriteWithoutChoice) {
               sendSubmission();
             }}
           >
