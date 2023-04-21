@@ -63,7 +63,7 @@ jwt = JWT(application, authenticate, identity)
 application.config["JWT_EXPIRATION_DELTA"] = timedelta(seconds=86400)
 
 #set up scheduler to activate at the end of the time window
-s = sched.scheduler(time.monotonic, time.sleep)
+s = sched.scheduler(time.time, time.sleep)
 
 #check if an uploaded file is the correct format
 def allowed_file(filename):
@@ -484,7 +484,8 @@ def set_time_window():
         add_time_window(block, start_time, end_time)
     else:
         update_time_window(current_block, start_time, end_time)
-    s.enterabs(end_time, 1, write_master_schedule())
+    s.enterabs(end_time, 1, write_master_schedule)
+    s.run()
     return {"msg": "Time window successfully set"}
     
 
