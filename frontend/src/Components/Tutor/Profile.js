@@ -9,6 +9,7 @@ const Profile = () => {
   );
   const [availabilityStatus, setAvailabilityStatus] = useState(null);
   const [laStatus, setLaStatus] = useState(null);
+  const [isUpdate, setIsUpdate] = useState(false);
 
   // grab the access token from the local storage
   const accessToken = localStorage.getItem("access_token");
@@ -52,6 +53,7 @@ const Profile = () => {
   // the function to handle the update button
   const handleUpdate = (e) => {
     e.preventDefault();
+    setIsUpdate(true);
     const requestOptions = {
       method: "POST",
       body: JSON.stringify({
@@ -129,7 +131,7 @@ const Profile = () => {
         </div>
       </div>
 
-      <div class="d-flex flex-column justify-content-center align-items-center p-4 w-75 border border-primary mt-3 mb-3">
+      <div className={!isUpdate ? "d-flex flex-column justify-content-center align-items-center p-4 w-75 border border-primary mt-3 mb-3" : "d-flex flex-column justify-content-center align-items-center p-4 w-75 border border-success mt-3 mb-3"}>
         <div class="pl-3 pr-3 w-75">
           <h4>Your Editable Information</h4>
           <p class="text-left font-weight-light font-italic">
