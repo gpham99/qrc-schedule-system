@@ -35,8 +35,10 @@ const Admin = () => {
         return response.json();
       })
       .then((data) => {
-        console.log(data);
-        setBlockNum(data["block"]);
+        console.log("get block return val: ", data);
+        if (data["block"]) {
+          setBlockNum(data["block"]);
+        }
       });
   }, []);
 

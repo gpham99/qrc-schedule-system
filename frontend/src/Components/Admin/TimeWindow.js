@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import Alert from "react-bootstrap/Alert";
 
 const TimeWindow = () => {
   // grab the access token from the local storage
@@ -8,7 +9,8 @@ const TimeWindow = () => {
 
   const [startDate, setStartDate] = useState(new Date());
   const [endDate, setEndDate] = useState(new Date());
-  const [newBlock, setNewBlock] = useState(false);
+  const [newBlock, setNewBlock] = useState(1);
+  const [createTWclicked, setCreateTWclicked] = useState(false);
 
   // if access token is null, then this person is not authorized, show page 401 -> authorized state is false
   // else if they have an access token, verify first
@@ -19,6 +21,24 @@ const TimeWindow = () => {
       return null;
     }
   });
+
+  useEffect(() => {
+    const requestOptions = {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+    };
+
+    fetch("http://44.230.115.148:8080/api/get_block", requestOptions)
+      .then((response) => {
+        return response.json();
+      })
+      .then((data) => {
+        console.log("This is the loaded block", data["block"]);
+        if (data["block"]) {
+          setNewBlock(data["block"]);
+        }
+      });
+  }, []);
 
   useEffect(() => {
     if (isAuthorized !== false) {
@@ -53,8 +73,8 @@ const TimeWindow = () => {
   }, []);
 
   // func to post to database
-  const createTimeWindow = (e) => {
-    // console.log(newBlock);
+  const createTimeWindow = (blockNumber) => {
+    console.log("block we want to set to:", blockNumber);
     fetch("http://44.230.115.148:8080/api/set_time_window", {
       method: "POST",
       headers: {
@@ -64,7 +84,7 @@ const TimeWindow = () => {
       body: JSON.stringify({
         start_time: startDate,
         end_time: endDate,
-        new_block: newBlock,
+        block: blockNumber,
       }),
     })
       .then((response) => {
@@ -95,6 +115,14 @@ const TimeWindow = () => {
           <p class="text-left font-weight-light font-italic">
             "Update the time window" only updates the time window.
           </p>
+          {createTWclicked === true ? (
+            <Alert variant={"success"}>
+              The time window has been set! Please reload the page to view the
+              correct block number.
+            </Alert>
+          ) : (
+            <></>
+          )}
         </section>
       </div>
 
@@ -133,10 +161,7 @@ const TimeWindow = () => {
         <button
           type="button"
           class="btn btn-secondary mr-3 ml-3"
-          onClick={() => {
-            setNewBlock(false);
-            createTimeWindow();
-          }}
+          onClick={() => createTimeWindow(newBlock)}
         >
           Update the time window
         </button>
@@ -144,8 +169,8 @@ const TimeWindow = () => {
           type="button"
           class="btn btn-info mr-3 ml-3"
           onClick={() => {
-            setNewBlock(true);
-            createTimeWindow();
+            createTimeWindow((newBlock % 8) + 1);
+            setCreateTWclicked(true);
           }}
         >
           Create a new time window
