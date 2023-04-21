@@ -123,7 +123,7 @@ def index():
             key=my_secret
         )
         if not next:
-            return redirect('http://44.230.115.148:80/'+group+'?username='+session['username']+'&token='+str(token))
+            return redirect('http://44.230.115.148:80/'+group+("/profile" if group == "tutor" else "")+'?username='+session['username']+'&token='+str(token))
         return redirect(next)
 
 @application.route('/profile')
@@ -155,7 +155,7 @@ def login():
             payload=payload_data,
             key=my_secret
         )
-        return redirect('http://44.230.115.148:80/'+group+'?username='+session['username']+'&token='+str(token))
+        return redirect('http://44.230.115.148:80/'+group+("/profile" if group == "tutor" else "")+'?username='+session['username']+'&token='+str(token))
         #return redirect('http://44.230.115.148:80/'+'?token='+str(token))
 
     next = request.args.get('next')
