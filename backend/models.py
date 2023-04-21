@@ -76,12 +76,15 @@ def read_roster(roster_file):
                         for existing_tutor in existing_tutors:
                             if existing_tutor[0] == tutor[0]:
                                 if not existing_tutor[1] == tutor[1]: #the roster has given us new information on this tutor
+                                    print("Changing tutor info: ", tutor[1], existing_tutor[1])
                                     delete_tutors(tutor[0])
                                     add_tutor(tutor[0], tutor[1])
                                     emails.remove(tutor[0])
                         #otherwise, no need to update the database, but we can take them off the list
+                        print("Removing tutor: ", tutor[1])
                         emails.remove(tutor[0])
                     else: #this tutor does not already exist
+                        print("New tutor: ", tutor[1], existing_tutor[1])
                         add_tutor(tutor[0], tutor[1])               
             else:
                 errors += "Tutor " + tutor[1] + " not added to database, please ensure that their email ends in '@coloradocollege.edu'\n"
