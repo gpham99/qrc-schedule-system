@@ -137,10 +137,11 @@ const Schedule = () => {
           </p>
           <p class="text-left">
             During the time window set by QRC administrators, you may select
-            the shifts for which you are available and mark which ones you
-            prefer (High = most preferred, Low = least preferred). Once the 
-            window closes, the schedule is set. If you need to, contact a QRC
-            administrator to change your schedule.
+            the shifts and disciplines for which you are available and mark
+            which ones you prefer (High = most preferred, Low = least
+            preferred). Once the window closes, the schedule is set based on
+            a combination of all tutors' preferences. If you need to, contact
+            a QRC administrator to change your schedule.
           </p>
         </section>
       </div>

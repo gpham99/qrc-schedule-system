@@ -138,7 +138,10 @@ const Discipline = () => {
       </div>
 
       <div class="row justify-content-center">
-        <p>Please don't remove one of the five offered disciplines.</p>
+        <p>NOTE: if you remove a discipline during a block, the change may
+          cause bugs or unexpected behavior. It is recommended that you only
+          remove disciplines outside the school year or during the time
+          window for availability selection.</p>
       </div>
 
       <div class="d-flex justify-content-end p-4">
