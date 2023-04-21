@@ -17,6 +17,15 @@ const Unauthorized = () => {
         <a href="http://44.230.115.148/">
           <button class="btn btn-light m-3">Go Home</button>
         </a>
+        <a
+          href="http://44.230.115.148:8080/cas_logout"
+          onClick={() => {
+            localStorage.clear();
+          }}
+          class="p-3 text-white"
+        >
+          <button class="btn btn-light m-3">CAS Logout</button>
+        </a>
       </div>
     </div>
   );
