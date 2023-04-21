@@ -214,12 +214,12 @@ const Schedule = () => {
         <table class="table table-bordered">
           <thead class="table-dark">
             <tr>
-              <th class="col-sm-2"></th>
-              <th class="col-sm-2">Sunday</th>
-              <th class="col-sm-2">Monday</th>
-              <th class="col-sm-2">Tuesday</th>
-              <th class="col-sm-2">Wednesday</th>
-              <th class="col-sm-2">Thursday</th>
+              <th></th>
+              <th>Sunday</th>
+              <th>Monday</th>
+              <th>Tuesday</th>
+              <th>Wednesday</th>
+              <th>Thursday</th>
             </tr>
           </thead>
           <tbody>

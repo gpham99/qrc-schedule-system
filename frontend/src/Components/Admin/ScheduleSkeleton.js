@@ -154,11 +154,11 @@ const ScheduleSkeleton = () => {
           <thead className="table-dark">
             <tr>
               <th></th>
-              <th className="col-sm-2">Sunday</th>
-              <th className="col-sm-2">Monday</th>
-              <th className="col-sm-2">Tuesday</th>
-              <th className="col-sm-2">Wednesday</th>
-              <th className="col-sm-2">Thursday</th>
+              <th>Sunday</th>
+              <th>Monday</th>
+              <th>Tuesday</th>
+              <th>Wednesday</th>
+              <th>Thursday</th>
             </tr>
           </thead>
           <tbody>
