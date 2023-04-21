@@ -197,7 +197,7 @@ const Internal = () => {
             <div class="modal-content">
               <div class="modal-header">
                 <p5 class="align-self-center w-100">
-                  Please fill out the form to add an administrator
+                  Please fill out the form to add an administrator.
                 </p5>
                 <button
                   type="button"
