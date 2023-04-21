@@ -130,11 +130,15 @@ const Schedule = () => {
       <div class="d-flex justify-content-center p-4">
         <section>
           <p class="text-left">
-            This is your personalized QRC schedule this block.
+            This is your personalized QRC walk-in shift schedule this block.
           </p>
           <p class="text-left">
-            You can only edit your schedule within the shift registration time
-            window set by the QRC adminstrators.
+            During the time window set by QRC administrators, you may select
+            the shifts and disciplines for which you are available and mark
+            which ones you prefer (High = most preferred, Low = least
+            preferred). Once the window closes, the schedule is set based on
+            a combination of all tutors' preferences. If you need to, contact
+            a QRC administrator to change your schedule.
           </p>
         </section>
       </div>
@@ -176,12 +180,12 @@ const Schedule = () => {
         <table class="table table-bordered">
           <thead class="table-dark">
             <tr>
-              <th class="col-sm-2"></th>
-              <th class="col-sm-2">Sunday</th>
-              <th class="col-sm-2">Monday</th>
-              <th class="col-sm-2">Tuesday</th>
-              <th class="col-sm-2">Wednesday</th>
-              <th class="col-sm-2">Thursday</th>
+              <th></th>
+              <th>Sunday</th>
+              <th>Monday</th>
+              <th>Tuesday</th>
+              <th>Wednesday</th>
+              <th>Thursday</th>
             </tr>
           </thead>
           <tbody>

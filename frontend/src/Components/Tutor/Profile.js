@@ -70,7 +70,7 @@ const Profile = () => {
         return res;
       })
       .then((data) => {
-        console.log(data);
+        console.log("WHAT IS THIS", data["msg"]);
       });
   };
 
@@ -82,7 +82,7 @@ const Profile = () => {
           <h4>Your Personal Information</h4>
           <p class="text-left font-weight-light font-italic">
             This information is uneditable on your end. If you wish to edit any
-            of the fields, please contact the QRC administrators.
+            of the fields, please contact a QRC administrator.
           </p>
         </div>
         <div class="p-4 w-50">
@@ -133,7 +133,7 @@ const Profile = () => {
         <div class="pl-3 pr-3 w-75">
           <h4>Your Editable Information</h4>
           <p class="text-left font-weight-light font-italic">
-            When the information is submitted successfully, the box's border
+            When the information is submitted successfully, this box's border
             turns green.
           </p>
         </div>

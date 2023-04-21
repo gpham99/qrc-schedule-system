@@ -86,10 +86,10 @@ const ScheduleSkeleton = () => {
         <div className="d-flex justify-content-center p-4">
           <section>
             <p className="text-left">
-              You can view the current skeleton of the master schedule.
+              This is the current skeleton of the master schedule.
             </p>
             <p className="text-left">
-              To create a new skeleton of the master schedule, go to Edit.
+              To create a new schedule skeleton, click Edit.
             </p>
             <p className="text-left font-weight-light font-italic">
               Creating a new schedule skeleton clears every tutor's current
@@ -105,7 +105,7 @@ const ScheduleSkeleton = () => {
             </p>
             <p className="text-left">
               Please select all of the disciplines you would like to be listed
-              on each cell.
+              in each cell.
             </p>
             <p className="text-left font-weight-light font-italic">
               Reminder: Creating a new schedule skeleton clears every tutor's
@@ -154,11 +154,11 @@ const ScheduleSkeleton = () => {
           <thead className="table-dark">
             <tr>
               <th></th>
-              <th className="col-sm-2">Sunday</th>
-              <th className="col-sm-2">Monday</th>
-              <th className="col-sm-2">Tuesday</th>
-              <th className="col-sm-2">Wednesday</th>
-              <th className="col-sm-2">Thursday</th>
+              <th>Sunday</th>
+              <th>Monday</th>
+              <th>Tuesday</th>
+              <th>Wednesday</th>
+              <th>Thursday</th>
             </tr>
           </thead>
           <tbody>

@@ -73,7 +73,7 @@ const Roster = () => {
     <div className="container align-items-center bg-light">
       <div className="row p-4 justify-content-center">
         <p>
-          If your roster has any changes, please upload it here. This includes
+          If your tutor roster has any changes, please upload it here. This includes
           adding or removing a tutor.
         </p>
       </div>
