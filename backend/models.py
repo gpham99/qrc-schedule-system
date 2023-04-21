@@ -40,6 +40,7 @@ def read_roster(roster_file):
     #get a list of tutors to compare against
     existing_tutors = get_roster()
     emails = [tutor[0] for tutor in existing_tutors]
+    print(emails)
     df = pd.read_excel(roster_file)
     df.columns = df.columns.str.lower()
     output = []
@@ -72,24 +73,25 @@ def read_roster(roster_file):
                         valid_tutor = False
                         break
                 if valid_tutor:
-                    if tutor[0] in emails: #this tutor already exists!
+                    if tutor[1] in emails: #this tutor already exists!
                         for existing_tutor in existing_tutors:
-                            if existing_tutor[0] == tutor[0]:
-                                if not existing_tutor[1] == tutor[1]: #the roster has given us new information on this tutor
-                                    print("Changing tutor info: ", tutor[1], existing_tutor[1])
-                                    delete_tutors(tutor[0])
-                                    add_tutor(tutor[0], tutor[1])
-                                    emails.remove(tutor[0])
+                            if existing_tutor[1] == tutor[1]:
+                                if not existing_tutor[0] == tutor[0]: #the roster has given us new information on this tutor
+                                    print("Changing tutor info: ", tutor[0], existing_tutor[0])
+                                    delete_tutors(tutor[1])
+                                    add_tutor(tutor[1], tutor[0])
+                                    break
                         #otherwise, no need to update the database, but we can take them off the list
                         print("Removing tutor: ", tutor[1])
-                        emails.remove(tutor[0])
+                        emails.remove(tutor[1])
                     else: #this tutor does not already exist
-                        print("New tutor: ", tutor[1], existing_tutor[1])
+                        print("New tutor: ", tutor[1])
                         add_tutor(tutor[0], tutor[1])               
             else:
                 errors += "Tutor " + tutor[1] + " not added to database, please ensure that their email ends in '@coloradocollege.edu'\n"
         for email in emails: #by now, all emails for existing tutors have been removed if the tutors were in the roster
             delete_tutors(email)
+            print(email)
         return errors + "File successfully read, all tutors added to database", df
     return "No tutors found in file", None
 
