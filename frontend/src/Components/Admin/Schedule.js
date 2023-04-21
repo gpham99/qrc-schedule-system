@@ -126,7 +126,7 @@ const Schedule = () => {
                   This is the editable view of the master schedule.
                 </p>
                 <p className="text-left">
-                  Please communicate with the respective tutor before making
+                  Please communicate with the relevant tutor before making
                   changes.
                 </p>
               </section>

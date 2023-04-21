@@ -102,15 +102,15 @@ const TimeWindow = () => {
       <div class="d-flex justify-content-center p-4">
         <section>
           <p class="text-left">
-            The start and end date signal the time window in which shift
-            registration can be performed.
+            The start and end date signal the window in which tutors can
+            indicate the shifts they are available for.
           </p>
           <p class="text-left">
             The default dates are the most recently used start and end date.
           </p>
           <p class="text-left font-weight-light font-italic">
-            "Create a new time window" updates the time window and the current
-            block number
+            "Create a new time window" updates the time window and adds 1 to
+            the current block number.
           </p>
           <p class="text-left font-weight-light font-italic">
             "Update the time window" only updates the time window.
