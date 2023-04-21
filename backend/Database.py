@@ -299,7 +299,7 @@ def add_to_master_schedule(shift_number, all_disciplines, assignments):
             cur.execute(sql_select_query, (shift_number,))
             data = cur.fetchone()
             # if the data exists
-            if data is  None:
+            if data is None:
                 # if no other row exist
                 t_list = (shift_number,)
                 values = "VALUES(?, "
@@ -989,7 +989,6 @@ def update_favorite_shifts(user, new_favorite_shifts):
             cur = conn.cursor()
             update_query = 'UPDATE tutors SET favorite_shifts = ? WHERE email = ?'
             favored_shifts = str(new_favorite_shifts)
-            print(favored_shifts)
             cur.execute(update_query, (favored_shifts, user))
             conn.commit()
     except:
@@ -1376,12 +1375,27 @@ def wipe(discipline):
     delete_table(discipline)
 
 
+# Function to see how many times certain names occur in the function
+def get_occur(roster):
+    occur = {}
+    for name in roster:
+        _, data, _, _, _, _, _, _, _, _ = name
+        name = data.split(' ')
+        first_name = name[0].lower()
+        if first_name not in occur:
+            occur[first_name] = 1
+        else:
+            occur[first_name] = occur[first_name] + 1
+    return occur
+
+
 # Function to return user from database with first name or first name and last initial
 # returns the row of user data if it exists and a None if not
 def find_first_name(attempted_name):
     roster = get_roster()
     occur = get_occur(roster)
-    new_name = attempted_name.split('.')
+    new_name = attempted_name.split(' ')
+    print(new_name)
     for name in roster:
         _, data, _, _, _, _, _, _, _, _ = name
         split_data = data.split(' ')
@@ -1398,20 +1412,6 @@ def find_first_name(attempted_name):
                 return name
     # if name is not in the database
     return None
-
-
-# Function to see how many times certain names occur in the function
-def get_occur(roster):
-    occur = {}
-    for name in roster:
-        _, data, _, _, _, _, _, _, _, _ = name
-        name = data.split(' ')
-        first_name = name[0].lower()
-        if first_name not in occur:
-            occur[first_name] = 1
-        else:
-            occur[first_name] = occur[first_name] + 1
-    return occur
 
 
 # given username return first name,and also last initial if multiple people have the same first name
@@ -1438,9 +1438,17 @@ if __name__ == '__main__':
     tutors1 = ['James Jones', 'Rick Sanchez', 'May June', "Jerry Smith", 'Jerry Mouse']
     tutors2 = ['James email', 'Rick Email', 'May email', "Jerry email", 'Joe email']
     reboot_database(disciplines_list, 'No')
-    add_to_master_schedule(1, disciplines_list, tutors1)
-    print(get_master_schedule_info(1))
-    add_to_master_schedule(1,disciplines_list, tutors2)
-    print(get_master_schedule_info(1))
+    add_tutor("James Jonas", "james email")
+    add_tutor("James Gordon", "other james email")
+    add_tutor("James King", "third james email")
+    add_tutor("rodney James", "rodney email")
+    add_tutor("rodney king", "rodney2 email")
+    add_tutor("rodney me", "rodney3 email")
+    add_tutor("rodney four", "rodney4 email")
+    add_tutor("James", "another games email")
+    roster = get_roster()
+    print(get_occur(roster))
+    print(find_first_name('James k'))
+    print(find_first_name('Rodney m'))
 
-# add is not allowing update capabilities
+# version from 2/19/2023
