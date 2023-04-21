@@ -1,6 +1,7 @@
 #custom database functions
 from Database import *
-import time
+#TimeWindow operation
+import time, sched
 #Flask
 from flask import Flask, request, session, redirect, url_for
 from flask_cors import CORS
@@ -60,6 +61,9 @@ cas_client = CASClient(
 #set up JWT
 jwt = JWT(application, authenticate, identity)
 application.config["JWT_EXPIRATION_DELTA"] = timedelta(seconds=86400)
+
+#set up scheduler to activate at the end of the time window
+s = sched.scheduler(time.time, time.sleep)
 
 #check if an uploaded file is the correct format
 def allowed_file(filename):
@@ -480,6 +484,8 @@ def set_time_window():
         add_time_window(block, start_time, end_time)
     else:
         update_time_window(current_block, start_time, end_time)
+    s.enterabs(end_time, 1, write_master_schedule)
+    s.run()
     return {"msg": "Time window successfully set"}
     
 
@@ -651,7 +657,7 @@ def is_within_window():
     now = time.time()
     start_time, end_time = get_time_window(get_block_number())
     print(start_time, now, end_time)
-    return str(now > start_time and now < end_time)
+    return {"msg": str(now > start_time and now < end_time)}
 
 #Wipe the master schedule in preparation to make a new one 
 def wipe_master_schedule():
@@ -662,34 +668,6 @@ def wipe_master_schedule():
 def wipe_all_choices():
     pass
 
-# def write_master_schedule():
-#     # make a dictionary with the tutors name being the keys,
-#     # and their max capacity being the value
-    
-#     roster = get_roster()
-#     tutor_dict = {tutor[0]: tutor[3] for tutor in roster}
-#     print(tutor_dict)
-#     disciplines = get_disciplines()
-#     for i in sample(range(SHIFT_SLOTS), SHIFT_SLOTS):
-#         assignments = ["" for _ in range(len(disciplines))] # n strings, w n being no of disciplines
-#         for discipline in sample(disciplines, len(disciplines)):
-#             available_tutors = get_discipline_shift(discipline, i) 
-#             if available_tutors != None:
-#                 available_tutors = ast.literal_eval(available_tutors)
-#                 choice_index = choice(range(len(available_tutors)))
-#                 chosen_tutor = available_tutors[choice_index]
-#                 j = 0
-#                 while tutor_dict[chosen_tutor] == 0 and j < len(available_tutors):
-#                     choice_index = choice(range(len(available_tutors)))
-#                     chosen_tutor = available_tutors[choice_index]
-#                     j += 1
-#                 if tutor_dict[chosen_tutor] != 0:
-#                     # add to assignments
-#                     assignments[disciplines.index(discipline)] = chosen_tutor
-#                     tutor_dict[chosen_tutor] -= 1
-#         add_to_master_schedule(i, disciplines, assignments)
-
-
 @application.route('/api/time_window', methods = ['GET'])
 @jwt_required()
 def time_window():
@@ -698,7 +676,7 @@ def time_window():
 
 
 #take in the tutors' chosen shifts and use them to create the master schedule
-@application.route('/api/write_master_schedule', methods = ['GET'])
+#@application.route('/api/write_master_schedule', methods = ['GET'])
 def write_master_schedule():
     #Get the list of all disciplines
     disciplines = get_disciplines()
@@ -778,6 +756,8 @@ def greedy(tutors, avail_tables, open_shifts):
         master_schedule.append(dictionary)
     while(assigned < total_shifts and assigned < sum_capacities and attempts < 100):
         for tutor in sample(tutors,len(tutors)): #choose a tutor at random
+            if capacities[emails.index(tutor.id)] < 1:
+                continue #skip this tutor, they cannot take any more shifts
             #try to give them a shift they want
             assigned_bool = False
             for priority_list in tutor.favorited_shifts:
