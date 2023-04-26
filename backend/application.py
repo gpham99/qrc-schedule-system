@@ -39,6 +39,8 @@ import pandas as pd
 #from itsdangerous import URLSafeTimedSerializer
 #from flask.sessions import open_session
 
+from werkzeug.middleware.proxy_fix import ProxyFix
+
 
 #roster path variables for the list of tutors
 UPLOAD_FOLDER = '.'
@@ -62,6 +64,10 @@ SESSION_TYPE = 'filesystem'
 SESSION_COOKIE_HTTPONLY = False
 application.config.from_object(__name__)
 Session(application)
+application.wsgi_app = ProxyFix(
+            application.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1
+            )
+
 
 #set up CAS
 cas_client = CASClient(
