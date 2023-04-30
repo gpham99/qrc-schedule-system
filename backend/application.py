@@ -12,7 +12,7 @@ import ast
 #for file IO
 import os
 #custom data functions
-from models import read_roster, User, prepare_excel_file
+from models import read_roster, User
 from werkzeug.utils import secure_filename
 #for database IO
 from utility import display, sanitize 
@@ -457,18 +457,6 @@ def remove_admin():
     admin_email = req['email']
     delete_admins(admin_email)
     return {"msg": "Removed successfully"}
-
-
-
-@application.route('/api/last_excel_file')
-def last_excel_file():
-    #find the last file
-    for file in os.listdir(UPLOAD_FOLDER):
-        if file.startswith('roster'):
-            output = prepare_excel_file(file)
-            return output
-    else:
-        return None
 
 
 @application.route('/api/set_time_window', methods=['POST'])

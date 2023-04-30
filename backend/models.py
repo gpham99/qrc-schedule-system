@@ -95,12 +95,3 @@ def read_roster(roster_file):
         return errors + "File successfully read, all tutors added to database", df
     return "No tutors found in file", None
 
-
-#process Excel file and return it in an easily legible format
-def prepare_excel_file(filename):
-    df = pd.read_csv(filename)
-    output = [[column for column in df.columns]]
-    for i in range(len(df.index)):
-        output.append([num for num in df.iloc[i,:]])
-    return output
-
