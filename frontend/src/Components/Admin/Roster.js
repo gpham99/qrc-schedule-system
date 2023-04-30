@@ -103,7 +103,7 @@ const Roster = () => {
             name="filename"
             onChange={handleChange}
           />
-          <input type="submit" />
+          <input type="submit" value="Upload"/>
         </form>
       </div>
     </div>
