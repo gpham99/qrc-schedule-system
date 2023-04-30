@@ -117,12 +117,12 @@ const Admin = () => {
             <ul class="nav justify-content-center">
               <li class="nav-item">
                 <a class="nav-link active" href="/admin/excel">
-                  Roster
+                  Upload Roster
                 </a>
               </li>
               <li class="nav-item">
                 <a class="nav-link" href="/admin/tutor-info">
-                  Tutors' Information
+                  Tutor Status
                 </a>
               </li>
 

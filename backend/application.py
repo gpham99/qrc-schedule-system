@@ -697,6 +697,9 @@ def write_master_schedule():
     mid_priority = []
     high_priority = []
     for tutor in get_roster():
+        # #remove tutors who have been marked as unavailable
+        # if tutor[3] == 1:
+        #     continue
         if tutor[9] == 1: #"absence" is True - tutor has unexcused absences
             low_priority.append(User(tutor[0], tutor[1], 'tutor', tutor[2], tutor[3], tutor[4], tutor[5], tutor[6], tutor[7], tutor[8], tutor[9]))
         elif tutor[5] == 1: #"tutor_this_block" is True - tutor is an LA this block
@@ -704,14 +707,14 @@ def write_master_schedule():
         else:
             high_priority.append(User(tutor[0], tutor[1], 'tutor', tutor[2], tutor[3], tutor[4], tutor[5], tutor[6], tutor[7], tutor[8], tutor[9]))
         tutors = [high_priority, mid_priority, low_priority]
-    for i in range(len(disciplines)):
-        for shift in range(SHIFT_SLOTS):
-            avail_tables[i][shift] = get_discipline_shift(disciplines[i], shift)
-            if avail_tables[i][shift] == None:
-                avail_tables[i][shift] = []
+    # for i in range(len(disciplines)):
+    #     for shift in range(SHIFT_SLOTS):
+    #         avail_tables[i][shift] = get_discipline_shift(disciplines[i], shift)
+    #         if avail_tables[i][shift] == None:
+    #             avail_tables[i][shift] = []
 
-    solution = algorithm(200, tutors, avail_tables, open_shifts)
-    print("chosen solution",solution)
+    solution = algorithm(200, tutors, open_shifts)
+    #print("chosen solution",solution)
     #solution is in the format:
     #[{1: "g_pham@coloradocollege.edu", #the first discipline
     # 5: "m_padilla@coloradocollege.edu"},
@@ -739,7 +742,14 @@ def write_master_schedule():
 #priorities: {} dictionary enumerating each tutor's preferences for shifts, in the format:
 #{ 'j_hannebert': [[1,5],[2],[3]],
 #  'p_mishra': [[2],[],[3]]} #where the lists go [[high],[medium],[low]]
-def greedy(tutors, avail_tables, open_shifts):
+def greedy(tutors, open_shifts):
+    unavailable = []
+    #remove tutors who have been marked as unavailable
+    for tutor in tutors:
+        if tutor.this_block_unavailable == 1:
+            unavailable.append(tutor)
+    for tutor in unavailable:
+        tutors.remove(tutor)
     attempts = 0
     assigned = 0
     disciplines = get_disciplines()
@@ -747,7 +757,6 @@ def greedy(tutors, avail_tables, open_shifts):
     capacities = [tutor.shift_capacity for tutor in tutors]
     emails = [tutor.id for tutor in tutors]
     sum_capacities = sum(capacities)
-    avail_copy = deepcopy(avail_tables) #delete tutors from this one; master schedule will contain only finalized changes
     master_schedule = []
     for i in range(len(disciplines)):
         dictionary = {}
@@ -818,6 +827,27 @@ def greedy(tutors, avail_tables, open_shifts):
             
 #calculate how unfair the schedule is for tutors, favoring higher priority tutors
 def tutor_unfairness(schedule, high_priority, mid_priority, low_priority, open_shifts):
+    unavailable = []
+    #remove tutors who have been marked as unavailable
+    for tutor in high_priority:
+        if tutor.this_block_unavailable == 1:
+            unavailable.append(tutor)
+    for tutor in unavailable:
+        high_priority.remove(tutor)
+    unavailable = []
+    #remove tutors who have been marked as unavailable
+    for tutor in mid_priority:
+        if tutor.this_block_unavailable == 1:
+            unavailable.append(tutor)
+    for tutor in unavailable:
+        mid_priority.remove(tutor)
+    unavailable = []
+    #remove tutors who have been marked as unavailable
+    for tutor in low_priority:
+        if tutor.this_block_unavailable == 1:
+            unavailable.append(tutor)
+    for tutor in unavailable:
+        low_priority.remove(tutor)
     unfairness_score = 0 #lower is better
     for tutor in high_priority:
         #count number of shifts they have been assigned
@@ -859,7 +889,7 @@ def discipline_evenness(schedule, open_shifts):
     deviation = stdev(shift_counts)
     return deviation
 
-def algorithm(totaltries, tutors, avail_tables, open_shifts):
+def algorithm(totaltries, tutors, open_shifts):
     high_priority = tutors[0]
     mid_priority = tutors[1]
     low_priority = tutors[2]
@@ -869,7 +899,7 @@ def algorithm(totaltries, tutors, avail_tables, open_shifts):
     tutors.extend(low_priority)
     possible_solutions = []
     for i in range(totaltries):
-        soln, assigned = greedy(tutors, avail_tables, open_shifts)
+        soln, assigned = greedy(tutors, open_shifts)
         unfairness = tutor_unfairness(soln, high_priority, mid_priority, low_priority, open_shifts)
         evenness = discipline_evenness(soln, open_shifts)
         possible_solutions.append((soln, assigned, unfairness, evenness))
@@ -912,3 +942,4 @@ def algorithm(totaltries, tutors, avail_tables, open_shifts):
 # #     # removed before deploying a production app.
 # #     application.debug = True
 # #     application.run()
+
