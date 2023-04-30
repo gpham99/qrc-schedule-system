@@ -103,7 +103,13 @@ const TutorInfo = () => {
       </div>
 
       {/* pencil button */}
-      <div class="d-flex justify-content-end p-4">
+      <div class="d-flex justify-content-between p-4">
+          {/* submit change button */}
+      {editMode === 1 && (
+          <button type="button" className="btn btn-info" onClick={submitChange}>
+            Save Changes
+          </button>
+      )}
         {editMode === 0 ? (
           <button class="btn btn-info" onClick={toggleEditMode}>
             <span class="p-1"> Edit </span>
@@ -208,15 +214,6 @@ const TutorInfo = () => {
           </tbody>
         </table>
       </div>
-
-      {/* submit change button */}
-      {editMode === 1 && (
-        <div className="p-2">
-          <button type="button" className="btn btn-info" onClick={submitChange}>
-            Save Changes
-          </button>
-        </div>
-      )}
     </div>
   );
 };
