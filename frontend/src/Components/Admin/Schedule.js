@@ -133,7 +133,27 @@ const Schedule = () => {
             )}
           </div>
           {/* pencil button */}
-          <div className="d-flex justify-content-end pl-4 pr-4">
+          <div className="d-flex justify-content-between pl-4 pr-4">
+            {/* This is to make the export as JPEG button download it as a JPEG */}
+            {editMode === 0 ? (
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={() => {
+                  exportComponentAsJPEG(componentRef);
+                }}
+              >
+                Export schedule
+              </button>
+            ) : (
+              <button
+                type="button"
+                className="btn btn-info"
+                onClick={submitChange}
+              >
+                Save
+              </button>
+            )}
             {editMode === 0 ? (
               <button className="btn btn-info" onClick={toggleEditMode}>
                 <span className="p-1"> Edit </span>
@@ -587,28 +607,6 @@ const Schedule = () => {
                 </tr>
               </tbody>
             </table>
-          </div>
-          {/* This is to make the export as JPEG button download it as a JPEG */}
-          <div className="p-2">
-            {editMode === 0 ? (
-              <button
-                type="button"
-                className="btn btn-secondary"
-                onClick={() => {
-                  exportComponentAsJPEG(componentRef);
-                }}
-              >
-                Export schedule
-              </button>
-            ) : (
-              <button
-                type="button"
-                className="btn btn-info"
-                onClick={submitChange}
-              >
-                Save
-              </button>
-            )}
           </div>
         </>
       )}
