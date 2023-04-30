@@ -45,12 +45,12 @@ def read_roster(roster_file):
     df.columns = df.columns.str.lower()
     output = []
     try:
-        full_names = df['first name'] + ' ' + df['last name']
+        full_names = df['fn'] + ' ' + df['ln']
         for i in range(len(df.index)):
-            tutor_tuple = (full_names[i], df['email address'][i].lower())
+            tutor_tuple = (full_names[i], df['email'][i].lower())
             output.append(tutor_tuple)
     except KeyError:
-        return "Error reading file. Please ensure your columns are named \"first name\", \"last name\", and \"email address\".", None
+        return "Error reading file. Please ensure your columns are named \"fn\", \"ln\", and \"email\".", None
     except:
         return "Error reading file. Please ensure you submitted an Excel file.", None
         traceback.print_exc()
