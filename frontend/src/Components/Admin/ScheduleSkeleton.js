@@ -92,6 +92,18 @@ const ScheduleSkeleton = () => {
           </section>
         </div>
 
+      {/* the save button */}
+      <div className="d-flex justify-content-end pl-4 pr-4">
+        <button
+            type="button"
+            className="btn btn-info"
+            onClick={submitSkeleton}
+          >
+            Save
+          </button>
+      </div>
+
+
       {/* uneditable skeleton of master schedule */}
       <div className="pt-4 pl-4 pr-4 pb-2 table-responsive">
         <table className="table table-bordered">
@@ -300,19 +312,7 @@ const ScheduleSkeleton = () => {
           </tbody>
         </table>
       </div>
-
-      {/* the save button */}
-      <div className="pb-4">
-          <button
-            type="button"
-            className="btn btn-info"
-            onClick={submitSkeleton}
-          >
-            Save
-          </button>
-      </div>
     </div>
-  );
-};
+)};
 
 export default ScheduleSkeleton;
