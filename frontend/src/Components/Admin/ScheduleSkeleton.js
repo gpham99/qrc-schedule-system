@@ -71,7 +71,7 @@ const ScheduleSkeleton = () => {
       })
       .then((data) => {
         console.log("finish submit data: ", data);
-        setSubmitMessage(data);
+        setSubmitMessage(data.msg);
       });
 
   };
