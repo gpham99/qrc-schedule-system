@@ -107,13 +107,11 @@ const ScheduleSkeleton = () => {
 
       {submitMessage !== null && submitMessage.length > 0 && (
             <div
-              class="alert alert-danger m-4 alert-dismissible fade show"
+              class="alert alert-success m-4 alert-dismissible fade show"
               role="alert"
             >
               <div className="m-3 text-left">
-                {submitMessage.map((msg) => (
-                  <p>{msg}</p>
-                ))}
+                  <p>{submitMessage}</p>
                   
               </div>
               <button
