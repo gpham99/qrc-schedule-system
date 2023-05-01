@@ -5,6 +5,7 @@ const ScheduleSkeleton = () => {
   // grab the access token from the local storage
   const accessToken = localStorage.getItem("access_token");
 
+  const [submitMessage, setSubmitMessage] = useState(null);
   const [scheduleSkeleton, setScheduleSkeleton] = useState([]);
   const [edittedScheduleSkeleton, setEdittedScheduleSkeleton] = useState([]);
 
@@ -70,6 +71,7 @@ const ScheduleSkeleton = () => {
       })
       .then((data) => {
         console.log("finish submit data: ", data);
+        setSubmitMessage(data);
       });
 
   };
@@ -102,6 +104,28 @@ const ScheduleSkeleton = () => {
             Save
           </button>
       </div>
+
+      {submitMessage !== null && submitMessage.length > 0 && (
+            <div
+              class="alert alert-danger m-4 alert-dismissible fade show"
+              role="alert"
+            >
+              <div className="m-3 text-left">
+                {submitMessage.map((msg) => (
+                  <p>{msg}</p>
+                ))}
+                  
+              </div>
+              <button
+                type="button"
+                class="close"
+                data-dismiss="alert"
+                aria-label="Close"
+              >
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+          )}
 
 
       {/* uneditable skeleton of master schedule */}

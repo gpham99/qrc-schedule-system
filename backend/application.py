@@ -522,7 +522,7 @@ def set_schedule_skeleton():
     for d in range(len(disciplines)):
         shift_list = skeleton_list[d]
         update_discipline_shift_availability(disciplines[d], shift_list)
-    return {"msg": "Schedule skeleton updated"}
+    return {"msg": "Schedule skeleton saved"}
 
 @application.route('/api/tutor/get_availability', methods = ['GET'])
 @jwt_required()
