@@ -305,7 +305,7 @@ def update_tutor_info():
     return ret
 
 
-@application.route('/api/tutor/get_info', methods = ['GET'])
+@application.route('/tutor/get_info', methods = ['GET'])
 #@jwt_required()
 def tutor_info():
 
@@ -724,7 +724,6 @@ def get_block():
 def is_within_window():
     now = time.time()
     start_time, end_time = get_time_window(get_block_number())
-    print(start_time, now, end_time)
     return str(now > start_time and now < end_time)
 
 #Wipe the master schedule in preparation to make a new one 

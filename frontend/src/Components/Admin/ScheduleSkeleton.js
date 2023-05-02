@@ -29,7 +29,7 @@ const ScheduleSkeleton = () => {
         },
       };
 
-      fetch("http://44.230.115.148:8080/api/get_schedule_skeleton", requestOptions)
+      fetch("http://44.230.115.148/api/get_schedule_skeleton", requestOptions)
         .then((response) => {
           let res = response.json();
           return res;
@@ -62,7 +62,7 @@ const ScheduleSkeleton = () => {
       body: JSON.stringify(edittedScheduleSkeleton),
     };
 
-    fetch("http://44.230.115.148:8080/api/set_schedule_skeleton", requestOptions)
+    fetch("http://44.230.115.148/api/set_schedule_skeleton", requestOptions)
       .then((response) => {
         let res = response.json();
         return res;

@@ -28,7 +28,7 @@ const Profile = () => {
   //     },
   //   };
 
-  //   fetch("http://44.230.115.148:8080/api/tutor/get_info", requestOptions)
+  //   fetch("http://44.230.115.148/api/tutor/get_info", requestOptions)
   //     .then((response) => {
   //       let res = response.json();
   //       return res;
@@ -49,7 +49,7 @@ const Profile = () => {
   //       "Content-Type": "application/json",
   //     },
   //   };
-  //   fetch("http://44.230.115.148:8080/api/tutor/get_info", requestOptions, {
+  //   fetch("http://44.230.115.148/api/tutor/get_info", requestOptions, {
   //     credentials: "include",
   //   })
   //     .then((response) => {
@@ -75,7 +75,7 @@ const Profile = () => {
   //       "Content-Type": "application/json",
   //     },
   //   };
-  //   fetch("http://44.230.115.148:8080/api/tutor/get_info", requestOptions, {
+  //   fetch("http://44.230.115.148/api/tutor/get_info", requestOptions, {
   //     credentials: "include",
   //   })
   //     .then((response) => {
@@ -106,7 +106,7 @@ const Profile = () => {
       },
     };
 
-    fetch("http://44.230.115.148:8080/api/tutor/get_info", requestOptions)
+    fetch("http://44.230.115.148/api/tutor/get_info", requestOptions)
       .then((response) => {
         let res = response.json();
         return res;
@@ -137,7 +137,7 @@ const Profile = () => {
       }),
     };
 
-    fetch("http://44.230.115.148:8080/api/tutor/update_info", requestOptions)
+    fetch("http://44.230.115.148/api/tutor/update_info", requestOptions)
       .then((response) => {
         let res = response.json();
         return res;

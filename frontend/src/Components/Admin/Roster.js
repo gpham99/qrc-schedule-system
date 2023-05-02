@@ -5,7 +5,7 @@ const Roster = () => {
   const [lastUploaded, setLastUploaded] = useState([]);
 
   useEffect(() => {
-    fetch("http://44.230.115.148:8080/api/last_excel_file", {
+    fetch("http://44.230.115.148/api/last_excel_file", {
       headers: {
         "Content-Type": "multipart/form-data",
       },
@@ -58,7 +58,7 @@ const Roster = () => {
       },
       body: formData,
     };
-    fetch("http://44.230.115.148:8080/api/upload_roster", requestOptions)
+    fetch("http://44.230.115.148/api/upload_roster", requestOptions)
       .then((response) => {
         let res = response.json();
         return res;
