@@ -105,7 +105,7 @@ def authenticate():
         except:
             application.logger.debug(session['username'] + " not in system")
             return None
-    username = session['username']
+    username = session['username'] + EMAIL_SUFFIX
     if in_system:
         if group == 'tutor':
             tutor_entry = get_single_tutor_info(username)
