@@ -474,6 +474,12 @@ def set_time_window():
     if not is_open: #shift registration has been closed
         write_master_schedule()
     return {"msg": "Changes successful"}
+
+@application.route('/api/regenerate_schedule', methods=['POST'])
+@jwt_required()
+def regenerate_schedule():
+    write_master_schedule()
+    return {"msg": "Schedule regenerated"}
     
 
 @application.route('/api/get_disciplines')
