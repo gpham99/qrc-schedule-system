@@ -32,6 +32,7 @@ from random import sample, choice
 #for saving uploaded roster files
 import pandas as pd
 
+#CONSTANTS
 #roster path variables for the list of tutors
 UPLOAD_FOLDER = '.'
 ALLOWED_EXTENSIONS = {'xls', 'xlsx', 'xlsm', 'xlsb', 'odf', 'ods', 'odt'}
@@ -41,6 +42,8 @@ ROSTER_PATH = 'roster.csv'
 SHIFT_SLOTS = 20
 #everyone in the system has a CC email
 EMAIL_SUFFIX = '@coloradocollege.edu'
+#URL for the project
+BACKEND_URL = 'http://44.230.115.148:8080/'
 
 #link to display on the page if a student logs in but is not in the system
 logout_link = '<p><a href="/cas_logout">Log out of CAS</a></p>'
@@ -54,7 +57,7 @@ application.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 #set up CAS
 cas_client = CASClient(
     version=3,    
-    service_url='http://44.230.115.148:8080/',
+    service_url=BACKEND_URL,
     server_url='https://cas.coloradocollege.edu/cas/'
 )
 
@@ -65,11 +68,13 @@ application.config["JWT_EXPIRATION_DELTA"] = timedelta(seconds=86400)
 #set up scheduler to activate at the end of the time window
 s = sched.scheduler(time.time, time.sleep)
 
-#check if an uploaded file is the correct format
+#helper function: check if an uploaded roster is in the correct format
 def allowed_file(filename):
     return '.' in filename and \
             filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+#security function: verify user authentication. Relies on Flask sessions, transmitted back and forth
+#from the frontend using the "session" cookie.
 def check_login():
     if 'username' in session:
         try:
@@ -649,15 +654,6 @@ def get_block():
 def is_open():
     is_open = read_from_file("is_open")
     return {"msg": str(is_open)}
-
-#Wipe the master schedule in preparation to make a new one 
-def wipe_master_schedule():
-    clear_table('master_schedule')
-    
-
-#wipe tutors' choices out of the database to prepare for a new block
-def wipe_all_choices():
-    pass
 
 @application.route('/api/time_window', methods = ['GET'])
 @jwt_required()
