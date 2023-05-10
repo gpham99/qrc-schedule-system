@@ -12,7 +12,7 @@ import ast
 #for file IO
 import os
 #custom data functions
-from models import read_roster, User
+from models import read_roster, User, read_from_file, write_to_file
 from werkzeug.utils import secure_filename
 #for database IO
 from utility import display, sanitize 
@@ -459,22 +459,21 @@ def remove_admin():
     return {"msg": "Removed successfully"}
 
 
-@application.route('/api/set_time_window', methods=['POST'])
+@application.route('/api/open_schedule', methods=['POST'])
 @jwt_required()
 def set_time_window():
-    time_data = request.get_json()
-    start_time = time.mktime(parser.parse(time_data['start_time']).timetuple())
-    end_time = time.mktime(parser.parse(time_data['end_time']).timetuple())
-    block = int(time_data['block'])
-    current_block = int(get_block_number())
+    req_data = request.get_json()
+    block = int(req_data['block'])
+    is_open = bool(req_data['is_open'])
+    current_block = read_from_file("block")
     if block != current_block:
-        add_block(block)
-        add_time_window(block, start_time, end_time)
+        write_to_file("block", block)
+        write_to_file("is_open", is_open)
     else:
-        update_time_window(current_block, start_time, end_time)
-    s.enterabs(end_time, 1, write_master_schedule)
-    s.run()
-    return {"msg": "Time window successfully set"}
+        write_to_file("is_open", is_open)
+    if not is_open: #shift registration has been closed
+        write_master_schedule()
+    return {"msg": "Changes successful"}
     
 
 @application.route('/api/get_disciplines')
@@ -637,15 +636,13 @@ def set_tutors_information():
 
 @application.route('/api/get_block', methods = ['GET'])
 def get_block():
-    block_number = int(get_block_number())
+    block_number = read_from_file("block")
     return {'block': block_number}
 
-@application.route('/api/is_within_window', methods = ['GET'])
-def is_within_window():
-    now = time.time()
-    start_time, end_time = get_time_window(get_block_number())
-    print(start_time, now, end_time)
-    return {"msg": str(now > start_time and now < end_time)}
+@application.route('/api/is_open', methods = ['GET'])
+def is_open():
+    is_open = read_from_file("is_open")
+    return {"msg": str(is_open)}
 
 #Wipe the master schedule in preparation to make a new one 
 def wipe_master_schedule():

@@ -95,3 +95,26 @@ def read_roster(roster_file):
         return errors + "File successfully read, all tutors added to database", df
     return "No tutors found in file", None
 
+def read_from_file(request):
+    if request == "block":
+        file = "curr_block.txt"
+    elif request == "is_open":
+        file = "is_open.txt"
+    else:
+        return None
+    with open(file) as f:
+        contents = f.readlines()
+    if request == "block":
+        return int(contents[0])
+    elif request == "is_open":
+        return bool(contents[0])
+    
+def write_to_file(request, value):
+    if request == "block":
+        file = "curr_block.txt"
+    elif request == "is_open":
+        file = "is_open.txt"
+    else:
+        return None
+    with open(file, "w") as f:
+        f.write(str(value))
