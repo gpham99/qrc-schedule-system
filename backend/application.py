@@ -88,6 +88,32 @@ def check_login():
         in_system, group = False, "Logged out"
     return in_system, group
 
+
+def authenticate():
+    if 'username' in session:
+        username = session['username'] + EMAIL_SUFFIX
+        try:
+            #use the check_user function in the Database file to try to find the user in the database
+            in_system, group = check_user(username)
+            if in_system:
+                if group == 'tutor':
+                    tutor_entry = get_single_tutor_info(username)
+                    return User(username, tutor_entry[1], group, tutor_entry[2], tutor_entry[3], tutor_entry[4], tutor_entry[5], tutor_entry[6],
+                    tutor_entry[7], tutor_entry[8])
+                elif group == 'admin':
+                    admin_entry = get_admin_info(username)
+                    return User(username, admin_entry[1], group)
+                elif group == 'superuser':
+                    superuser_entry = get_superuser_info(username)
+                    return User(username, superuser_entry[1], group)
+            else:
+                application.logger.debug(session['username'] + " not in system")
+                return None
+        except:
+            application.logger.debug(session['username'] + " not in system")
+            return None
+    return None
+
 # add a rule for the index page
 @application.route('/')
 def index():
@@ -308,25 +334,32 @@ def update_tutor_info():
     return ret
 
 
-@application.route('/api/tutor/get_info', methods = ['GET'])
-@jwt_required()
+@application.route('/tutor/get_info', methods = ['GET'])
+#@jwt_required()
 def tutor_info():
-        result = {}
-        result['username'] = current_identity.id
-        result['name'] = current_identity.name
-        all_disciplines = get_disciplines()
-        all_disciplines = sorted(all_disciplines)
-        disciplines = []
-        for discipline in all_disciplines:
-            if discipline in current_identity.disciplines:
-                disciplines.append((display(discipline), True))
-            else:
-                disciplines.append((display(discipline), False))
-        result['disciplines'] = disciplines
-        result['shift_capacity'] = current_identity.shift_capacity
-        result['this_block_unavailable'] = True if current_identity.this_block_unavailable == 1 else False
-        result['this_block_la'] = True if current_identity.this_block_la == 1 else False
-        return result
+
+    #check login status and reject request if needed
+    in_system, group = check_login()
+    if not in_system:
+        return Response(response="Unauthorized", status=401)
+    current_identity = authenticate()
+    result = {}
+    result['username'] = session['username']
+    result['name'] = session['username']
+    #current_identity = 
+    all_disciplines = get_disciplines()
+    all_disciplines = sorted(all_disciplines)
+    disciplines = []
+    for discipline in all_disciplines:
+        if discipline in current_identity.disciplines:
+            disciplines.append((display(discipline), True))
+        else:
+            disciplines.append((display(discipline), False))
+    result['disciplines'] = disciplines
+    result['shift_capacity'] = current_identity.shift_capacity
+    result['this_block_unavailable'] = True if current_identity.this_block_unavailable == 1 else False
+    result['this_block_la'] = True if current_identity.this_block_la == 1 else False
+    return result
 
     
     
