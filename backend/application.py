@@ -213,7 +213,7 @@ def logout_callback():
     session.clear()
     return redirect("https://www.coloradocollege.edu/")
     
-@application.route('/api/time')
+@application.route('/time')
 def get_current_time():
     payload_data = {
         'username': 'j_hannebert@coloradocollege.edu'
@@ -226,7 +226,7 @@ def get_current_time():
     return redirect('http://44.230.115.148:80/'+'?token='+str(token))
     return {'time': time.time()}
 
-@application.route('/api/login_status')
+@application.route('/login_status')
 def get_login_status():
     print("session: ", session)
     if 'username' in session:
@@ -234,7 +234,7 @@ def get_login_status():
     else:
         return {"login_status": "0"}
 
-@application.route('/api/master_schedule')
+@application.route('/master_schedule')
 @jwt_required()
 def get_master_schedule():
     disciplines = get_disciplines()
@@ -292,7 +292,7 @@ def get_master_schedule():
     return master_schedule_with_disciplines
 
 #Page where any individual tutor's schedule is stored: shift number and discipline they signed up for
-@application.route('/api/tutor/get_schedule')
+@application.route('/tutor/get_schedule')
 @jwt_required()
 def get_tutor_schedule():
     email = current_identity.id
@@ -313,7 +313,7 @@ def get_tutor_schedule():
             shift_num += 1
     return tutor_schedule
 
-@application.route('/api/tutor/update_info', methods = ['POST'])
+@application.route('/tutor/update_info', methods = ['POST'])
 @jwt_required()
 def update_tutor_info():
     ret = {}
@@ -363,7 +363,7 @@ def tutor_info():
 
     
     
-@application.route('/api/upload_roster', methods=['PUT','POST'])
+@application.route('/upload_roster', methods=['PUT','POST'])
 @jwt_required()
 def upload_roster():
     # check if the post request has the file part
@@ -401,7 +401,7 @@ def protected():
     return '%s' % current_identity
 
 
-@application.route('/api/fetch_disciplines')
+@application.route('/fetch_disciplines')
 @jwt_required()
 def fetch_disciplines():
     disciplines = get_disciplines()
@@ -415,7 +415,7 @@ def fetch_disciplines():
     return discipline_schedule_with_abv
 
 
-@application.route('/api/update_master_schedule', methods=['POST'])
+@application.route('/update_master_schedule', methods=['POST'])
 @jwt_required()
 def update_tutors_in_master_schedule():
     disciplines = get_disciplines()
@@ -449,7 +449,7 @@ def update_tutors_in_master_schedule():
                 output.append("Error: " + new_tutor_firstname + " not found in database, please check your spelling\n")
     return list(set(output))
     
-@application.route('/api/add_discipline', methods=['POST'])
+@application.route('/add_discipline', methods=['POST'])
 @jwt_required()
 def add_new_discipline():
     req = request.get_json()
@@ -460,7 +460,7 @@ def add_new_discipline():
     add_discipline(sanitize(discipline_name), sanitize(discipline_abbreviation), [])
     return {"msg": "Success"}
 
-@application.route('/api/remove_discipline', methods=['POST'])
+@application.route('/remove_discipline', methods=['POST'])
 @jwt_required()
 def remove_discipline():
     req = request.get_json()
@@ -468,7 +468,7 @@ def remove_discipline():
     delete_discipline(sanitize(discipline_name))
     return {"msg": "Removed successfully"}
 
-@application.route('/api/get_admins')
+@application.route('/get_admins')
 @jwt_required()
 def get_admins():
     admin_info = get_admin_roster()
@@ -479,7 +479,7 @@ def get_admins():
         admin_display_lst.append([display_name, display_email])
     return admin_display_lst
 
-@application.route('/api/add_admin', methods=['POST'])
+@application.route('/add_admin', methods=['POST'])
 @jwt_required()
 def add_new_admin():
     req = request.get_json()
@@ -488,7 +488,7 @@ def add_new_admin():
     add_admin(admin_name, admin_email)
     return {"msg": "Added successfully"}
 
-@application.route('/api/remove_admin', methods=['POST'])
+@application.route('/remove_admin', methods=['POST'])
 @jwt_required()
 def remove_admin():
     req = request.get_json()
@@ -497,7 +497,7 @@ def remove_admin():
     return {"msg": "Removed successfully"}
 
 
-@application.route('/api/open_schedule', methods=['POST'])
+@application.route('/open_schedule', methods=['POST'])
 @jwt_required()
 def set_time_window():
     req_data = request.get_json()
@@ -513,14 +513,14 @@ def set_time_window():
         write_master_schedule()
     return {"msg": "Changes successful"}
 
-@application.route('/api/regenerate_schedule', methods=['POST'])
+@application.route('/regenerate_schedule', methods=['POST'])
 @jwt_required()
 def regenerate_schedule():
     write_master_schedule()
     return {"msg": "Schedule regenerated"}
     
 
-@application.route('/api/get_disciplines')
+@application.route('/get_disciplines')
 def get_discipline_list():
     sanitized_disciplines = []
     fetched_disciplines =  get_disciplines() 
@@ -530,7 +530,7 @@ def get_discipline_list():
 
     return sanitized_disciplines
 
-@application.route('/api/get_schedule_skeleton')
+@application.route('/get_schedule_skeleton')
 @jwt_required()
 def get_schedule_skeleton():
     ret = []
@@ -549,7 +549,7 @@ def get_schedule_skeleton():
         ret.append(discipline_list)
     return ret
 
-@application.route('/api/set_schedule_skeleton', methods = ['POST'])
+@application.route('/set_schedule_skeleton', methods = ['POST'])
 @jwt_required()
 def set_schedule_skeleton():
     data = request.get_json()
@@ -567,7 +567,7 @@ def set_schedule_skeleton():
         update_discipline_shift_availability(disciplines[d], shift_list)
     return {"msg": "Schedule skeleton saved"}
 
-@application.route('/api/tutor/get_availability', methods = ['GET'])
+@application.route('/tutor/get_availability', methods = ['GET'])
 @jwt_required()
 def get_availability():
     priorities = ["High", "Medium", "Low"]
@@ -597,7 +597,7 @@ def get_availability():
         ret[i] = shift_dict
     return ret
 
-@application.route('/api/tutor/set_availability', methods = ['POST'])
+@application.route('/tutor/set_availability', methods = ['POST'])
 @jwt_required()
 def set_availability():
     req = request.get_json()
@@ -642,7 +642,7 @@ def set_availability():
     update_favorite_shifts(current_identity.id, favorited_list)
     return {'msg': 'Changes saved'}
 
-@application.route('/api/get_tutors_information', methods = ['GET'])
+@application.route('/get_tutors_information', methods = ['GET'])
 @jwt_required()
 def get_tutors_information():
     ret = {}
@@ -659,7 +659,7 @@ def get_tutors_information():
     ret = {key: val for key, val in sorted(ret.items(), key = lambda ele: ele[0])}
     return ret
 
-@application.route('/api/set_tutors_information', methods = ['POST'])
+@application.route('/set_tutors_information', methods = ['POST'])
 @jwt_required()
 def set_tutors_information():
     data = request.get_json()
@@ -678,17 +678,17 @@ def set_tutors_information():
             update_absence(email)
     return {'msg': 'Updates complete'}
 
-@application.route('/api/get_block', methods = ['GET'])
+@application.route('/get_block', methods = ['GET'])
 def get_block():
     block_number = read_from_file("block")
     return {'block': block_number}
 
-@application.route('/api/is_open', methods = ['GET'])
+@application.route('/is_open', methods = ['GET'])
 def is_open():
     is_open = read_from_file("is_open")
     return {"msg": str(is_open)}
 
-@application.route('/api/time_window', methods = ['GET'])
+@application.route('/time_window', methods = ['GET'])
 @jwt_required()
 def time_window():
     start_date, end_date = get_time_window(get_block_number())
@@ -696,7 +696,6 @@ def time_window():
 
 
 #take in the tutors' chosen shifts and use them to create the master schedule
-#@application.route('/api/write_master_schedule', methods = ['GET'])
 def write_master_schedule():
     #Get the list of all disciplines
     disciplines = get_disciplines()
