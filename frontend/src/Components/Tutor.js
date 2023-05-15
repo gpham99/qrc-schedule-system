@@ -48,7 +48,7 @@ const Tutor = () => {
       }),
     };
     if (isAuthorized === null) {
-      fetch("http://44.230.115.148:8080/auth", requestOptions)
+      fetch("http://44.230.115.148/api/auth", requestOptions)
         .then(function (response) {
           let res = response.json();
           return res;
