@@ -32,7 +32,7 @@ const Schedule = () => {
       headers: { "Content-Type": "application/json" },
     };
 
-    fetch("http://44.230.115.148:8080/api/get_block", requestOptions)
+    fetch("http://44.230.115.148/api/get_block", requestOptions)
       .then((response) => {
         return response.json();
       })
@@ -53,7 +53,7 @@ const Schedule = () => {
         },
       };
 
-      fetch("http://44.230.115.148:8080/api/master_schedule", requestOptions)
+      fetch("http://44.230.115.148/api/master_schedule", requestOptions)
         .then((res) => res.json())
         .then((data) => {
           if ("error" in data) {
@@ -84,7 +84,7 @@ const Schedule = () => {
     event.preventDefault();
     // console.log(editedSchedule);
 
-    fetch("http://44.230.115.148:8080/api/update_master_schedule", {
+    fetch("http://44.230.115.148/api/update_master_schedule", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

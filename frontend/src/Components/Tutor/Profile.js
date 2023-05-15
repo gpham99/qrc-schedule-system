@@ -34,7 +34,7 @@ const Profile = () => {
         },
       };
 
-      fetch("http://44.230.115.148:8080/api/tutor/get_info", requestOptions)
+      fetch("http://44.230.115.148/api/tutor/get_info", requestOptions)
         .then((response) => {
           let res = response.json();
           return res;
@@ -66,7 +66,7 @@ const Profile = () => {
       },
     };
 
-    fetch("http://44.230.115.148:8080/api/tutor/update_info", requestOptions)
+    fetch("http://44.230.115.148/api/tutor/update_info", requestOptions)
       .then((response) => {
         let res = response.json();
         return res;

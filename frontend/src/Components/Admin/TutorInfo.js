@@ -31,7 +31,7 @@ const TutorInfo = () => {
       };
 
       fetch(
-        "http://44.230.115.148:8080/api/get_tutors_information",
+        "http://44.230.115.148/api/get_tutors_information",
         requestOptions
       )
         .then((response) => {
@@ -69,7 +69,7 @@ const TutorInfo = () => {
     };
 
     fetch(
-      "http://44.230.115.148:8080/api/set_tutors_information",
+      "http://44.230.115.148/api/set_tutors_information",
       requestOptions
     )
       .then((response) => {

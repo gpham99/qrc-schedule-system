@@ -44,7 +44,7 @@ const Schedule = () => {
         },
       };
 
-      fetch("http://44.230.115.148:8080/api/tutor/get_schedule", requestOptions)
+      fetch("http://44.230.115.148/api/tutor/get_schedule", requestOptions)
         .then((response) => {
           let res = response.json();
           return res;
@@ -57,7 +57,7 @@ const Schedule = () => {
   }, []);
 
   function checkTimeWindow () {
-    fetch("http://44.230.115.148:8080//api/is_within_window").then((response) => {
+    fetch("http://44.230.115.148//api/is_within_window").then((response) => {
       let res = response.json();
       return res;
     })
@@ -84,7 +84,7 @@ const Schedule = () => {
       };
 
       fetch(
-        "http://44.230.115.148:8080/api/tutor/get_availability",
+        "http://44.230.115.148/api/tutor/get_availability",
         requestOptions
       )
         .then((response) => {
@@ -112,7 +112,7 @@ const Schedule = () => {
     };
 
     fetch(
-      "http://44.230.115.148:8080/api/tutor/set_availability",
+      "http://44.230.115.148/api/tutor/set_availability",
       requestOptions
     )
       .then((response) => {

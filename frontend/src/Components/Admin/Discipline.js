@@ -32,7 +32,7 @@ const Discipline = () => {
         },
       };
 
-      fetch("http://44.230.115.148:8080/api/fetch_disciplines", requestOptions)
+      fetch("http://44.230.115.148/api/fetch_disciplines", requestOptions)
         .then((response) => {
           let res = response.json();
           return res;
@@ -49,7 +49,7 @@ const Discipline = () => {
   }, [disciplines]);
 
   const removeDiscipline = (dName) => {
-    fetch("http://44.230.115.148:8080/api/remove_discipline", {
+    fetch("http://44.230.115.148/api/remove_discipline", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -102,7 +102,7 @@ const Discipline = () => {
     let isSanitized = sanitizeInput(disciplineName, disciplineAbv);
     setSanitizeCheck(isSanitized);
     if (isSanitized === true) {
-      fetch("http://44.230.115.148:8080/api/add_discipline", {
+      fetch("http://44.230.115.148/api/add_discipline", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

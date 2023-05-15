@@ -30,7 +30,7 @@ const Admin = () => {
       headers: { "Content-Type": "application/json" },
     };
 
-    fetch("http://44.230.115.148:8080/api/get_block", requestOptions)
+    fetch("http://44.230.115.148/api/get_block", requestOptions)
       .then((response) => {
         return response.json();
       })
@@ -52,7 +52,7 @@ const Admin = () => {
       }),
     };
     if (isAuthorized === null) {
-      fetch("http://44.230.115.148:8080/auth", requestOptions)
+      fetch("http://44.230.115.148/auth", requestOptions)
         .then(function (response) {
           return response.json();
         })
@@ -88,7 +88,7 @@ const Admin = () => {
 
             <div class="d-flex flex-row justify-content-end pr-4">
               <a
-                href="http://44.230.115.148:8080/logout"
+                href="http://44.230.115.148/logout"
                 onClick={() => {
                   localStorage.clear();
                 }}
@@ -98,7 +98,7 @@ const Admin = () => {
               </a>
 
               <a
-                href="http://44.230.115.148:8080/cas_logout"
+                href="http://44.230.115.148/cas_logout"
                 onClick={() => {
                   localStorage.clear();
                 }}
