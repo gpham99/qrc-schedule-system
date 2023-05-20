@@ -13,18 +13,10 @@ import ast
 import os
 #custom data functions
 from models import read_roster, User, read_from_file, write_to_file
-from werkzeug.utils import secure_filename
 #for database IO
 from utility import display, sanitize 
-#JSON Web Tokens
-from flask_jwt import JWT, jwt_required, current_identity
-import jwt as pyjwt
+#parsing request data
 import json
-from security import authenticate, identity
-#for setting JWT expiration
-from datetime import timedelta
-#for parsing time window
-from dateutil import parser
 #for the scheduling algorithm
 from copy import deepcopy
 from statistics import stdev
@@ -43,10 +35,7 @@ SHIFT_SLOTS = 20
 #everyone in the system has a CC email
 EMAIL_SUFFIX = '@coloradocollege.edu'
 #URL for the project
-BACKEND_URL = 'http://44.230.115.148:8080/'
-
-#link to display on the page if a student logs in but is not in the system
-logout_link = '<p><a href="/cas_logout">Log out of CAS</a></p>'
+URL = 'http://44.230.115.148/'
 
 #set up Flask app
 application = Flask(__name__)
@@ -57,16 +46,9 @@ application.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 #set up CAS
 cas_client = CASClient(
     version=3,    
-    service_url=BACKEND_URL,
+    service_url=URL+'api' if URL.endswith('/') else '/api',
     server_url='https://cas.coloradocollege.edu/cas/'
 )
-
-#set up JWT
-jwt = JWT(application, authenticate, identity)
-application.config["JWT_EXPIRATION_DELTA"] = timedelta(seconds=86400)
-
-#set up scheduler to activate at the end of the time window
-s = sched.scheduler(time.time, time.sleep)
 
 #helper function: check if an uploaded roster is in the correct format
 def allowed_file(filename):
@@ -74,21 +56,6 @@ def allowed_file(filename):
             filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 #security function: verify user authentication. Relies on Flask sessions, transmitted back and forth
-#from the frontend using the "session" cookie.
-def check_login():
-    if 'username' in session:
-        try:
-            application.logger.debug("try")
-            in_system, group = check_user(session['username']+EMAIL_SUFFIX)
-        except:
-            print(session['username'] + " not in system")
-            return False, "Logged out"
-    else:
-        application.logger.debug("else")
-        in_system, group = False, "Logged out"
-    return in_system, group
-
-
 def authenticate():
     if 'username' in session:
         username = session['username'] + EMAIL_SUFFIX
@@ -117,78 +84,6 @@ def authenticate():
 # add a rule for the index page
 @application.route('/')
 def index():
-    in_system, group = check_login()
-    if in_system:
-        return 'You are logged in as part of the ' + group + ' ! <a href="/logout">Exit</a>'
-    #if 'username' in session:
-        # Already logged in
-    #    return 'You are logged in. Here you are going to see your schedule. <a href="/logout">Exit</a>'
-    elif group == "None":
-        return 'You are not authorized to access this site. <a href="/logout">Exit</a>'
-    next = request.args.get('next')
-    ticket = request.args.get('ticket')
-
-    if not ticket:
-        return header_text + say_hello() + footer_text + sso_link
-    
-    application.logger.debug('ticket: %s', ticket)
-    application.logger.debug('next: %s', next)
-    user, attributes, pgtiou = cas_client.verify_ticket(ticket)
-
-    user = user.lower()
-    application.logger.debug(
-        'CAS verify ticket response: user: %s, attributes: %s, pgtiou: %s', user, attributes, pgtiou)
-
-    if not user:
-        return 'Failed to verify ticket. <a href="/login">Login</a>'
-    else:  # Login successfully, redirect according `next` query parameter.
-        session['username'] = user
-        session['email'] = attributes['email']
-        in_system, group = check_login()
-        payload_data = {
-                'username': user
-                }
-        my_secret = application.secret_key
-        token = pyjwt.encode(
-            payload=payload_data,
-            key=my_secret
-        )
-        if not next:
-            return redirect('http://44.230.115.148:80/'+group+("/profile" if group == "tutor" else "")+'?username='+session['username']+'&token='+str(token))
-        return redirect(next)
-
-@application.route('/profile')
-def profile(method=['GET']):
-    application.logger.debug('session when you hit profile: %s', session)
-    in_system, group = check_login()
-    if in_system:
-        return 'Logged in as {}. Your email address is {}. <a href="/logout">Exit</a>'.format(session['username'], session['email'])
-    elif group == "None":
-        return 'You are not authorized to access this site. <a href="/logout">Exit</a>'
-    return 'Login required. <a href="/login">Login</a>', 403
-
-@application.route('/login')
-def login():
-    application.logger.debug('session when you hit login: %s', session)
-
-    if 'username' in session:
-        in_system, group = check_login()
-
-        # Already logged in
-    #    return redirect('http://44.230.115.148:80/'+group+'?username='+session['username'])
-    #THIS LINE IS WHAT NEEDS TO BE FIXED, THIS IS WHERE WE GET REDIRECTED    
-    #return redirect('http://44.230.115.148:80/'+group+'?username='+session['username']+'&token='+token)
-        payload_data = {
-            'username': 'j_hannebert@coloradocollege.edu'
-            }
-        my_secret = application.secret_key
-        token = pyjwt.encode(
-            payload=payload_data,
-            key=my_secret
-        )
-        return redirect('http://44.230.115.148:80/'+group+("/profile" if group == "tutor" else "")+'?username='+session['username']+'&token='+str(token))
-        #return redirect('http://44.230.115.148:80/'+'?token='+str(token))
-
     next = request.args.get('next')
     ticket = request.args.get('ticket')
 
@@ -197,13 +92,55 @@ def login():
         cas_login_url = cas_client.get_login_url()
         application.logger.debug('CAS login URL: %s', cas_login_url)
         return redirect(cas_login_url) # the return of this is /ticket?=...
+    
+    user, attributes, pgtiou = cas_client.verify_ticket(ticket)
+    
+    if not user:
+        return 'Failed to verify ticket'
+    user = user.lower()
+    session['username'] = user
+    session['email'] = attributes['email']
+    in_system, group = check_user(session['username']+EMAIL_SUFFIX)
+    if not in_system:
+        return Response(response="Unauthorized", status=401)
+    if not next:
+        return redirect(URL+group+("/profile" if group == "tutor" else ""))
+    return redirect(next)
+
+@application.route('/login')
+def login():
+    if 'username' in session:
+        in_system, group = check_user(session['username'] + EMAIL_SUFFIX)
+
+        return redirect(URL+group+("/profile" if group == "tutor" else ""))
+
+    ticket = request.args.get('ticket')
+    next = request.args.get('next')
+
+    if not ticket:
+        # No ticket, the request come from end user, send to CAS login
+        cas_login_url = cas_client.get_login_url()
+        application.logger.debug('CAS login URL: %s', cas_login_url)
+        return redirect(cas_login_url) # the return of this is /ticket?=...
+    #same code as in '/', just in case, although almost every login request goes into the "if not ticket" part above
+    user, attributes, pgtiou = cas_client.verify_ticket(ticket)
+    
+    if not user:
+        return 'Failed to verify ticket'
+    user = user.lower()
+    session['username'] = user
+    session['email'] = attributes['email']
+    in_system, group = check_user(session['username']+EMAIL_SUFFIX)
+    if not in_system:
+        return Response(response="Unauthorized", status=401)
+    if not next:
+        return redirect(URL+group+("/profile" if group == "tutor" else ""))
+    return redirect(next)
 
 @application.route('/cas_logout')
 def logout():
     redirect_url = url_for('logout_callback', _external=True)
-    application.logger.debug('Redirect logout URL %s', redirect_url)
     cas_logout_url = cas_client.get_logout_url(redirect_url)
-    application.logger.debug('CAS logout URL: %s', cas_logout_url)
     session.clear()
 
     return redirect(cas_logout_url)
@@ -212,56 +149,44 @@ def logout():
 def logout_callback():
     session.clear()
     return redirect("https://www.coloradocollege.edu/")
-    
-@application.route('/time')
-def get_current_time():
-    payload_data = {
-        'username': 'j_hannebert@coloradocollege.edu'
-        }
-    my_secret = application.secret_key
-    token = pyjwt.encode(
-        payload=payload_data,
-        key=my_secret
-    )
-    return redirect('http://44.230.115.148:80/'+'?token='+str(token))
-    return {'time': time.time()}
 
-@application.route('/login_status')
-def get_login_status():
-    print("session: ", session)
-    if 'username' in session:
-        return {"login_status": "1"}
-    else:
-        return {"login_status": "0"}
-
+#return master schedule in an easily displayable format
 @application.route('/master_schedule')
-@jwt_required()
 def get_master_schedule():
+    #only admins may see the whole schedule
+    identity = authenticate()
+    if identity is None or identity.group is "tutor":
+        return Response(response="Unauthorized", status=401)
+    #auth successful, fetch data
     disciplines = get_disciplines()
     abbreviations = get_abbreviations()
+    #add non-SQL-safe characters back into the abbreviations (e.g. / in CH/MB)
     for i in range(len(abbreviations)):
         abbreviations[i] = display(abbreviations[i])
     roster = get_roster()
     master_schedule = []
     master_schedule_with_disciplines = {}
+    #create a simple master schedule structure which we will add more information to
     for i in range(SHIFT_SLOTS):
         master_schedule.append(get_master_schedule_info(i))
     shift_num = 0
+    #By now we know which tutor signed up for which shift, but not which additional disciplines they can tutor
+    #Time to add that info in! The finalized data structure will be master_schedule_with_disciplines
     for line in master_schedule:
         if line != None:
             shift_list = []
-            for d in range(len(line)):
-                email = line[d]
-                if email != None:
+            for index in range(len(line)):
+                email = line[index]
+                if email != None and email != "":
                     tutor_found = False
                     for tutor_entry in roster:
                         if tutor_entry[0] == email: #find the tutor in the roster
                             tutor_found = True
                             discipline_list = ast.literal_eval(tutor_entry[4])
                             try:
-                                discipline_list.remove(disciplines[d]) #ensure there is no redundant information
+                                discipline_list.remove(disciplines[index]) #ensure there is no redundant information
                             except:
-                                print("ERROR: Discipline " + disciplines[d] + " not in tutorable disciplines for tutor " + email)
+                                print("ERROR: Discipline " + disciplines[index] + " not in tutorable disciplines for tutor " + email)
                             #get abbreviations for each discipline
                             for i in range(len(discipline_list)):
                                 discipline_list[i] = abbreviations[disciplines.index(discipline_list[i])]
@@ -269,22 +194,22 @@ def get_master_schedule():
                             output_dict = {"tutor": tutor_entry[1],
                                     "firstname": find_from_username(email),
                                     "email": email,
-                                    "discipline": abbreviations[d],
+                                    "discipline": abbreviations[index],
                                     "other_disciplines": "/".join(discipline_list)}
                             shift_list.append(output_dict)
                     if not tutor_found:
-                        print("Warning: One tutor (", email, ") not found in database. Omitting corresponding shift.")
+                        print("Warning: Tutor", email, " not found in database. Omitting corresponding shift.")
                         output_dict = {"tutor": None,
                                 "firstname": None,
                                 "email": None,
-                                "discipline": abbreviations[d],
+                                "discipline": abbreviations[index],
                                 "other_disciplines": None}
                         shift_list.append(output_dict)
-                else: #if email == None, implying no tutor signed up
+                else: #if email == None, implying no tutor was signed up
                     output_dict = {"tutor": None,
                             "firstname": None,
                             "email": None,
-                            "discipline": abbreviations[d],
+                            "discipline": abbreviations[index],
                             "other_disciplines": None}
                     shift_list.append(output_dict)
             master_schedule_with_disciplines[shift_num] = shift_list
@@ -293,9 +218,12 @@ def get_master_schedule():
 
 #Page where any individual tutor's schedule is stored: shift number and discipline they signed up for
 @application.route('/tutor/get_schedule')
-@jwt_required()
 def get_tutor_schedule():
-    email = current_identity.id
+    #you must be in the database to be able to see a schedule
+    identity = authenticate()
+    if identity is None:
+        return Response(response="Unauthorized", status=401)
+    email = identity.id
     print(email)
     disciplines = get_disciplines()
     master_schedule = []
@@ -313,97 +241,89 @@ def get_tutor_schedule():
             shift_num += 1
     return tutor_schedule
 
+#update a tutor's editable information: disciplines and shift capacity
 @application.route('/tutor/update_info', methods = ['POST'])
-@jwt_required()
 def update_tutor_info():
+    #you must be in the database to be able to update tutor info
+    identity = authenticate()
+    if identity is None:
+        return Response(response="Unauthorized", status=401)
     ret = {}
     req = request.get_json()
     new_shift_capacity = int(req['shift_capacity'])
     new_disciplines = req['disciplines']
     if new_shift_capacity >= 0:
-        update_shift_capacity(current_identity.id, new_shift_capacity)
+        update_shift_capacity(identity.id, new_shift_capacity)
         ret['msg'] = 'Tutor info updated'
     else:
-        update_shift_capacity(current_identity.id, 0)
+        update_shift_capacity(identity.id, 0)
         ret['msg'] = 'Invalid shift capacity'
     disciplines = []
     for discipline, discipline_bool in new_disciplines.values():
         if discipline_bool == True:
             disciplines.append(sanitize(discipline))
-    update_tutoring_disciplines(current_identity.id, disciplines)
+    update_tutoring_disciplines(identity.id, disciplines)
     return ret
 
-
+#Get tutor profile information to fill in their profile page
 @application.route('/tutor/get_info', methods = ['GET'])
-#@jwt_required()
 def tutor_info():
-
-    #check login status and reject request if needed
-    in_system, group = check_login()
-    if not in_system:
+    #you must be in the database to be able to get tutor info
+    identity = authenticate()
+    if identity is None:
         return Response(response="Unauthorized", status=401)
-    current_identity = authenticate()
     result = {}
-    result['username'] = session['username']
-    result['name'] = session['username']
-    #current_identity = 
+    result['username'] = session['username'] + EMAIL_SUFFIX
+    result['name'] = identity.name
     all_disciplines = get_disciplines()
     all_disciplines = sorted(all_disciplines)
     disciplines = []
+    #return a list of all disciplines with booleans indicating whether the tutor can tutor in them
     for discipline in all_disciplines:
-        if discipline in current_identity.disciplines:
+        if discipline in identity.disciplines:
             disciplines.append((display(discipline), True))
         else:
             disciplines.append((display(discipline), False))
     result['disciplines'] = disciplines
-    result['shift_capacity'] = current_identity.shift_capacity
-    result['this_block_unavailable'] = True if current_identity.this_block_unavailable == 1 else False
-    result['this_block_la'] = True if current_identity.this_block_la == 1 else False
+    result['shift_capacity'] = identity.shift_capacity
+    result['this_block_unavailable'] = True if identity.this_block_unavailable == 1 else False
+    result['this_block_la'] = True if identity.this_block_la == 1 else False
     return result
 
-    
-    
+#Here is where admins can upload the list of active QRC tutors.
+#Expected file format: a spreadsheet (essentially .xls or .xlsx)
 @application.route('/upload_roster', methods=['PUT','POST'])
-@jwt_required()
 def upload_roster():
+    #only admins may upload a roster
+    identity = authenticate()
+    if identity is None or identity.group is "tutor":
+        return Response(response="Unauthorized", status=401)
     # check if the post request has the file part
     print("request.files: ", request.files)
     if 'file' not in request.files:
-        print('No file part')
         return {"msg": "No file part"}
         #return redirect(request.url)
     file = request.files['file']
     # If the user does not select a file, the browser submits an
     # empty file without a filename.
     if file.filename == '':
-        print('No selected file')
         return {"msg": "No selected file"}
     if file and allowed_file(file.filename):
-        filename = secure_filename(file.filename)
         result, data = read_roster(file)
         if type(data) == pd.DataFrame:
             for existing_file in os.listdir(UPLOAD_FOLDER):
                 if existing_file.startswith('roster'):
                     os.remove(existing_file)
             data.to_csv(os.path.join(application.config['UPLOAD_FOLDER'], ROSTER_PATH), index = False)
-        print(result)
         return {"msg": result}
     return {"msg": "File format not accepted"}
 
-@application.route('/unauthorized_login')
-def unauthorized_login():
-    return "You have successfully logged in to Colorado College, but your account is not part of the QRC database. \n Please contact QRC administrators if you believe this is an error. " + logout_link
-
-
-@application.route('/protected')
-@jwt_required()
-def protected():
-    return '%s' % current_identity
-
-
 @application.route('/fetch_disciplines')
-@jwt_required()
 def fetch_disciplines():
+    #you must be in the database to be able to get the list of disciplines
+    identity = authenticate()
+    if identity is None:
+        return Response(response="Unauthorized", status=401)
     disciplines = get_disciplines()
     discipline_schedule_with_abv = []
     for i in range(len(disciplines)):
@@ -416,8 +336,11 @@ def fetch_disciplines():
 
 
 @application.route('/update_master_schedule', methods=['POST'])
-@jwt_required()
 def update_tutors_in_master_schedule():
+    #you must be an admin to be able to update the master schedule
+    identity = authenticate()
+    if identity is None or identity.group is "tutor":
+        return Response(response="Unauthorized", status=401)
     disciplines = get_disciplines()
     abbreviations = get_abbreviations()
     for i in range(len(abbreviations)):
@@ -450,8 +373,11 @@ def update_tutors_in_master_schedule():
     return list(set(output))
     
 @application.route('/add_discipline', methods=['POST'])
-@jwt_required()
 def add_new_discipline():
+    #you must be an admin to be able to add disciplines
+    identity = authenticate()
+    if identity is None or identity.group is "tutor":
+        return Response(response="Unauthorized", status=401)
     req = request.get_json()
     print(req)
     discipline_name = req['name']
@@ -461,16 +387,22 @@ def add_new_discipline():
     return {"msg": "Success"}
 
 @application.route('/remove_discipline', methods=['POST'])
-@jwt_required()
 def remove_discipline():
+    #you must be an admin to be able to remove disciplines
+    identity = authenticate()
+    if identity is None or identity.group is "tutor":
+        return Response(response="Unauthorized", status=401)
     req = request.get_json()
     discipline_name = req['disciplineName']
     delete_discipline(sanitize(discipline_name))
     return {"msg": "Removed successfully"}
 
 @application.route('/get_admins')
-@jwt_required()
 def get_admins():
+    #you must be an admin to be able to view the list of admins
+    identity = authenticate()
+    if identity is None or identity.group is "tutor":
+        return Response(response="Unauthorized", status=401)
     admin_info = get_admin_roster()
     admin_display_lst = []
     for email, name in admin_info:
@@ -480,8 +412,11 @@ def get_admins():
     return admin_display_lst
 
 @application.route('/add_admin', methods=['POST'])
-@jwt_required()
 def add_new_admin():
+    #you must be an admin to be able to add an admin
+    identity = authenticate()
+    if identity is None or identity.group is "tutor":
+        return Response(response="Unauthorized", status=401)
     req = request.get_json()
     admin_name = sanitize(req["name"])
     admin_email = sanitize(req["email"])
@@ -489,8 +424,11 @@ def add_new_admin():
     return {"msg": "Added successfully"}
 
 @application.route('/remove_admin', methods=['POST'])
-@jwt_required()
 def remove_admin():
+    #you must be an admin to be able to remove an admin
+    identity = authenticate()
+    if identity is None or identity.group is "tutor":
+        return Response(response="Unauthorized", status=401)
     req = request.get_json()
     admin_email = req['email']
     delete_admins(admin_email)
@@ -498,8 +436,11 @@ def remove_admin():
 
 
 @application.route('/open_schedule', methods=['POST'])
-@jwt_required()
 def set_time_window():
+    #you must be an admin to be able to open or close registration
+    identity = authenticate()
+    if identity is None or identity.group is "tutor":
+        return Response(response="Unauthorized", status=401)
     req_data = request.get_json()
     block = int(req_data['block'])
     is_open = bool(req_data['is_open'])
@@ -514,14 +455,21 @@ def set_time_window():
     return {"msg": "Changes successful"}
 
 @application.route('/regenerate_schedule', methods=['POST'])
-@jwt_required()
 def regenerate_schedule():
+    #you must be an admin to be able to regenerate the master schedule
+    identity = authenticate()
+    if identity is None or identity.group is "tutor":
+        return Response(response="Unauthorized", status=401)
     write_master_schedule()
     return {"msg": "Schedule regenerated"}
     
 
 @application.route('/get_disciplines')
 def get_discipline_list():
+    #you must be in the system to be able to view the list of disciplines
+    identity = authenticate()
+    if identity is None:
+        return Response(response="Unauthorized", status=401)
     sanitized_disciplines = []
     fetched_disciplines =  get_disciplines() 
     for discipline in fetched_disciplines:
@@ -531,8 +479,11 @@ def get_discipline_list():
     return sanitized_disciplines
 
 @application.route('/get_schedule_skeleton')
-@jwt_required()
 def get_schedule_skeleton():
+    #you must be an admin to be able to view the schedule skeleton
+    identity = authenticate()
+    if identity is None or identity.group is "tutor":
+        return Response(response="Unauthorized", status=401)
     ret = []
     disciplines = sorted(get_disciplines())
     shifts_offered = []
@@ -550,8 +501,11 @@ def get_schedule_skeleton():
     return ret
 
 @application.route('/set_schedule_skeleton', methods = ['POST'])
-@jwt_required()
 def set_schedule_skeleton():
+    #you must be an admin to be able to set the schedule skeleton
+    identity = authenticate()
+    if identity is None or identity.group is "tutor":
+        return Response(response="Unauthorized", status=401)
     data = request.get_json()
     disciplines = sorted(get_disciplines())
     abbreviations = [display(get_discipline_abbreviation(discipline)) for discipline in disciplines]
@@ -568,11 +522,14 @@ def set_schedule_skeleton():
     return {"msg": "Schedule skeleton saved"}
 
 @application.route('/tutor/get_availability', methods = ['GET'])
-@jwt_required()
 def get_availability():
+    #you must be in the system to see a tutor's availability
+    identity = authenticate()
+    if identity is None:
+        return Response(response="Unauthorized", status=401)
     priorities = ["High", "Medium", "Low"]
     ret = {}
-    tutoring_disciplines = current_identity.disciplines
+    tutoring_disciplines = identity.disciplines
     for i in range(SHIFT_SLOTS):
         all_possible_disciplines = []
         picked = ""
@@ -585,11 +542,11 @@ def get_availability():
                 available_tutors_string_form = get_discipline_shift(discipline, i)
                 if available_tutors_string_form is not None:
                     available_tutors = ast.literal_eval(available_tutors_string_form)
-                    if current_identity.id in available_tutors:
+                    if identity.id in available_tutors:
                         picked = display(get_discipline_abbreviation(discipline))
                         for j in range(3):
-                            print(current_identity.favorited_shifts[j])
-                            if i in current_identity.favorited_shifts[j]:
+                            print(identity.favorited_shifts[j])
+                            if i in identity.favorited_shifts[j]:
                                 favorited = priorities[j]
         shift_dict['all_possible_disciplines'] = all_possible_disciplines
         shift_dict['picked'] = picked
@@ -598,8 +555,11 @@ def get_availability():
     return ret
 
 @application.route('/tutor/set_availability', methods = ['POST'])
-@jwt_required()
 def set_availability():
+    #you must be in the system to be able to set your availability
+    identity = authenticate()
+    if identity is None:
+        return Response(response="Unauthorized", status=401)
     req = request.get_json()
     abbreviations = get_abbreviations()
     for i in range(len(abbreviations)):
@@ -614,8 +574,8 @@ def set_availability():
             else:
                 available_tutors = []
             #remove tutor from any shift they had previously selected (give them a "clean slate")
-            if current_identity.id  in available_tutors:
-                available_tutors.remove(current_identity.id)
+            if identity.id  in available_tutors:
+                available_tutors.remove(identity.id)
                 add_shifts(discipline, i, available_tutors)
         #add tutor to shifts they did pick
         picked = req[str(i)]['picked']
@@ -628,8 +588,8 @@ def set_availability():
             available_tutors = ast.literal_eval(available_tutors)
         else:
             available_tutors = []
-        if current_identity.id not in available_tutors:
-            available_tutors.append(current_identity.id)
+        if identity.id not in available_tutors:
+            available_tutors.append(identity.id)
         add_shifts(discipline, i, available_tutors)   
         
         if picked != None and favorited == "Low":
@@ -639,12 +599,15 @@ def set_availability():
         elif picked != None and favorited == "High":
             favorited_list[0].append(i)
 
-    update_favorite_shifts(current_identity.id, favorited_list)
+    update_favorite_shifts(identity.id, favorited_list)
     return {'msg': 'Changes saved'}
 
 @application.route('/get_tutors_information', methods = ['GET'])
-@jwt_required()
 def get_tutors_information():
+    #you must be an admin to get information on all tutors
+    identity = authenticate()
+    if identity is None or identity.group is "tutor":
+        return Response(response="Unauthorized", status=401)
     ret = {}
     roster = get_roster()
     for tutor in roster:
@@ -660,8 +623,11 @@ def get_tutors_information():
     return ret
 
 @application.route('/set_tutors_information', methods = ['POST'])
-@jwt_required()
 def set_tutors_information():
+    #you must be an admin to be able to change information for any tutor
+    identity = authenticate()
+    if identity is None or identity.group is "tutor":
+        return Response(response="Unauthorized", status=401)
     data = request.get_json()
     roster = get_roster()
     for tutor in roster:
@@ -680,19 +646,21 @@ def set_tutors_information():
 
 @application.route('/get_block', methods = ['GET'])
 def get_block():
+    #you must be in the system to view the block number
+    identity = authenticate()
+    if identity is None:
+        return Response(response="Unauthorized", status=401)
     block_number = read_from_file("block")
     return {'block': block_number}
 
 @application.route('/is_open', methods = ['GET'])
 def is_open():
+    #you must be in the system to see if the schedule is open for editing
+    identity = authenticate()
+    if identity is None:
+        return Response(response="Unauthorized", status=401)
     is_open = read_from_file("is_open")
     return {"msg": str(is_open)}
-
-@application.route('/time_window', methods = ['GET'])
-@jwt_required()
-def time_window():
-    start_date, end_date = get_time_window(get_block_number())
-    return {'start_date':start_date, 'end_date':end_date}
 
 
 #take in the tutors' chosen shifts and use them to create the master schedule
