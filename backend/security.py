@@ -26,5 +26,5 @@ def authenticate_2(username, password):
 
 def identity(payload):
     email = payload['identity']
-    return authenticate(email, "")
+    return authenticate_2(email, "")
 
