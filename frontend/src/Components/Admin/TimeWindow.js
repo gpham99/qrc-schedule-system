@@ -1,16 +1,20 @@
 import React, { useState, useEffect } from "react";
-import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import Alert from "react-bootstrap/Alert";
 
 const TimeWindow = () => {
   // grab the access token from the local storage
   const accessToken = localStorage.getItem("access_token");
 
-  const [startDate, setStartDate] = useState(new Date());
-  const [endDate, setEndDate] = useState(new Date());
-  const [newBlock, setNewBlock] = useState(1);
-  const [createTWclicked, setCreateTWclicked] = useState(false);
+  const [isOpen, setIsOpen] = useState(0); // fetch from files?
+  const [block, setBlock] = useState(1); // fetch from files?
+
+  const dropdownChangeHandler = (e) => {
+    setBlock(e.target.value);
+  }
+
+  const toggleChangeHandler = (e) => {
+    setIsOpen(1 - isOpen);
+  }
 
   // if access token is null, then this person is not authorized, show page 401 -> authorized state is false
   // else if they have an access token, verify first
@@ -22,160 +26,99 @@ const TimeWindow = () => {
     }
   });
 
-  useEffect(() => {
-    const requestOptions = {
-      method: "GET",
-      headers: { "Content-Type": "application/json" },
-    };
+  // useEffect(() => {
+  //   if (isAuthorized !== false) {
+  //     const requestOptions = {
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //         Authorization: "JWT " + accessToken.replace(/["]+/g, ""),
+  //       },
+  //     };
 
-    fetch("http://44.230.115.148/api/get_block", requestOptions)
-      .then((response) => {
-        return response.json();
-      })
-      .then((data) => {
-        console.log("This is the loaded block", data["block"]);
-        if (data["block"]) {
-          setNewBlock(data["block"]);
-        }
-      });
-  }, []);
-
-  useEffect(() => {
-    if (isAuthorized !== false) {
-      const requestOptions = {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "JWT " + accessToken.replace(/["]+/g, ""),
-        },
-      };
-
-      fetch("http://44.230.115.148/api/time_window", requestOptions)
-        .then((response) => {
-          let res = response.json();
-          console.log("res: ", res);
-          return res;
-        })
-        .then((data) => {
-          if ("error" in data) {
-            setIsAuthorized(false);
-          } else {
-            console.log("data: ", data);
-            if (data["start_date"] !== 1000000) {
-              setStartDate(new Date(data["start_date"] * 1000));
-            }
-            if (data["end_date"] !== 1000000) {
-              setEndDate(new Date(data["end_date"] * 1000));
-            }
-            setIsAuthorized(true);
-          }
-        });
-    }
-  }, []);
+  //     fetch("http://44.230.115.148:8080/api/time_window", requestOptions)
+  //       .then((response) => {
+  //         let res = response.json();
+  //         console.log("res: ", res);
+  //         return res;
+  //       })
+  //       .then((data) => {
+  //         if ("error" in data) {
+  //           setIsAuthorized(false);
+  //         } else {
+  //           console.log("data: ", data);
+  //           if (data["start_date"] !== 1000000) {
+  //             setStartDate(new Date(data["start_date"] * 1000));
+  //           }
+  //           if (data["end_date"] !== 1000000) {
+  //             setEndDate(new Date(data["end_date"] * 1000));
+  //           }
+  //           setIsAuthorized(true);
+  //         }
+  //       });
+  //   }
+  // }, []);
 
   // func to post to database
-  const createTimeWindow = (blockNumber) => {
-    console.log("block we want to set to:", blockNumber);
-    fetch("http://44.230.115.148/api/set_time_window", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "JWT " + accessToken.replace(/["]+/g, ""),
-      },
-      body: JSON.stringify({
-        start_time: startDate,
-        end_time: endDate,
-        block: blockNumber,
-      }),
-    })
-      .then((response) => {
-        let res = response.json();
-        return res;
-      })
-      .then((data) => {
-        console.log("data: ", data);
-      });
-  };
+  
+  // const createTimeWindow = (e) => {
+  //   // console.log(newBlock);
+  //   fetch("http://44.230.115.148:8080/api/set_time_window", {
+  //     method: "POST",
+  //     headers: {
+  //       "Content-Type": "application/json",
+  //       Authorization: "JWT " + accessToken.replace(/["]+/g, ""),
+  //     },
+  //     body: JSON.stringify({
+  //       start_time: startDate,
+  //       end_time: endDate,
+  //       new_block: newBlock,
+  //     }),
+  //   })
+  //     .then((response) => {
+  //       let res = response.json();
+  //       return res;
+  //     })
+  //     .then((data) => {
+  //       console.log("data: ", data);
+  //     });
+  // };
 
   return (
     <div class="container bg-light">
       {/* description */}
       <div class="d-flex justify-content-center p-4">
         <section>
-          <p class="text-left">
-            The start and end date signal the window in which tutors can
-            indicate the shifts they are available for.
-          </p>
-          <p class="text-left">
-            The default dates are the most recently used start and end date.
-          </p>
           <p class="text-left font-weight-light font-italic">
-            "Create a new time window" updates the time window and adds 1 to
-            the current block number.
+            Please save after making changes to either the toggle switch or the block number dropdown.
           </p>
-          <p class="text-left font-weight-light font-italic">
-            "Update the time window" only updates the time window.
-          </p>
-          {createTWclicked === true ? (
-            <Alert variant={"success"}>
-              The time window has been set! Please reload the page to view the
-              correct block number.
-            </Alert>
-          ) : (
-            <></>
-          )}
         </section>
       </div>
 
-      <div class="d-flex flex-row justify-content-center p-4">
-        <div class="d-flex flex-row p-3">
-          <p class="pr-3">Start date: </p>
-          <div>
-            <DatePicker
-              selected={startDate}
-              onChange={(date) => {
-                setStartDate(date);
-              }}
-              timeInputLabel="Time:"
-              dateFormat="MM/dd/yyyy h:mm aa"
-              showTimeInput
-            />
-          </div>
-        </div>
-
-        <div class="d-flex flex-row p-3">
-          <p class="pr-3">End date: </p>
-          <div>
-            <DatePicker
-              selected={endDate}
-              onChange={(date) => {
-                setEndDate(date);
-              }}
-              timeInputLabel="Time:"
-              dateFormat="MM/dd/yyyy h:mm aa"
-              showTimeInput
-            />
-          </div>
-        </div>
-      </div>
       <div class="pb-4 d-flex justify-content-center">
-        <button
-          type="button"
-          class="btn btn-secondary mr-3 ml-3"
-          onClick={() => createTimeWindow(newBlock)}
-        >
-          Update the time window
-        </button>
-        <button
-          type="button"
-          class="btn btn-info mr-3 ml-3"
-          onClick={() => {
-            createTimeWindow((newBlock % 8) + 1);
-            setCreateTWclicked(true);
-          }}
-        >
-          Create a new time window
-        </button>
+          <div class="custom-control custom-switch pr-3">
+            <input type="checkbox" class="custom-control-input" id="customSwitches" onChange={toggleChangeHandler}/>
+            <label class="custom-control-label" for="customSwitches">Open/close shift registration</label>
+          </div>
+
+          <div class="pl-3">
+            <label class="pr-2" for="block">Current block: </label>
+            <select id="block" name="block" onChange={dropdownChangeHandler}>
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+              <option value="5">5</option>
+              <option value="6">6</option>
+              <option value="7">7</option>
+              <option value="8">8</option>
+            </select>
+          </div>           
       </div>
+
+      <button onClick={() => {
+        console.log('current block picked: ', block);
+        console.log('toggle mode: ', isOpen);
+      }}>Save</button>
     </div>
   );
 };
