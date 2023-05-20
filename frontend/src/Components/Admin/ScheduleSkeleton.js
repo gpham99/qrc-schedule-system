@@ -2,30 +2,16 @@ import React, { useState, useEffect } from "react";
 import Unauthorized from "../../ErrorPages/Unauthorized";
 
 const ScheduleSkeleton = () => {
-  // grab the access token from the local storage
-  const accessToken = localStorage.getItem("access_token");
 
   const [submitMessage, setSubmitMessage] = useState(null);
   const [scheduleSkeleton, setScheduleSkeleton] = useState([]);
   const [edittedScheduleSkeleton, setEdittedScheduleSkeleton] = useState([]);
 
-  // if access token is null, then this person is not authorized, show page 401 -> authorized state is false
-  // else if they have an access token, verify first
-  const [isAuthorized, setIsAuthorized] = useState(() => {
-    if (accessToken === null) {
-      return false;
-    } else {
-      return null;
-    }
-  });
-
   // Retrieving last picked/updated skeleton
   useEffect(() => {
-    if (isAuthorized !== false) {
       const requestOptions = {
         headers: {
           "Content-Type": "application/json",
-          Authorization: "JWT " + accessToken.replace(/["]+/g, ""),
         },
       };
 
@@ -39,16 +25,15 @@ const ScheduleSkeleton = () => {
         })
         .then((data) => {
           if ("error" in data) {
-            setIsAuthorized(false);
+            console.log("An error was encountered while trying to fetch schedule skeleton");
           } else {
             // console.log("data: ", data);
             setScheduleSkeleton(data);
             setEdittedScheduleSkeleton({ ...data });
-            setIsAuthorized(true);
           }
         });
     }
-  }, []);
+  , []);
 
   const submitSkeleton = () => {
     console.log("edited sched: ", edittedScheduleSkeleton);
@@ -56,7 +41,6 @@ const ScheduleSkeleton = () => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: "JWT " + accessToken.replace(/["]+/g, ""),
       },
       body: JSON.stringify(edittedScheduleSkeleton),
     };

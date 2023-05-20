@@ -3,8 +3,6 @@ import { exportComponentAsJPEG } from "react-component-export-image";
 import Unauthorized from "../../ErrorPages/Unauthorized";
 
 const Schedule = () => {
-  // grab the access token from the local storage
-  const accessToken = localStorage.getItem("access_token");
 
   const [submitMessage, setSubmitMessage] = useState(null);
   const [unChangedMasterSchedule, setUnchangedMasterSchedule] = useState({});
@@ -14,15 +12,6 @@ const Schedule = () => {
   const [editMode, setEditMode] = useState(0);
   const componentRef = useRef();
 
-  // if access token is null, then this person is not authorized, show page 401 -> authorized state is false
-  // else if they have an access token, verify first
-  const [isAuthorized, setIsAuthorized] = useState(() => {
-    if (accessToken === null) {
-      return false;
-    } else {
-      return null;
-    }
-  });
 
   const [blockNum, setBlockNum] = useState(1);
 
@@ -45,11 +34,9 @@ const Schedule = () => {
   }, []);
 
   useEffect(() => {
-    if (isAuthorized !== false) {
       const requestOptions = {
         headers: {
           "Content-Type": "application/json",
-          Authorization: "JWT " + accessToken.replace(/["]+/g, ""),
         },
       };
 
@@ -57,9 +44,8 @@ const Schedule = () => {
         .then((res) => res.json())
         .then((data) => {
           if ("error" in data) {
-            setIsAuthorized(false);
+            console.log("An error occurred while trying to fetch the master schedule");
           } else {
-            setIsAuthorized(true);
             // this set master schedule sets the data of the master schedule after fetching it
             setMasterSchedule(data);
             // we set the unchanged master xsschedule to a deep clone of the current master schedule
@@ -67,7 +53,7 @@ const Schedule = () => {
           }
         });
     }
-  }, []);
+  , []);
 
   // This method shifts between the editable and non editable view of the schedule
   const toggleEditMode = (event) => {
@@ -88,7 +74,6 @@ const Schedule = () => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: "JWT " + accessToken.replace(/["]+/g, ""),
       },
       body: JSON.stringify(editedSchedule),
     })

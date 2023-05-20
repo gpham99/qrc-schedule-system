@@ -11,26 +11,11 @@ const Profile = () => {
   const [laStatus, setLaStatus] = useState(null);
   const [isUpdate, setIsUpdate] = useState(false);
 
-  // grab the access token from the local storage
-  const accessToken = localStorage.getItem("access_token");
-
-  // if access token is null, then this person is not authorized, show page 401 -> authorized state is false
-  // else if they have an access token, verify first
-  const [isAuthorized, setIsAuthorized] = useState(() => {
-    if (accessToken === null) {
-      return false;
-    } else {
-      return null;
-    }
-  });
-
-  // call /api/tutor/get_info and pass the access token as authorization header
+  // call /api/tutor/get_info
   useEffect(() => {
-    if (isAuthorized !== false) {
       const requestOptions = {
         headers: {
           "Content-Type": "application/json",
-          Authorization: "JWT " + accessToken.replace(/["]+/g, ""),
         },
       };
 
@@ -48,7 +33,7 @@ const Profile = () => {
           setLaStatus(data["this_block_la"]);
         });
     }
-  }, []);
+  , []);
 
   // the function to handle the update button
   const handleUpdate = (e) => {
@@ -62,7 +47,6 @@ const Profile = () => {
       }),
       headers: {
         "Content-Type": "application/json",
-        Authorization: "JWT " + accessToken.replace(/["]+/g, ""),
       },
     };
 

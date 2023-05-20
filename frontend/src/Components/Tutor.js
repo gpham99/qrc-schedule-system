@@ -10,13 +10,6 @@ const Tutor = () => {
   const [name, setName] = useState(() => {
     return searchParams.get("username") || null;
   });
-  const [isAuthorized, setIsAuthorized] = useState(() => {
-    if (localStorage.getItem("access_token") == null) {
-      return null;
-    } else {
-      return true;
-    }
-  });
 
   const [blockNum, setBlockNum] = useState(1);
 
@@ -47,31 +40,9 @@ const Tutor = () => {
         password: "pass",
       }),
     };
-    if (isAuthorized === null) {
-      fetch("http://44.230.115.148/api/auth", requestOptions)
-        .then(function (response) {
-          let res = response.json();
-          return res;
-        })
-        .then(function (data) {
-          let isAuthorized = "access_token" in data;
-          setIsAuthorized(isAuthorized);
-          if (isAuthorized) {
-            localStorage.setItem(
-              "access_token",
-              JSON.stringify(data["access_token"])
-            );
-          }
-        });
-      navigate("/tutor", { replace: true });
-    }
   }, []);
 
   return (
-    <>
-      {isAuthorized === false ? (
-        <Unauthorized></Unauthorized>
-      ) : (
         <div>
           <div class="bg-info">
             <div class="pt-3">
@@ -132,8 +103,4 @@ const Tutor = () => {
           </div>
         </div>
       )}
-    </>
-  );
-};
-
 export default Tutor;

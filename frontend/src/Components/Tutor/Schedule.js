@@ -4,18 +4,6 @@ import DropdownButton from "react-bootstrap/DropdownButton";
 import ButtonGroup from "react-bootstrap/ButtonGroup";
 
 const Schedule = () => {
-  // grab the access token from the local storage
-  const accessToken = localStorage.getItem("access_token");
-
-  // if access token is null, then this person is not authorized, show page 401 -> authorized state is false
-  // else if they have an access token, verify first
-  const [isAuthorized, setIsAuthorized] = useState(() => {
-    if (accessToken === null) {
-      return false;
-    } else {
-      return null;
-    }
-  });
 
   const [submitMessage, setSubmitMessage] = useState(null);
 
@@ -34,13 +22,11 @@ const Schedule = () => {
 
   const priority_levels = ["Low", "Medium", "High"];
 
-  // call /api/tutor/get_schedule and pass the access token as authorization header
+  // call /api/tutor/get_schedule
   useEffect(() => {
-    if (isAuthorized !== false) {
       const requestOptions = {
         headers: {
           "Content-Type": "application/json",
-          Authorization: "JWT " + accessToken.replace(/["]+/g, ""),
         },
       };
 
@@ -50,11 +36,10 @@ const Schedule = () => {
           return res;
         })
         .then((data) => {
-          setIsAuthorized(true);
           setSchedule(data);
         });
     }
-  }, []);
+  , []);
 
   function checkTimeWindow () {
     fetch("http://44.230.115.148//api/is_within_window").then((response) => {
@@ -73,13 +58,11 @@ const Schedule = () => {
     };
   }, [])
 
-  // call /api/tutor/get_availability and pass the access token as authorization header
+  // call /api/tutor/get_availability
   useEffect(() => {
-    if (isAuthorized !== false) {
       const requestOptions = {
         headers: {
           "Content-Type": "application/json",
-          Authorization: "JWT " + accessToken.replace(/["]+/g, ""),
         },
       };
 
@@ -97,7 +80,7 @@ const Schedule = () => {
           setEdittedAvailabilities(structuredClone(data));
         });
     }
-  }, [schedule]);
+  , [schedule]);
 
   // a function to send the submission
   const sendSubmission = () => {
@@ -106,7 +89,6 @@ const Schedule = () => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: "JWT " + accessToken.replace(/["]+/g, ""),
       },
       body: JSON.stringify(edittedAvailabilities),
     };

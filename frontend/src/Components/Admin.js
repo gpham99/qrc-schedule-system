@@ -15,13 +15,6 @@ const Admin = () => {
   const [name, setName] = useState(() => {
     return searchParams.get("username") || null;
   });
-  const [isAuthorized, setIsAuthorized] = useState(() => {
-    if (localStorage.getItem("access_token") == null) {
-      return null;
-    } else {
-      return true;
-    }
-  });
   const [blockNum, setBlockNum] = useState(1);
 
   useEffect(() => {
@@ -51,32 +44,10 @@ const Admin = () => {
         password: "pass",
       }),
     };
-    if (isAuthorized === null) {
-      fetch("http://44.230.115.148/auth", requestOptions)
-        .then(function (response) {
-          return response.json();
-        })
-        .then(function (data) {
-          if (data["access_token"] === undefined) {
-            setIsAuthorized(false);
-          } else {
-            setIsAuthorized(true);
-            localStorage.setItem(
-              "access_token",
-              JSON.stringify(data["access_token"])
-            );
-          }
-        });
-
-      navigate("/admin", { replace: true });
-    }
+    
   }, []);
 
   return (
-    <>
-      {isAuthorized === false ? (
-        <Unauthorized></Unauthorized>
-      ) : (
         <div>
           <div class="bg-info">
             <div class="pt-3">
@@ -192,8 +163,5 @@ const Admin = () => {
           </div>
         </div>
       )}
-    </>
-  );
-};
 
 export default Admin;

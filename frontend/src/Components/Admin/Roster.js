@@ -24,22 +24,9 @@ const Roster = () => {
   const tableHeaders = lastUploaded?.slice(0, 1);
   const tableData = lastUploaded?.slice(1);
 
-  // grab the access token from the local storage
-  const accessToken = localStorage.getItem("access_token");
-
   const [file, setFile] = useState();
 
   const [submitMessage, setSubmitMessage] = useState("");
-
-  // if access token is null, then this person is not authorized, show page 401 -> authorized state is false
-  // else if they have an access token, verify first
-  const [isAuthorized, setIsAuthorized] = useState(() => {
-    if (accessToken === null) {
-      return false;
-    } else {
-      return null;
-    }
-  });
 
   const handleChange = (e) => {
     setFile(e.target.files[0]);
@@ -54,7 +41,6 @@ const Roster = () => {
       method: "PUT",
       headers: {
         enctype: "multipart/form-data",
-        Authorization: "JWT " + accessToken.replace(/["]+/g, ""),
       },
       body: formData,
     };

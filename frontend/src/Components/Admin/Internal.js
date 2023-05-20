@@ -3,8 +3,6 @@ import { useState, useEffect } from "react";
 import Unauthorized from "../../ErrorPages/Unauthorized";
 
 const Internal = () => {
-  // grab the access token from the local storage
-  const accessToken = localStorage.getItem("access_token");
 
   const [admins, setAdmins] = useState({});
   const [adminName, setAdminName] = useState("");
@@ -12,22 +10,10 @@ const Internal = () => {
   var isEmailSanitized = null;
   var isNameSanitized = null;
 
-  // if access token is null, then this person is not authorized, show page 401 -> authorized state is false
-  // else if they have an access token, verify first
-  const [isAuthorized, setIsAuthorized] = useState(() => {
-    if (accessToken === null) {
-      return false;
-    } else {
-      return null;
-    }
-  });
-
   useEffect(() => {
-    if (isAuthorized !== false) {
       const requestOptions = {
         headers: {
           "Content-Type": "application/json",
-          Authorization: "JWT " + accessToken.replace(/["]+/g, ""),
         },
       };
 
@@ -38,14 +24,13 @@ const Internal = () => {
         })
         .then((data) => {
           if ("error" in data) {
-            setIsAuthorized(false);
+            setAdmins(null);
           } else {
-            setIsAuthorized(true);
             setAdmins(data);
           }
         });
     }
-  }, [admins]);
+, [admins]);
 
   const handleCancel = (e) => {
     setAdminName("");
@@ -112,7 +97,6 @@ const Internal = () => {
       }),
       headers: {
         "Content-Type": "application/json",
-        Authorization: "JWT " + accessToken.replace(/["]+/g, ""),
       },
     };
 
@@ -123,10 +107,6 @@ const Internal = () => {
         return res;
       })
       .then((data) => {
-        console.log("This is the data", data);
-        if ("error" in data) {
-          setIsAuthorized(false);
-        }
         console.log(data);
       });
   };
@@ -145,7 +125,6 @@ const Internal = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: "JWT " + accessToken.replace(/["]+/g, ""),
         },
         body: JSON.stringify({
           name: adminName,

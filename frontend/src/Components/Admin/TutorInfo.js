@@ -2,8 +2,6 @@ import React, { useEffect, useState } from "react";
 import Unauthorized from "../../ErrorPages/Unauthorized";
 
 const TutorInfo = () => {
-  // grab the access token from the local storage
-  const accessToken = localStorage.getItem("access_token");
 
   const [tutorsInfo, setTutorsInfo] = useState({});
 
@@ -11,22 +9,10 @@ const TutorInfo = () => {
 
   const [edittedTutorsInfo, setEdittedTutorsInfo] = useState({});
 
-  // if access token is null, then this person is not authorized, show page 401 -> authorized state is false
-  // else if they have an access token, verify first
-  const [isAuthorized, setIsAuthorized] = useState(() => {
-    if (accessToken === null) {
-      return false;
-    } else {
-      return null;
-    }
-  });
-
   useEffect(() => {
-    if (isAuthorized !== false) {
       const requestOptions = {
         headers: {
           "Content-Type": "application/json",
-          Authorization: "JWT " + accessToken.replace(/["]+/g, ""),
         },
       };
 
@@ -41,16 +27,15 @@ const TutorInfo = () => {
         })
         .then((data) => {
           if ("error" in data) {
-            setIsAuthorized(false);
+            console.log("An error occurred while trying to fetch profile information");
           } else {
             console.log("data: ", data);
             setTutorsInfo(data);
             setEdittedTutorsInfo({ ...data });
-            setIsAuthorized(true);
           }
         });
     }
-  }, []);
+  , []);
 
   const toggleEditMode = () => {
     setEditMode(1 - editMode);
@@ -63,7 +48,6 @@ const TutorInfo = () => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: "JWT " + accessToken.replace(/["]+/g, ""),
       },
       body: JSON.stringify(edittedTutorsInfo),
     };

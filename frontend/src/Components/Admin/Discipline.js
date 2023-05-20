@@ -3,8 +3,6 @@ import { useEffect, useState } from "react";
 import Unauthorized from "../../ErrorPages/Unauthorized";
 
 const Discipline = () => {
-  // grab the access token from the local storage
-  const accessToken = localStorage.getItem("access_token");
 
   // disciplines contains both the full name and the abbreviation of every discipline
   const [sanitizeCheck, setSanitizeCheck] = useState(true);
@@ -13,22 +11,10 @@ const Discipline = () => {
   const [disciplineName, setDisciplineName] = useState("");
   const [disciplineAbv, setDisciplineAbv] = useState("");
 
-  // if access token is null, then this person is not authorized, show page 401 -> authorized state is false
-  // else if they have an access token, verify first
-  const [isAuthorized, setIsAuthorized] = useState(() => {
-    if (accessToken === null) {
-      return false;
-    } else {
-      return null;
-    }
-  });
-
   useEffect(() => {
-    if (isAuthorized !== false) {
       const requestOptions = {
         headers: {
           "Content-Type": "application/json",
-          Authorization: "JWT " + accessToken.replace(/["]+/g, ""),
         },
       };
 
@@ -39,21 +25,19 @@ const Discipline = () => {
         })
         .then((data) => {
           if ("error" in data) {
-            setIsAuthorized(false);
+            setDisciplines(null);
           } else {
-            setIsAuthorized(true);
             setDisciplines(data);
           }
         });
     }
-  }, [disciplines]);
+ , [disciplines]);
 
   const removeDiscipline = (dName) => {
     fetch("http://44.230.115.148/api/remove_discipline", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: "JWT " + accessToken.replace(/["]+/g, ""),
       },
       body: JSON.stringify({
         disciplineName: dName,
@@ -106,7 +90,6 @@ const Discipline = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: "JWT " + accessToken.replace(/["]+/g, ""),
         },
         body: JSON.stringify({
           name: disciplineName,
