@@ -4,7 +4,7 @@ from Database import *
 #everyone in the system has a CC email
 EMAIL_SUFFIX = '@coloradocollege.edu'
 
-def authenticate(username, password):
+def authenticate_2(username, password):
     print("In authenticate: " + username)
     username = username.lower()
     if not username.endswith(EMAIL_SUFFIX):
