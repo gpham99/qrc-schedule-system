@@ -46,7 +46,7 @@ application.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 #set up CAS
 cas_client = CASClient(
     version=3,    
-    service_url=URL+'api' if URL.endswith('/') else '/api',
+    service_url=URL[:-1]+":8080/",
     server_url='https://cas.coloradocollege.edu/cas/'
 )
 

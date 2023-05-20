@@ -93,7 +93,7 @@ const Tutor = () => {
               </a>
 
               <a
-                href="http://44.230.115.148/cas_logout"
+                href="http://44.230.115.148/api/cas_logout"
                 onClick={() => {
                   localStorage.clear();
                 }}
