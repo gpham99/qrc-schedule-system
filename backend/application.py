@@ -24,6 +24,10 @@ from random import sample, choice
 #for saving uploaded roster files
 import pandas as pd
 
+from flask_jwt import JWT, jwt_required, current_identity
+from datetime import timedelta
+from security import identity, authenticate_2
+
 #CONSTANTS
 #roster path variables for the list of tutors
 UPLOAD_FOLDER = '.'
@@ -80,6 +84,11 @@ def authenticate():
             application.logger.debug(session['username'] + " not in system")
             return None
     return None
+
+
+#set up JWT
+jwt = JWT(application, authenticate_2, identity)
+application.config["JWT_EXPIRATION_DELTA"] = timedelta(seconds=86400)
 
 # add a rule for the index page
 @application.route('/')
