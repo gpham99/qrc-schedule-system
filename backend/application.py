@@ -24,16 +24,11 @@ from random import sample, choice
 #for saving uploaded roster files
 import pandas as pd
 
-from flask_jwt import JWT, jwt_required, current_identity
-from datetime import timedelta
-from security import identity, authenticate_2
-
 #CONSTANTS
 #roster path variables for the list of tutors
 UPLOAD_FOLDER = '.'
 ALLOWED_EXTENSIONS = {'xls', 'xlsx', 'xlsm', 'xlsb', 'odf', 'ods', 'odt'}
 ROSTER_PATH = 'roster.csv'
-
 #total shifts
 SHIFT_SLOTS = 20
 #everyone in the system has a CC email
@@ -85,11 +80,6 @@ def authenticate():
             return None
     return None
 
-
-#set up JWT
-jwt = JWT(application, authenticate_2, identity)
-application.config["JWT_EXPIRATION_DELTA"] = timedelta(seconds=86400)
-
 # add a rule for the index page
 @application.route('/')
 def index():
@@ -99,9 +89,9 @@ def index():
     if not ticket:
         # No ticket, the request come from end user, send to CAS login
         cas_login_url = cas_client.get_login_url()
-        application.logger.debug('CAS login URL: %s', cas_login_url)
         return redirect(cas_login_url) # the return of this is /ticket?=...
     
+    #check ticket
     user, attributes, pgtiou = cas_client.verify_ticket(ticket)
     
     if not user:
@@ -118,7 +108,7 @@ def index():
 
 @application.route('/login')
 def login():
-    if 'username' in session:
+    if 'username' in session: #already logged in
         in_system, group = check_user(session['username'] + EMAIL_SUFFIX)
 
         return redirect(URL+group+("/profile" if group == "tutor" else ""))
@@ -129,7 +119,6 @@ def login():
     if not ticket:
         # No ticket, the request come from end user, send to CAS login
         cas_login_url = cas_client.get_login_url()
-        application.logger.debug('CAS login URL: %s', cas_login_url)
         return redirect(cas_login_url) # the return of this is /ticket?=...
     #same code as in '/', just in case, although almost every login request goes into the "if not ticket" part above
     user, attributes, pgtiou = cas_client.verify_ticket(ticket)
@@ -146,6 +135,7 @@ def login():
         return redirect(URL+group+("/profile" if group == "tutor" else ""))
     return redirect(next)
 
+#log out the user via CAS
 @application.route('/cas_logout')
 def logout():
     redirect_url = url_for('logout_callback', _external=True)
@@ -154,6 +144,7 @@ def logout():
 
     return redirect(cas_logout_url)
 
+#simple logout
 @application.route('/logout')
 def logout_callback():
     session.clear()
@@ -195,7 +186,7 @@ def get_master_schedule():
                             try:
                                 discipline_list.remove(disciplines[index]) #ensure there is no redundant information
                             except:
-                                print("ERROR: Discipline " + disciplines[index] + " not in tutorable disciplines for tutor " + email)
+                                application.logger.debug("ERROR: Discipline " + disciplines[index] + " not in tutorable disciplines for tutor " + email)
                             #get abbreviations for each discipline
                             for i in range(len(discipline_list)):
                                 discipline_list[i] = abbreviations[disciplines.index(discipline_list[i])]
@@ -207,7 +198,7 @@ def get_master_schedule():
                                     "other_disciplines": "/".join(discipline_list)}
                             shift_list.append(output_dict)
                     if not tutor_found:
-                        print("Warning: Tutor", email, " not found in database. Omitting corresponding shift.")
+                        application.logger.debug("Warning: Tutor", email, " not found in database. Omitting corresponding shift.")
                         output_dict = {"tutor": None,
                                 "firstname": None,
                                 "email": None,
@@ -233,7 +224,6 @@ def get_tutor_schedule():
     if identity is None:
         return Response(response="Unauthorized", status=401)
     email = identity.id
-    print(email)
     disciplines = get_disciplines()
     master_schedule = []
     tutor_schedule = {}
@@ -243,6 +233,7 @@ def get_tutor_schedule():
     for line in master_schedule:
         if line != None:
             if email in line:
+                #figure out which discipline the tutor is tutoring by figuring out which idex they're at
                 index = line.index(email)
                 tutor_schedule[shift_num] = display(disciplines[index])
             else:
@@ -300,7 +291,7 @@ def tutor_info():
     return result
 
 #Here is where admins can upload the list of active QRC tutors.
-#Expected file format: a spreadsheet (essentially .xls or .xlsx)
+#Expected file format: a spreadsheet (.xls, .xlsx, .xlsm, .xlsb, .odf, .ods, .odt)
 @application.route('/upload_roster', methods=['PUT','POST'])
 def upload_roster():
     #only admins may upload a roster
@@ -308,7 +299,6 @@ def upload_roster():
     if identity is None or identity.group == "tutor":
         return Response(response="Unauthorized", status=401)
     # check if the post request has the file part
-    print("request.files: ", request.files)
     if 'file' not in request.files:
         return {"msg": "No file part"}
         #return redirect(request.url)
@@ -327,6 +317,7 @@ def upload_roster():
         return {"msg": result}
     return {"msg": "File format not accepted"}
 
+#Get the list of all disciplines with abbreviations
 @application.route('/fetch_disciplines')
 def fetch_disciplines():
     #you must be in the database to be able to get the list of disciplines
@@ -343,7 +334,7 @@ def fetch_disciplines():
 
     return discipline_schedule_with_abv
 
-
+#Update master schedule with specific tutor names after it has been generated
 @application.route('/update_master_schedule', methods=['POST'])
 def update_tutors_in_master_schedule():
     #you must be an admin to be able to update the master schedule
@@ -362,25 +353,25 @@ def update_tutors_in_master_schedule():
     for key in result.keys():
         shift_index, discipline_abbreviation = key.split(',')
         new_tutor_firstname = result[key]
-        if new_tutor_firstname == "":
+        if new_tutor_firstname == "": #tutor needs to be removed
             update_master_schedule_single_discipline(shift_index, disciplines[abbreviations.index(discipline_abbreviation)], None)
-            #output += "Shift removed successfully\n"
         else:
+            #find whoever that was
             user = find_first_name(new_tutor_firstname)
             if user != None:
+                #create a User object
                 user = authenticate(user[0], "")
             if user != None:
-                #print(user.id, shift_index, discipline_abbreviation)
                 discipline_to_change = disciplines[abbreviations.index(discipline_abbreviation)]
-                if discipline_to_change in user.disciplines:
+                if discipline_to_change in user.disciplines: #if the tutor is eligible to tutor this discipline
                     update_master_schedule_single_discipline(shift_index, discipline_to_change, user.id)
-                    #output += "Shift for " + user.id + " added successfully\n"
                 else:
                     output.append("Error: Tutor " + user.id + " is not eligible to tutor " + display(discipline_to_change) + "\n")
             else:
                 output.append("Error: " + new_tutor_firstname + " not found in database, please check your spelling\n")
     return list(set(output))
     
+#add a new tutorable discipline
 @application.route('/add_discipline', methods=['POST'])
 def add_new_discipline():
     #you must be an admin to be able to add disciplines
@@ -388,13 +379,12 @@ def add_new_discipline():
     if identity is None or identity.group == "tutor":
         return Response(response="Unauthorized", status=401)
     req = request.get_json()
-    print(req)
     discipline_name = req['name']
     discipline_abbreviation = req["abv"]
-    print("Adding discipline: " + discipline_name)
     add_discipline(sanitize(discipline_name), sanitize(discipline_abbreviation), [])
     return {"msg": "Success"}
 
+#remove a tutorable discipline
 @application.route('/remove_discipline', methods=['POST'])
 def remove_discipline():
     #you must be an admin to be able to remove disciplines
@@ -406,6 +396,7 @@ def remove_discipline():
     delete_discipline(sanitize(discipline_name))
     return {"msg": "Removed successfully"}
 
+#get the list of all admins in the system
 @application.route('/get_admins')
 def get_admins():
     #you must be an admin to be able to view the list of admins
@@ -415,11 +406,13 @@ def get_admins():
     admin_info = get_admin_roster()
     admin_display_lst = []
     for email, name in admin_info:
-        display_email = email
+        #ensure name and email are properly formatted
+        display_email = display(email)
         display_name = display(name)
         admin_display_lst.append([display_name, display_email])
     return admin_display_lst
 
+#add an admin to the system
 @application.route('/add_admin', methods=['POST'])
 def add_new_admin():
     #you must be an admin to be able to add an admin
@@ -427,11 +420,13 @@ def add_new_admin():
     if identity is None or identity.group == "tutor":
         return Response(response="Unauthorized", status=401)
     req = request.get_json()
+    #ensure the name and email are database-safe
     admin_name = sanitize(req["name"])
     admin_email = sanitize(req["email"])
     add_admin(admin_name, admin_email)
     return {"msg": "Added successfully"}
 
+#remove an admin from the system (don't do this with yourself!)
 @application.route('/remove_admin', methods=['POST'])
 def remove_admin():
     #you must be an admin to be able to remove an admin
@@ -443,7 +438,7 @@ def remove_admin():
     delete_admins(admin_email)
     return {"msg": "Removed successfully"}
 
-
+#toggle whether schedule is open for shift registration
 @application.route('/open_schedule', methods=['POST'])
 def set_time_window():
     #you must be an admin to be able to open or close registration
@@ -454,25 +449,28 @@ def set_time_window():
     block = int(req_data['block'])
     is_open = bool(req_data['is_open'])
     current_block = read_from_file("block")
+    #save block number if it is different, and save the registration open-ness
     if block != current_block:
         write_to_file("block", block)
         write_to_file("is_open", is_open)
     else:
         write_to_file("is_open", is_open)
-    if not is_open: #shift registration has been closed
+    if not is_open: #shift registration has been closed, generate the schedule!
         write_master_schedule()
     return {"msg": "Changes successful"}
 
+#re-generate the schedule
 @application.route('/regenerate_schedule', methods=['POST'])
 def regenerate_schedule():
     #you must be an admin to be able to regenerate the master schedule
     identity = authenticate()
     if identity is None or identity.group == "tutor":
         return Response(response="Unauthorized", status=401)
+    #regenerate
     write_master_schedule()
     return {"msg": "Schedule regenerated"}
     
-
+#get the list of disciplines (without abbreviations)
 @application.route('/get_disciplines')
 def get_discipline_list():
     #you must be in the system to be able to view the list of disciplines
@@ -484,31 +482,40 @@ def get_discipline_list():
     for discipline in fetched_disciplines:
         discipline = display(discipline)
         sanitized_disciplines.append(discipline)
-
     return sanitized_disciplines
 
+#get the schedule skeleton (list of disciplines tutorable during each shift)
 @application.route('/get_schedule_skeleton')
 def get_schedule_skeleton():
     #you must be an admin to be able to view the schedule skeleton
     identity = authenticate()
     if identity is None or identity.group == "tutor":
         return Response(response="Unauthorized", status=401)
+    #list to return
     ret = []
     disciplines = sorted(get_disciplines())
     shifts_offered = []
     abbreviations = [display(get_discipline_abbreviation(discipline)) for discipline in disciplines]
     for i in range(len(disciplines)):
         shifts_offered.append(ast.literal_eval(get_discipline_shifts_offered(disciplines[i])))
+    #shifts_offered looks like this:
+    #[[1, 3, 5, 6],
+    # [1, 3, 7],
+    # [2, 9, 15, 20],
+    # [3, 5, 6, 7, 8],
+    # [4, 5, 7, 9]]
+    #with each row corresponding to a discipline, listed in alphabetical order
     for i in range(SHIFT_SLOTS):
         discipline_list = []
         for d in range(len(disciplines)):
-            if i in shifts_offered[d]:
+            if i in shifts_offered[d]: #if this shift number is offered for this discipline
                 discipline_list.append(abbreviations[d]+",True")
             else:
                 discipline_list.append(abbreviations[d]+",False")
         ret.append(discipline_list)
     return ret
 
+#Set the schedule skeleton (list of disciplines tutorable during each shift)
 @application.route('/set_schedule_skeleton', methods = ['POST'])
 def set_schedule_skeleton():
     #you must be an admin to be able to set the schedule skeleton
@@ -530,6 +537,7 @@ def set_schedule_skeleton():
         update_discipline_shift_availability(disciplines[d], shift_list)
     return {"msg": "Schedule skeleton saved"}
 
+#Get what times a tutor said they would be available
 @application.route('/tutor/get_availability', methods = ['GET'])
 def get_availability():
     #you must be in the system to see a tutor's availability
@@ -540,22 +548,26 @@ def get_availability():
     ret = {}
     tutoring_disciplines = identity.disciplines
     for i in range(SHIFT_SLOTS):
+        #pick tutors out of the massive list of all available tutors
         all_possible_disciplines = []
         picked = ""
         favorited = "Low"
         shift_dict = {}
-        for discipline in tutoring_disciplines:
+        for discipline in tutoring_disciplines: #for every discipline this tutor can tutor in
+            #figure out which shifts they *could* take
             shifts_offered = ast.literal_eval(get_discipline_shifts_offered(discipline))
             if i in shifts_offered:
                 all_possible_disciplines.append(display(get_discipline_abbreviation(discipline)))
+                #get tutors available for this shift
                 available_tutors_string_form = get_discipline_shift(discipline, i)
                 if available_tutors_string_form is not None:
                     available_tutors = ast.literal_eval(available_tutors_string_form)
+                    #if the calling tutor is one of the tutors who said they'd be available
                     if identity.id in available_tutors:
+                        #turn the abbreviation for this discipline into the non-database-safe form
                         picked = display(get_discipline_abbreviation(discipline))
-                        for j in range(3):
-                            print(identity.favorited_shifts[j])
-                            if i in identity.favorited_shifts[j]:
+                        for j in range(3): #for each possible priority level
+                            if i in identity.favorited_shifts[j]: #if this shift is <j> priority
                                 favorited = priorities[j]
         shift_dict['all_possible_disciplines'] = all_possible_disciplines
         shift_dict['picked'] = picked
@@ -563,6 +575,7 @@ def get_availability():
         ret[i] = shift_dict
     return ret
 
+#set shifts when tutor would be available, and their priority level for that shift
 @application.route('/tutor/set_availability', methods = ['POST'])
 def set_availability():
     #you must be in the system to be able to set your availability
@@ -583,22 +596,30 @@ def set_availability():
             else:
                 available_tutors = []
             #remove tutor from any shift they had previously selected (give them a "clean slate")
-            if identity.id  in available_tutors:
+            #we remove them from all shifts partially because the code is simpler and partially because if the
+            #schedule skeleton has changed since the tutor last put in their preferences, some
+            #of the shifts they selected may no longer be available at all
+            if identity.id in available_tutors:
                 available_tutors.remove(identity.id)
+                #save the new list of available tutors
                 add_shifts(discipline, i, available_tutors)
-        #add tutor to shifts they did pick
+        #add tutor to shifts they picked
         picked = req[str(i)]['picked']
-        if picked == '':
+        if picked == '': #the tutor did not pick this shift
             continue
         discipline = sanitize(all_disciplines[abbreviations.index(picked)])
         favorited = req[str(i)]['favorited']
+        #get the list of other tutors who are available
         available_tutors = get_discipline_shift(discipline, i)
         if available_tutors is not None:
             available_tutors = ast.literal_eval(available_tutors)
         else:
             available_tutors = []
-        if identity.id not in available_tutors:
+        #this statement should always evaluate to True because
+        #the tutor was removed earlier
+        if identity.id not in available_tutors: 
             available_tutors.append(identity.id)
+        #save the data
         add_shifts(discipline, i, available_tutors)   
         
         if picked != None and favorited == "Low":
@@ -611,6 +632,7 @@ def set_availability():
     update_favorite_shifts(identity.id, favorited_list)
     return {'msg': 'Changes saved'}
 
+#get a list of all the tutors and some of their characteristics in the system
 @application.route('/get_tutors_information', methods = ['GET'])
 def get_tutors_information():
     #you must be an admin to get information on all tutors
@@ -628,9 +650,11 @@ def get_tutors_information():
         tutor_dict = {'name': name, 'this_block_la': this_block_la, 'this_block_unavailable': this_block_unavailable,
                       'absence': absence}
         ret[email] = tutor_dict
+    #sort names alphabetically
     ret = {key: val for key, val in sorted(ret.items(), key = lambda ele: ele[0])}
     return ret
 
+#set information about tutors from the "Tutor Status" page on the admin dashboard
 @application.route('/set_tutors_information', methods = ['POST'])
 def set_tutors_information():
     #you must be an admin to be able to change information for any tutor
@@ -645,6 +669,7 @@ def set_tutors_information():
         this_block_unavailable = True if tutor[2] == 1 else False
         tutor_dict = data[email]
         absence = True if tutor[9] == 1 else False
+        #all these values are just booleans, so we can toggle them if their state has changed
         if tutor_dict['this_block_la'] != this_block_la:
             update_this_block_la(email)
         if tutor_dict['this_block_unavailable'] != this_block_unavailable:
@@ -653,6 +678,7 @@ def set_tutors_information():
             update_absence(email)
     return {'msg': 'Updates complete'}
 
+#API page to return the current block number (1-8)
 @application.route('/get_block', methods = ['GET'])
 def get_block():
     #you must be in the system to view the block number
@@ -662,6 +688,7 @@ def get_block():
     block_number = read_from_file("block")
     return {'block': block_number}
 
+#API page to return whether availability input is currently open
 @application.route('/is_open', methods = ['GET'])
 def is_open():
     #you must be in the system to see if the schedule is open for editing
@@ -671,9 +698,9 @@ def is_open():
     is_open = read_from_file("is_open")
     return {"msg": str(is_open)}
 
-
 #take in the tutors' chosen shifts and use them to create the master schedule
 def write_master_schedule():
+    application.logger.debug("Calculating master schedule, this may take a moment...")
     #Get the list of all disciplines
     disciplines = get_disciplines()
     tutors = []
@@ -693,9 +720,6 @@ def write_master_schedule():
     mid_priority = []
     high_priority = []
     for tutor in get_roster():
-        # #remove tutors who have been marked as unavailable
-        # if tutor[3] == 1:
-        #     continue
         if tutor[9] == 1: #"absence" is True - tutor has unexcused absences
             low_priority.append(User(tutor[0], tutor[1], 'tutor', tutor[2], tutor[3], tutor[4], tutor[5], tutor[6], tutor[7], tutor[8], tutor[9]))
         elif tutor[5] == 1: #"tutor_this_block" is True - tutor is an LA this block
@@ -710,7 +734,6 @@ def write_master_schedule():
                 avail_tables[i][shift] = []
 
     solution = algorithm(200, tutors, avail_tables, open_shifts)
-    #print("chosen solution",solution)
     #solution is in the format:
     #[{1: "g_pham@coloradocollege.edu", #the first discipline
     # 5: "m_padilla@coloradocollege.edu"},
@@ -721,7 +744,8 @@ def write_master_schedule():
         for dict in solution:
             assignments.append(dict[i])
         add_to_master_schedule(i, disciplines, assignments)
-    return({"msg" : "DONE"})
+        application.logger.debug("Master schedule saved!")
+    return({"msg" : "Master schedule saved!"})
 
 
 #greedy algorithm to determine a possible allocation of schedule shifts
@@ -790,32 +814,13 @@ def greedy(tutors, avail_tables, open_shifts):
                     #which means the shift has already been taken by someone else
                         priority_list.remove(shift_index)
         attempts += 1 #we've iterated through all the tutors once; if we do it 100 times that means we probably can't assign more shifts
-
-
-
-
-        # for d in sample(list(range(len(disciplines))), len(disciplines)): #go through disciplines in random order
-        #     shift = sample(open_shifts[d], 1) #select a random shift to fill
-        #     #let's fill it!
-        #     if len(avail_copy[d][shift]) > 0:
-        #         assigned_bool = False
-        #         for tutor in sample(avail_copy[d][shift],len(avail_copy[d][shift])):
-        #             if capacities[emails.index(tutor)] > 0:
-        #                 master_schedule[d][shift] = tutor
-        #                 avail_copy[d][shift] = []
-        #                 capacities[emails.index(tutor)] -= 1
-        #                 assigned += 1
-        #                 assigned_bool = True
-        #                 break
-        #         if not assigned_bool:
-        #             avail_copy[d][shift] = []
-        # attempts += 1
-    if assigned == total_shifts:
-        print("Greedy algorithm stopped: all shifts filled")
-    if assigned == sum_capacities:
-        print("Greedy algorithm stopped: tutors maxed out")
-    if attempts >= 100:
-        print("Greedy algorithm stopped: algorithm gave up")
+    #uncomment the following code if something seems wrong with the scheduling algorithm - it might help diagnose the problem
+    # if assigned == total_shifts:
+    #     application.logger.debug("Greedy algorithm stopped: all shifts filled")
+    # if assigned == sum_capacities:
+    #     application.logger.debug("Greedy algorithm stopped: tutors maxed out")
+    # if attempts >= 100:
+    #     application.logger.debug("Greedy algorithm stopped: algorithm gave up")
     #for d in sample(range(len(disciplines)), len(disciplines)):
     #    for shift in sample(open_shifts[d], len(open_shifts[d])):
     #        if len(avail_copy[d][shift]) > 0:
@@ -831,20 +836,6 @@ def tutor_unfairness(schedule, high_priority, mid_priority, low_priority, open_s
             unavailable.append(tutor)
     for tutor in unavailable:
         high_priority.remove(tutor)
-    unavailable = []
-    #remove tutors who have been marked as unavailable
-    for tutor in mid_priority:
-        if tutor.this_block_unavailable == 1:
-            unavailable.append(tutor)
-    for tutor in unavailable:
-        mid_priority.remove(tutor)
-    unavailable = []
-    #remove tutors who have been marked as unavailable
-    for tutor in low_priority:
-        if tutor.this_block_unavailable == 1:
-            unavailable.append(tutor)
-    for tutor in unavailable:
-        low_priority.remove(tutor)
     unfairness_score = 0 #lower is better
     for tutor in high_priority:
         #count number of shifts they have been assigned
@@ -875,6 +866,7 @@ def tutor_unfairness(schedule, high_priority, mid_priority, low_priority, open_s
         unfairness_score += score_component
     return unfairness_score
 
+#calculate how evenly shifts are split between disciplines (lower is better)
 def discipline_evenness(schedule, open_shifts):
     shift_counts = []
     for i in range(len(schedule)):
@@ -886,6 +878,7 @@ def discipline_evenness(schedule, open_shifts):
     deviation = stdev(shift_counts)
     return deviation
 
+#calculate a schedule using a combination of a greedy algorithm and a variety of statistical assessments
 def algorithm(totaltries, tutors, avail_tables, open_shifts):
     high_priority = tutors[0]
     mid_priority = tutors[1]
@@ -928,15 +921,4 @@ def algorithm(totaltries, tutors, avail_tables, open_shifts):
         else:
             i+=1
 
-    # for soln in possible_solutions:
-    #     print(soln[1], soln[2], soln[3])   
-    #     for line in soln[0]:
-    #         print(line)
-
     return possible_solutions[0][0]
-
-# #     # Setting debug to True enables debug output. This line should be
-# #     # removed before deploying a production app.
-# #     application.debug = True
-# #     application.run()
-
