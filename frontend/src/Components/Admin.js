@@ -121,7 +121,7 @@ const Admin = () => {
 
               <li class="nav-item">
                 <a class="nav-link" href="/admin/time-window">
-                  Time Window
+                  New Schedule
                 </a>
               </li>
               <li class="nav-item">

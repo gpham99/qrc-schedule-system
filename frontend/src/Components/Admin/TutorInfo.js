@@ -127,7 +127,7 @@ const TutorInfo = () => {
               <th class="col-sm-4">Tutor</th>
               <th class="col-sm-4">LA Status</th>
               <th class="col-sm-4">Unavailable</th>
-              <th class="col-sm-4">Unexcused Absences</th>
+              <th class="col-sm-4">Unex Ab</th>
             </tr>
           </thead>
           <tbody>
