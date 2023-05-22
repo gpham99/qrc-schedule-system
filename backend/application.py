@@ -447,7 +447,7 @@ def set_time_window():
         return Response(response="Unauthorized", status=401)
     req_data = request.get_json()
     block = int(req_data['block'])
-    is_open = bool(req_data['is_open'])
+    is_open = True if req_data['is_open'] == '1' else False
     current_block = read_from_file("block")
     #save block number if it is different, and save the registration open-ness
     if block != current_block:

@@ -102,8 +102,23 @@ const TimeWindow = () => {
       </div>
 
       <button onClick={() => {
-        console.log('current block picked: ', block);
-        console.log('toggle mode: ', isOpen);
+        fetch("http://44.230.115.148:8080/api/open_schedule", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            block: block,
+            is_open: isOpen,
+          }),
+          })
+        .then((response) => {
+          let res = response.json();
+          return res;
+        })
+        .then((data) => {
+          console.log(data);
+        });
       }}>Save</button>
     </div>
   );

@@ -56,7 +56,7 @@ const Profile = () => {
         return res;
       })
       .then((data) => {
-        console.log("WHAT IS THIS", data["msg"]);
+        console.log(data["msg"]);
       });
   };
 
