@@ -447,7 +447,7 @@ def set_time_window():
         return Response(response="Unauthorized", status=401)
     req_data = request.get_json()
     block = int(req_data['block'])
-    is_open = True if req_data['is_open'] == '1' else False
+    is_open = True if req_data['is_open'] == 1 else False
     current_block = read_from_file("block")
     #save block number if it is different, and save the registration open-ness
     if block != current_block:
@@ -744,7 +744,7 @@ def write_master_schedule():
         for dict in solution:
             assignments.append(dict[i])
         add_to_master_schedule(i, disciplines, assignments)
-        application.logger.debug("Master schedule saved!")
+    application.logger.debug("Master schedule saved!")
     return({"msg" : "Master schedule saved!"})
 
 
