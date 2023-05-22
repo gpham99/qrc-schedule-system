@@ -120,7 +120,7 @@ const TutorInfo = () => {
       </div>
 
       {/* table */}
-      <div class="p-4 table-responsive sticky-top">
+      <div class="p-4 table-responsive">
         <table class="table table-bordered table-fixed">
           <thead class="table-dark">
             <tr>
