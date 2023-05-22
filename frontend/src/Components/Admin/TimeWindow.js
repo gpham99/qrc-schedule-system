@@ -102,7 +102,7 @@ const TimeWindow = () => {
       </div>
 
       <button onClick={() => {
-        fetch("http://44.230.115.148:8080/api/open_schedule", {
+        fetch("http://44.230.115.148/api/open_schedule", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

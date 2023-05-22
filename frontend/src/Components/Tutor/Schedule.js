@@ -42,7 +42,7 @@ const Schedule = () => {
   , []);
 
   function checkTimeWindow () {
-    fetch("http://44.230.115.148//api/is_within_window").then((response) => {
+    fetch("http://44.230.115.148/api/is_open").then((response) => {
       let res = response.json();
       return res;
     })
