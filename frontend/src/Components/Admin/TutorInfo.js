@@ -120,7 +120,7 @@ const TutorInfo = () => {
       </div>
 
       {/* table */}
-      <div class="p-4 table-responsive">
+      <div class="p-4 table-responsive sticky-top">
         <table class="table table-bordered table-fixed">
           <thead class="table-dark">
             <tr>
@@ -160,10 +160,6 @@ const TutorInfo = () => {
                       class="form-check-input"
                       type="checkbox"
                       value=""
-                      options={{
-                        headerStyle: { position: 'sticky', top: 0 },
-                        maxBodyHeight: 500,
-                      }}
                       checked={edittedTutorsInfo[key]["this_block_unavailable"]}
                       disabled={editMode === 0 ? true : false}
                       onChange={(e) => {
