@@ -107,7 +107,7 @@ def read_from_file(request):
     if request == "block":
         return int(contents[0])
     elif request == "is_open":
-        return bool(contents[0])
+        return True if contents[0] == "True" else False
     
 def write_to_file(request, value):
     if request == "block":
