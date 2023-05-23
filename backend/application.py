@@ -1,7 +1,5 @@
 #custom database functions
 from Database import *
-#TimeWindow operation
-import time, sched
 #Flask
 from flask import Flask, request, session, redirect, url_for, Response
 from flask_cors import CORS
@@ -9,7 +7,7 @@ from flask_cors import CORS
 from cas import CASClient
 #for parsing lists
 import ast
-#for file IO
+#for file IO and secret key generation
 import os
 #custom data functions
 from models import read_roster, User, read_from_file, write_to_file
@@ -23,6 +21,8 @@ from statistics import stdev
 from random import sample, choice
 #for saving uploaded roster files
 import pandas as pd
+#for authentication
+from security import _authenticate
 
 #CONSTANTS
 #roster path variables for the list of tutors
@@ -55,29 +55,14 @@ def allowed_file(filename):
             filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 #security function: verify user authentication. Relies on Flask sessions, transmitted back and forth
+#via the session cookie. Uses the "authenticate" function in security.py
 def authenticate():
     if 'username' in session:
         username = session['username'] + EMAIL_SUFFIX
-        try:
-            #use the check_user function in the Database file to try to find the user in the database
-            in_system, group = check_user(username)
-            if in_system:
-                if group == 'tutor':
-                    tutor_entry = get_single_tutor_info(username)
-                    return User(username, tutor_entry[1], group, tutor_entry[2], tutor_entry[3], tutor_entry[4], tutor_entry[5], tutor_entry[6],
-                    tutor_entry[7], tutor_entry[8])
-                elif group == 'admin':
-                    admin_entry = get_admin_info(username)
-                    return User(username, admin_entry[1], group)
-                elif group == 'superuser':
-                    superuser_entry = get_superuser_info(username)
-                    return User(username, superuser_entry[1], group)
-            else:
-                application.logger.debug(session['username'] + " not in system")
-                return None
-        except:
+        user = _authenticate(username)
+        if user is None:
             application.logger.debug(session['username'] + " not in system")
-            return None
+        return user
     return None
 
 # add a rule for the index page
@@ -262,7 +247,7 @@ def update_tutor_info():
         ret['msg'] = 'Invalid shift capacity'
     disciplines = []
     for discipline, discipline_bool in new_disciplines.values():
-        if discipline_bool == True:
+        if discipline_bool == "true":
             disciplines.append(sanitize(discipline))
     print(disciplines)
     update_tutoring_disciplines(identity.id, disciplines)
@@ -366,7 +351,7 @@ def update_tutors_in_master_schedule():
             user = find_first_name(new_tutor_firstname)
             if user != None:
                 #create a User object
-                user = authenticate(user[0], "")
+                user = _authenticate(user[0]+EMAIL_SUFFIX)
             if user != None:
                 discipline_to_change = disciplines[abbreviations.index(discipline_abbreviation)]
                 if discipline_to_change in user.disciplines: #if the tutor is eligible to tutor this discipline
