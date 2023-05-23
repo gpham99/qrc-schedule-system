@@ -78,7 +78,6 @@ def index():
     
     #check ticket
     user, attributes, pgtiou = cas_client.verify_ticket(ticket)
-    print("ATTRIBUTES: ", attributes)
     if not user:
         return 'Failed to verify ticket'
     user = user.lower()
@@ -107,7 +106,6 @@ def login():
         return redirect(cas_login_url) # the return of this is /ticket?=...
     #same code as in '/', just in case, although almost every login request goes into the "if not ticket" part above
     user, attributes, pgtiou = cas_client.verify_ticket(ticket)
-    print("ATTRIBUTES: ", attributes)
     
     if not user:
         return 'Failed to verify ticket'
@@ -238,7 +236,6 @@ def update_tutor_info():
     req = request.get_json()
     new_shift_capacity = int(req['shift_capacity'])
     new_disciplines = req['disciplines']
-    print(new_disciplines)
     if new_shift_capacity >= 0:
         update_shift_capacity(identity.id, new_shift_capacity)
         ret['msg'] = 'Tutor info updated'
@@ -249,7 +246,6 @@ def update_tutor_info():
     for discipline, discipline_bool in new_disciplines.values():
         if discipline_bool == "true":
             disciplines.append(sanitize(discipline))
-    print(disciplines)
     update_tutoring_disciplines(identity.id, disciplines)
     return ret
 
@@ -260,14 +256,12 @@ def tutor_info():
     identity = authenticate()
     if identity is None:
         return Response(response="Unauthorized", status=401)
-    print(identity.disciplines)
     result = {}
     result['username'] = session['username'] + EMAIL_SUFFIX
     result['name'] = identity.name
     all_disciplines = get_disciplines()
     all_disciplines = sorted(all_disciplines)
     disciplines = []
-    print(all_disciplines)
     #return a list of all disciplines with booleans indicating whether the tutor can tutor in them
     for discipline in all_disciplines:
         if discipline in identity.disciplines:
@@ -278,7 +272,6 @@ def tutor_info():
     result['shift_capacity'] = identity.shift_capacity
     result['this_block_unavailable'] = True if identity.this_block_unavailable == 1 else False
     result['this_block_la'] = True if identity.this_block_la == 1 else False
-    print(result)
     return result
 
 #Here is where admins can upload the list of active QRC tutors.
@@ -535,7 +528,6 @@ def get_availability():
     identity = authenticate()
     if identity is None:
         return Response(response="Unauthorized", status=401)
-    print(identity.id)
     priorities = ["High", "Medium", "Low"]
     ret = {}
     tutoring_disciplines = identity.disciplines
