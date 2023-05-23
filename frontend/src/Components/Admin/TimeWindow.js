@@ -3,8 +3,8 @@ import "react-datepicker/dist/react-datepicker.css";
 
 const TimeWindow = () => {
 
-  const [isOpen, setIsOpen] = useState(0); // fetch from files?
-  const [block, setBlock] = useState(1); // fetch from files?
+  const [isOpen, setIsOpen] = useState(0);
+  const [block, setBlock] = useState(1);
 
   const dropdownChangeHandler = (e) => {
     setBlock(e.target.value);
@@ -14,33 +14,30 @@ const TimeWindow = () => {
     setIsOpen(1 - isOpen);
   }
 
+  useEffect(() => {
+    fetch("http://44.230.115.148:8080/api/get_block").then((response) => {
+      let res = response.json();
+      console.log("res: ", res);
+      return res;
+    }).then(data => {
+      console.log("data ne:", data);
+    })
+  }, [])
+
   // useEffect(() => {
-  //   if (isAuthorized !== false) {
   //     const requestOptions = {
   //       headers: {
   //         "Content-Type": "application/json",
-  //       },
-  //     };
+  //       }
+  //     }
 
-  //     fetch("http://44.230.115.148:8080/api/time_window", requestOptions)
+  //     fetch("http://44.230.115.148:8080/api/get_block", requestOptions)
   //       .then((response) => {
   //         let res = response.json();
   //         console.log("res: ", res);
   //         return res;
   //       })
   //       .then((data) => {
-  //         if ("error" in data) {
-  //           setIsAuthorized(false);
-  //         } else {
-  //           console.log("data: ", data);
-  //           if (data["start_date"] !== 1000000) {
-  //             setStartDate(new Date(data["start_date"] * 1000));
-  //           }
-  //           if (data["end_date"] !== 1000000) {
-  //             setEndDate(new Date(data["end_date"] * 1000));
-  //           }
-  //           setIsAuthorized(true);
-  //         }
   //       });
   //   }
   // }, []);
@@ -71,7 +68,6 @@ const TimeWindow = () => {
 
   return (
     <div class="container bg-light">
-      {/* description */}
       <div class="d-flex justify-content-center p-4">
         <section>
           <p class="text-left font-weight-light font-italic">
@@ -80,11 +76,11 @@ const TimeWindow = () => {
         </section>
       </div>
 
-      <div class="pb-4 d-flex justify-content-center">
-          <div class="custom-control custom-switch pr-3">
-            <input type="checkbox" class="custom-control-input" id="customSwitches" onChange={toggleChangeHandler}/>
-            <label class="custom-control-label" for="customSwitches">Open/close shift registration</label>
-          </div>
+      <div class="pb-4 d-flex justify-content-center align-items-start">
+        <div class="d-flex align-items-start">
+          <label class="pr-2">Shift registration:</label>
+          <input type="checkbox" data-toggle="toggle" data-onstyle="success" data-offstyle="primary" onChange={toggleChangeHandler}/>
+        </div>
 
           <div class="pl-3">
             <label class="pr-2" for="block">Current block: </label>
@@ -101,25 +97,33 @@ const TimeWindow = () => {
           </div>           
       </div>
 
-      <button onClick={() => {
-        fetch("http://44.230.115.148/api/open_schedule", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            block: block,
-            is_open: isOpen,
-          }),
-          })
-        .then((response) => {
-          let res = response.json();
-          return res;
-        })
-        .then((data) => {
-          console.log(data);
-        });
-      }}>Save</button>
+      <div className="pb-3">
+          <button
+            type="button"
+            className="btn btn-info"
+            onClick={() => {
+              fetch("http://44.230.115.148/api/open_schedule", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  block: block,
+                  is_open: isOpen,
+                }),
+                })
+              .then((response) => {
+                let res = response.json();
+                return res;
+              })
+              .then((data) => {
+                console.log(data);
+              });
+            }}
+          >
+            Save
+          </button>
+          </div>
     </div>
   );
 };
