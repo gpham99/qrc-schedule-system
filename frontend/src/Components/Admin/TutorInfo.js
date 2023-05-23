@@ -90,9 +90,12 @@ const TutorInfo = () => {
       <div class="d-flex justify-content-between p-4">
           {/* submit change button */}
       {editMode === 1 && (
+        <>
           <button type="button" className="btn btn-info" onClick={submitChange}>
             Save Changes
           </button>
+          <button>Clear All</button>
+        </>
       )}
         {editMode === 0 ? (
           <button class="btn btn-info" onClick={toggleEditMode}>

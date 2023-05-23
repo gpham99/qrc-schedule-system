@@ -91,7 +91,6 @@ const Profile = () => {
                 <td>
                   <input
                     type="checkbox"
-                    data-toggle="toggle"
                     data-size="lg"
                     checked={availabilityStatus}
                     disabled
@@ -103,7 +102,6 @@ const Profile = () => {
                 <td>
                   <input
                     type="checkbox"
-                    data-toggle="toggle"
                     data-size="lg"
                     checked={laStatus}
                     disabled
