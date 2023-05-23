@@ -39,7 +39,7 @@ URL = 'http://44.230.115.148/'
 #set up Flask app
 application = Flask(__name__)
 CORS(application)
-application.secret_key = ';sufhiagr3yugfjcnkdlmsx0-w9u4fhbuewiejfigehbjrs'
+application.secret_key = '211d1f414484d7e019c4bf0a2e41291783b7a0f2e882a461ca6601a4ca207bdd'
 application.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 #set up CAS
@@ -244,7 +244,7 @@ def update_tutor_info():
         ret['msg'] = 'Invalid shift capacity'
     disciplines = []
     for discipline, discipline_bool in new_disciplines.values():
-        if discipline_bool == "true":
+        if discipline_bool == True:
             disciplines.append(sanitize(discipline))
     update_tutoring_disciplines(identity.id, disciplines)
     return ret
