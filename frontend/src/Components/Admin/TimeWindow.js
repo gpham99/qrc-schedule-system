@@ -14,7 +14,7 @@ const TimeWindow = () => {
   };
 
   useEffect(() => {
-    fetch("http://44.230.115.148:8080/api/get_block")
+    fetch("http://44.230.115.148/api/get_block")
       .then((response) => response.json())
       .then((data) => {
         setBlock(data["block"]);
@@ -22,7 +22,7 @@ const TimeWindow = () => {
   }, []);
 
   useEffect(() => {
-    fetch("http://44.230.115.148:8080/api/is_open")
+    fetch("http://44.230.115.148/api/is_open")
       .then((response) => response.json())
       .then((data) => {
         setIsOpen(data["msg"] === "True" ? 1 : 0);
