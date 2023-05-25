@@ -28,7 +28,7 @@ const TimeWindow = () => {
       let res = response.json();
       return res;
     }).then(data => {
-      if (data["msg"]) setIsOpen(1);
+      if (data["msg"] === "True") setIsOpen(1);
       else setIsOpen(0);
     })
   }, [])
