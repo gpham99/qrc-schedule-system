@@ -15,7 +15,7 @@ const TimeWindow = () => {
   }
 
   useEffect(() => {
-    fetch("http://44.230.115.148:8080/api/get_block").then((response) => {
+    fetch("http://44.230.115.148/api/get_block").then((response) => {
       let res = response.json();
       return res;
     }).then(data => {
@@ -24,7 +24,7 @@ const TimeWindow = () => {
   }, [])
 
   useEffect(() => {
-    fetch("http://44.230.115.148:8080/api/is_open").then((response) => {
+    fetch("http://44.230.115.148/api/is_open").then((response) => {
       let res = response.json();
       return res;
     }).then(data => {
