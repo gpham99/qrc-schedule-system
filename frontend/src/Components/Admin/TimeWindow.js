@@ -62,13 +62,12 @@ const TimeWindow = () => {
           <label className="pr-2">Shift registration:</label>
           <input
             type="checkbox"
+            id="toggle-event"
             checked={isOpen === 1}
             data-toggle="toggle"
             data-onstyle="success"
             data-offstyle="primary"
-            onChange={toggleChangeHandler}
-            onClick={toggleChangeHandler}
-            onSmash={toggleChangeHandler}
+            onChange={(e) => toggleChangeHandler(e)}
           />
         </div>
 
