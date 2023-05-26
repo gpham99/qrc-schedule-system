@@ -66,7 +66,9 @@ const TimeWindow = () => {
             data-toggle="toggle"
             data-onstyle="success"
             data-offstyle="primary"
-            onchange={toggleChangeHandler}
+            onChange={toggleChangeHandler}
+            onClick={toggleChangeHandler}
+            onSmash={toggleChangeHandler}
           />
         </div>
 
