@@ -25,7 +25,6 @@ const TimeWindow = () => {
     fetch("http://44.230.115.148/api/is_open")
       .then((response) => response.json())
       .then((data) => {
-        console.log("is_open:", data);
         setIsOpen(data["msg"] === "True" ? 1 : 0);
       });
   }, []);

@@ -441,7 +441,7 @@ def set_time_window():
         write_to_file("is_open", is_open)
     if not is_open: #shift registration has been closed, generate the schedule!
         write_master_schedule()
-    return {"msg": "Changes successful"}
+    return {"msg": "block changed to " + str(block) + ", is_open changed to " + str(is_open)}
 
 #re-generate the schedule
 @application.route('/regenerate_schedule', methods=['POST'])
