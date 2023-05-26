@@ -72,7 +72,7 @@ const TimeWindow = () => {
 
         <div className="pl-3">
           <label className="pr-2" htmlFor="block">
-            Current block:
+            Current b:
           </label>
           <select id="block" name="block" value={block} onChange={dropdownChangeHandler}>
             <option value="1">1</option>
