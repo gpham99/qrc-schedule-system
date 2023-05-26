@@ -11,6 +11,7 @@ const TimeWindow = () => {
 
   const toggleChangeHandler = (e) => {
     setIsOpen(1 - isOpen);
+    console.log("toggled!", isOpen)
   };
 
   useEffect(() => {
