@@ -58,7 +58,7 @@ const TimeWindow = () => {
       </div>
 
       <div className="pb-4 d-flex justify-content-center align-items-start">
-        <div className="d-flex align-items-start">
+        <div className="d-flex align-items-start" onChange={toggleChangeHandler}>
           <label className="pr-2">Shift registration:</label>
           <input
             type="checkbox"
@@ -67,7 +67,6 @@ const TimeWindow = () => {
             data-toggle="toggle"
             data-onstyle="success"
             data-offstyle="primary"
-            onChange={(e) => toggleChangeHandler(e)}
           />
         </div>
 
