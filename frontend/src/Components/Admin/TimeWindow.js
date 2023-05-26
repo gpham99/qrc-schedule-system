@@ -59,8 +59,8 @@ const TimeWindow = () => {
 
       <div className="pb-4 d-flex justify-content-center align-items-start">
         <div className="form-check form-switch">
-          <label className="form-check-label" for="flexSwitch">Shift registration: </label>
-          <input className="form-check-input" type="checkbox" id="flexSwitch" onChange={toggleChangeHandler} checked={isOpen === 1}/>
+          <label className="form-check-label" for="flexSwitchCheckDefault">Shift registration: </label>
+          <input role="switch" className="form-check-input" type="checkbox" id="flexSwitchCheckDefault" onChange={toggleChangeHandler} checked={isOpen === 1}/>
         </div>
 
         <div className="pl-3">
