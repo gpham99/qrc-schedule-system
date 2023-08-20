@@ -56,7 +56,7 @@ const Profile = () => {
         return res;
       })
       .then((data) => {
-        console.log("WHAT IS THIS", data["msg"]);
+        console.log(data["msg"]);
       });
   };
 
@@ -91,7 +91,6 @@ const Profile = () => {
                 <td>
                   <input
                     type="checkbox"
-                    data-toggle="toggle"
                     data-size="lg"
                     checked={availabilityStatus}
                     disabled
@@ -103,7 +102,6 @@ const Profile = () => {
                 <td>
                   <input
                     type="checkbox"
-                    data-toggle="toggle"
                     data-size="lg"
                     checked={laStatus}
                     disabled

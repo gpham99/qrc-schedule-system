@@ -1,7 +1,5 @@
 #custom database functions
 from Database import *
-#TimeWindow operation
-import time, sched
 #Flask
 from flask import Flask, request, session, redirect, url_for, Response
 from flask_cors import CORS
@@ -9,7 +7,7 @@ from flask_cors import CORS
 from cas import CASClient
 #for parsing lists
 import ast
-#for file IO
+#for file IO and secret key generation
 import os
 #custom data functions
 from models import read_roster, User, read_from_file, write_to_file
@@ -23,6 +21,8 @@ from statistics import stdev
 from random import sample, choice
 #for saving uploaded roster files
 import pandas as pd
+#for authentication
+from security import _authenticate
 
 #CONSTANTS
 #roster path variables for the list of tutors
@@ -39,7 +39,7 @@ URL = 'http://44.230.115.148/'
 #set up Flask app
 application = Flask(__name__)
 CORS(application)
-application.secret_key = ';sufhiagr3yugfjcnkdlmsx0-w9u4fhbuewiejfigehbjrs'
+application.secret_key = '211d1f414484d7e019c4bf0a2e41291783b7a0f2e882a461ca6601a4ca207bdd'
 application.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 #set up CAS
@@ -55,29 +55,14 @@ def allowed_file(filename):
             filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 #security function: verify user authentication. Relies on Flask sessions, transmitted back and forth
+#via the session cookie. Uses the "authenticate" function in security.py
 def authenticate():
     if 'username' in session:
         username = session['username'] + EMAIL_SUFFIX
-        try:
-            #use the check_user function in the Database file to try to find the user in the database
-            in_system, group = check_user(username)
-            if in_system:
-                if group == 'tutor':
-                    tutor_entry = get_single_tutor_info(username)
-                    return User(username, tutor_entry[1], group, tutor_entry[2], tutor_entry[3], tutor_entry[4], tutor_entry[5], tutor_entry[6],
-                    tutor_entry[7], tutor_entry[8])
-                elif group == 'admin':
-                    admin_entry = get_admin_info(username)
-                    return User(username, admin_entry[1], group)
-                elif group == 'superuser':
-                    superuser_entry = get_superuser_info(username)
-                    return User(username, superuser_entry[1], group)
-            else:
-                application.logger.debug(session['username'] + " not in system")
-                return None
-        except:
+        user = _authenticate(username)
+        if user is None:
             application.logger.debug(session['username'] + " not in system")
-            return None
+        return user
     return None
 
 # add a rule for the index page
@@ -93,7 +78,6 @@ def index():
     
     #check ticket
     user, attributes, pgtiou = cas_client.verify_ticket(ticket)
-    
     if not user:
         return 'Failed to verify ticket'
     user = user.lower()
@@ -360,7 +344,7 @@ def update_tutors_in_master_schedule():
             user = find_first_name(new_tutor_firstname)
             if user != None:
                 #create a User object
-                user = authenticate(user[0], "")
+                user = _authenticate(user[0]+EMAIL_SUFFIX)
             if user != None:
                 discipline_to_change = disciplines[abbreviations.index(discipline_abbreviation)]
                 if discipline_to_change in user.disciplines: #if the tutor is eligible to tutor this discipline
@@ -407,7 +391,7 @@ def get_admins():
     admin_display_lst = []
     for email, name in admin_info:
         #ensure name and email are properly formatted
-        display_email = display(email)
+        display_email = email
         display_name = display(name)
         admin_display_lst.append([display_name, display_email])
     return admin_display_lst
@@ -447,7 +431,7 @@ def set_time_window():
         return Response(response="Unauthorized", status=401)
     req_data = request.get_json()
     block = int(req_data['block'])
-    is_open = bool(req_data['is_open'])
+    is_open = True if req_data['is_open'] == 1 else False
     current_block = read_from_file("block")
     #save block number if it is different, and save the registration open-ness
     if block != current_block:
@@ -457,7 +441,7 @@ def set_time_window():
         write_to_file("is_open", is_open)
     if not is_open: #shift registration has been closed, generate the schedule!
         write_master_schedule()
-    return {"msg": "Changes successful"}
+    return {"msg": "block changed to " + str(block) + ", is_open changed to " + str(is_open)}
 
 #re-generate the schedule
 @application.route('/regenerate_schedule', methods=['POST'])
@@ -744,7 +728,7 @@ def write_master_schedule():
         for dict in solution:
             assignments.append(dict[i])
         add_to_master_schedule(i, disciplines, assignments)
-        application.logger.debug("Master schedule saved!")
+    application.logger.debug("Master schedule saved!")
     return({"msg" : "Master schedule saved!"})
 
 

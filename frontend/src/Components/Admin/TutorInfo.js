@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import Unauthorized from "../../ErrorPages/Unauthorized";
 
 const TutorInfo = () => {
 
@@ -8,6 +7,8 @@ const TutorInfo = () => {
   const [editMode, setEditMode] = useState(0); // 0 is false, 1 is true
 
   const [edittedTutorsInfo, setEdittedTutorsInfo] = useState({});
+
+  const [clearAll, setClearAll] = useState(false);
 
   useEffect(() => {
       const requestOptions = {
@@ -39,9 +40,24 @@ const TutorInfo = () => {
 
   const toggleEditMode = () => {
     setEditMode(1 - editMode);
+    setClearAll(false);
   };
 
   const submitChange = () => {
+    if (clearAll) {
+      let edittedTutorsInfoCopy = {
+        ...edittedTutorsInfo,
+      };
+
+      for (const key in edittedTutorsInfoCopy) {
+        edittedTutorsInfoCopy[key]["this_block_unavailable"] = false;
+        edittedTutorsInfoCopy[key]["this_block_la"] = false;
+        edittedTutorsInfoCopy[key]["absence"] = false;
+      }
+
+      setEdittedTutorsInfo(edittedTutorsInfoCopy);
+    }
+
     console.log("this is the editted tutors info: ", edittedTutorsInfo);
 
     const requestOptions = {
@@ -90,9 +106,12 @@ const TutorInfo = () => {
       <div class="d-flex justify-content-between p-4">
           {/* submit change button */}
       {editMode === 1 && (
+        <>
           <button type="button" className="btn btn-info" onClick={submitChange}>
             Save Changes
           </button>
+          <button type="button" className="btn btn-warning" onClick={() => setClearAll(true)}>Clear All</button>
+        </>
       )}
         {editMode === 0 ? (
           <button class="btn btn-info" onClick={toggleEditMode}>
@@ -140,7 +159,7 @@ const TutorInfo = () => {
                       class="form-check-input"
                       type="checkbox"
                       value=""
-                      checked={edittedTutorsInfo[key]["this_block_la"]}
+                      checked={clearAll ? false : edittedTutorsInfo[key]["this_block_la"]}
                       disabled={editMode === 0 ? true : false}
                       onChange={(e) => {
                         let edittedTutorsInfoCopy = {
@@ -160,7 +179,7 @@ const TutorInfo = () => {
                       class="form-check-input"
                       type="checkbox"
                       value=""
-                      checked={edittedTutorsInfo[key]["this_block_unavailable"]}
+                      checked={clearAll ? false : edittedTutorsInfo[key]["this_block_unavailable"]}
                       disabled={editMode === 0 ? true : false}
                       onChange={(e) => {
                         let edittedTutorsInfoCopy = {
@@ -180,7 +199,7 @@ const TutorInfo = () => {
                       class="form-check-input"
                       type="checkbox"
                       value=""
-                      checked={edittedTutorsInfo[key]["absence"]}
+                      checked={clearAll ? false : edittedTutorsInfo[key]["absence"]}
                       disabled={editMode === 0 ? true : false}
                       onChange={(e) => {
                         let edittedTutorsInfoCopy = {
