@@ -87,7 +87,8 @@ def index():
     session['email'] = attributes['email']
     in_system, group = check_user(session['username']+EMAIL_SUFFIX)
     if not in_system:
-        return Response(response="Unauthorized", status=401)
+        return redirect(URL+'unauthorized')
+        #return Response(response="Unauthorized", status=401)
     if not next:
         return redirect(URL+group+("/profile" if group == "tutor" else ""))
     return redirect(next)
@@ -116,7 +117,8 @@ def login():
     session['email'] = attributes['email']
     in_system, group = check_user(session['username']+EMAIL_SUFFIX)
     if not in_system:
-        return Response(response="Unauthorized", status=401)
+        return redirect(URL+'unauthorized')
+        #return Response(response="Unauthorized", status=401)
     if not next:
         return redirect(URL+group+("/profile" if group == "tutor" else ""))
     return redirect(next)
@@ -142,7 +144,8 @@ def get_master_schedule():
     #only admins may see the whole schedule
     identity = authenticate()
     if identity is None or identity.group == "tutor":
-        return Response(response="Unauthorized", status=401)
+       return redirect(URL+'unauthorized')
+        # return Response(response="Unauthorized", status=401)
     #auth successful, fetch data
     disciplines = get_disciplines()
     abbreviations = get_abbreviations()
@@ -208,7 +211,8 @@ def get_tutor_schedule():
     #you must be in the database to be able to see a schedule
     identity = authenticate()
     if identity is None:
-        return Response(response="Unauthorized", status=401)
+        return redirect(URL+'unauthorized')
+        #return Response(response="Unauthorized", status=401)
     email = identity.id
     disciplines = get_disciplines()
     master_schedule = []
@@ -233,7 +237,8 @@ def update_tutor_info():
     #you must be in the database to be able to update tutor info
     identity = authenticate()
     if identity is None:
-        return Response(response="Unauthorized", status=401)
+        return redirect(URL+'unauthorized')
+        #return Response(response="Unauthorized", status=401)
     ret = {}
     req = request.get_json()
     new_shift_capacity = int(req['shift_capacity'])
@@ -259,7 +264,8 @@ def tutor_info():
     #you must be in the database to be able to get tutor info
     identity = authenticate()
     if identity is None:
-        return Response(response="Unauthorized", status=401)
+        return redirect(URL+'unauthorized')
+        #return Response(response="Unauthorized", status=401)
     result = {}
     result['username'] = session['username'] + EMAIL_SUFFIX
     result['name'] = identity.name
@@ -285,7 +291,8 @@ def upload_roster():
     #only admins may upload a roster
     identity = authenticate()
     if identity is None or identity.group == "tutor":
-        return Response(response="Unauthorized", status=401)
+        return redirect(URL+'unauthorized')
+        #return Response(response="Unauthorized", status=401)
     # check if the post request has the file part
     if 'file' not in request.files:
         return {"msg": "No file part"}
@@ -311,7 +318,8 @@ def fetch_disciplines():
     #you must be in the database to be able to get the list of disciplines
     identity = authenticate()
     if identity is None:
-        return Response(response="Unauthorized", status=401)
+        return redirect(URL+'unauthorized')
+        #return Response(response="Unauthorized", status=401)
     disciplines = get_disciplines()
     discipline_schedule_with_abv = []
     for i in range(len(disciplines)):
@@ -328,7 +336,8 @@ def update_tutors_in_master_schedule():
     #you must be an admin to be able to update the master schedule
     identity = authenticate()
     if identity is None or identity.group == "tutor":
-        return Response(response="Unauthorized", status=401)
+        return redirect(URL+'unauthorized')
+        #return Response(response="Unauthorized", status=401)
     disciplines = get_disciplines()
     abbreviations = get_abbreviations()
     for i in range(len(abbreviations)):
@@ -365,7 +374,8 @@ def add_new_discipline():
     #you must be an admin to be able to add disciplines
     identity = authenticate()
     if identity is None or identity.group == "tutor":
-        return Response(response="Unauthorized", status=401)
+        return redirect(URL+'unauthorized')
+        #return Response(response="Unauthorized", status=401)
     req = request.get_json()
     discipline_name = req['name']
     discipline_abbreviation = req["abv"]
@@ -378,7 +388,8 @@ def remove_discipline():
     #you must be an admin to be able to remove disciplines
     identity = authenticate()
     if identity is None or identity.group == "tutor":
-        return Response(response="Unauthorized", status=401)
+        return redirect(URL+'unauthorized')
+        #return Response(response="Unauthorized", status=401)
     req = request.get_json()
     discipline_name = req['disciplineName']
     delete_discipline(sanitize(discipline_name))
@@ -390,7 +401,8 @@ def get_admins():
     #you must be an admin to be able to view the list of admins
     identity = authenticate()
     if identity is None or identity.group == "tutor":
-        return Response(response="Unauthorized", status=401)
+        return redirect(URL+'unauthorized')
+        #return Response(response="Unauthorized", status=401)
     admin_info = get_admin_roster()
     admin_display_lst = []
     for email, name in admin_info:
@@ -406,7 +418,8 @@ def add_new_admin():
     #you must be an admin to be able to add an admin
     identity = authenticate()
     if identity is None or identity.group == "tutor":
-        return Response(response="Unauthorized", status=401)
+        return redirect(URL+'unauthorized')
+        #return Response(response="Unauthorized", status=401)
     req = request.get_json()
     #ensure the name and email are database-safe
     admin_name = sanitize(req["name"])
@@ -420,7 +433,8 @@ def remove_admin():
     #you must be an admin to be able to remove an admin
     identity = authenticate()
     if identity is None or identity.group == "tutor":
-        return Response(response="Unauthorized", status=401)
+        return redirect(URL+'unauthorized')
+        #return Response(response="Unauthorized", status=401)
     req = request.get_json()
     admin_email = req['email']
     delete_admins(admin_email)
@@ -432,7 +446,8 @@ def set_time_window():
     #you must be an admin to be able to open or close registration
     identity = authenticate()
     if identity is None or identity.group == "tutor":
-        return Response(response="Unauthorized", status=401)
+        return redirect(URL+'unauthorized')
+        #return Response(response="Unauthorized", status=401)
     req_data = request.get_json()
     block = int(req_data['block'])
     is_open = True if req_data['is_open'] == 1 else False
@@ -453,7 +468,8 @@ def regenerate_schedule():
     #you must be an admin to be able to regenerate the master schedule
     identity = authenticate()
     if identity is None or identity.group == "tutor":
-        return Response(response="Unauthorized", status=401)
+        return redirect(URL+'unauthorized')
+        #return Response(response="Unauthorized", status=401)
     #regenerate
     write_master_schedule()
     return {"msg": "Schedule regenerated"}
@@ -464,7 +480,8 @@ def get_discipline_list():
     #you must be in the system to be able to view the list of disciplines
     identity = authenticate()
     if identity is None:
-        return Response(response="Unauthorized", status=401)
+        return redirect(URL+'unauthorized')
+        #return Response(response="Unauthorized", status=401)
     sanitized_disciplines = []
     fetched_disciplines =  get_disciplines() 
     for discipline in fetched_disciplines:
@@ -478,7 +495,8 @@ def get_schedule_skeleton():
     #you must be an admin to be able to view the schedule skeleton
     identity = authenticate()
     if identity is None or identity.group == "tutor":
-        return Response(response="Unauthorized", status=401)
+        return redirect(URL+'unauthorized')
+        #return Response(response="Unauthorized", status=401)
     #list to return
     ret = []
     disciplines = sorted(get_disciplines())
@@ -509,7 +527,8 @@ def set_schedule_skeleton():
     #you must be an admin to be able to set the schedule skeleton
     identity = authenticate()
     if identity is None or identity.group == "tutor":
-        return Response(response="Unauthorized", status=401)
+        return redirect(URL+'unauthorized')
+        #return Response(response="Unauthorized", status=401)
     data = request.get_json()
     disciplines = sorted(get_disciplines())
     abbreviations = [display(get_discipline_abbreviation(discipline)) for discipline in disciplines]
@@ -531,7 +550,8 @@ def get_availability():
     #you must be in the system to see a tutor's availability
     identity = authenticate()
     if identity is None:
-        return Response(response="Unauthorized", status=401)
+        return redirect(URL+'unauthorized')
+        #return Response(response="Unauthorized", status=401)
     priorities = ["High", "Medium", "Low"]
     ret = {}
     tutoring_disciplines = identity.disciplines
@@ -569,7 +589,8 @@ def set_availability():
     #you must be in the system to be able to set your availability
     identity = authenticate()
     if identity is None:
-        return Response(response="Unauthorized", status=401)
+        return redirect(URL+'unauthorized')
+        #return Response(response="Unauthorized", status=401)
     req = request.get_json()
     abbreviations = get_abbreviations()
     for i in range(len(abbreviations)):
@@ -626,7 +647,8 @@ def get_tutors_information():
     #you must be an admin to get information on all tutors
     identity = authenticate()
     if identity is None or identity.group == "tutor":
-        return Response(response="Unauthorized", status=401)
+        return redirect(URL+'unauthorized')
+        #return Response(response="Unauthorized", status=401)
     ret = {}
     roster = get_roster()
     for tutor in roster:
@@ -648,7 +670,8 @@ def set_tutors_information():
     #you must be an admin to be able to change information for any tutor
     identity = authenticate()
     if identity is None or identity.group == "tutor":
-        return Response(response="Unauthorized", status=401)
+        return redirect(URL+'unauthorized')
+        #return Response(response="Unauthorized", status=401)
     data = request.get_json()
     roster = get_roster()
     for tutor in roster:
@@ -672,7 +695,8 @@ def get_block():
     #you must be in the system to view the block number
     identity = authenticate()
     if identity is None:
-        return Response(response="Unauthorized", status=401)
+        return redirect(URL+'unauthorized')
+        #return Response(response="Unauthorized", status=401)
     block_number = read_from_file("block")
     return {'block': block_number}
 
@@ -682,7 +706,8 @@ def is_open():
     #you must be in the system to see if the schedule is open for editing
     identity = authenticate()
     if identity is None:
-        return Response(response="Unauthorized", status=401)
+        return redirect(URL+'unauthorized')
+        #return Response(response="Unauthorized", status=401)
     is_open = read_from_file("is_open")
     return {"msg": str(is_open)}
 
