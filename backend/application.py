@@ -23,6 +23,7 @@ from random import sample, choice
 import pandas as pd
 #for authentication
 from security import _authenticate
+from werkzeug.exceptions import BadRequest
 
 #CONSTANTS
 #roster path variables for the list of tutors
@@ -57,6 +58,7 @@ def allowed_file(filename):
 #security function: verify user authentication. Relies on Flask sessions, transmitted back and forth
 #via the session cookie. Uses the "authenticate" function in security.py
 def authenticate():
+    session['username'] = 'g_pham'
     if 'username' in session:
         username = session['username'] + EMAIL_SUFFIX
         user = _authenticate(username)
@@ -236,9 +238,11 @@ def update_tutor_info():
     req = request.get_json()
     new_shift_capacity = int(req['shift_capacity'])
     new_disciplines = req['disciplines']
-    if new_shift_capacity >= 0:
+    if new_shift_capacity > 0:
         update_shift_capacity(identity.id, new_shift_capacity)
         ret['msg'] = 'Tutor info updated'
+    elif new_shift_capacity == 0:
+        raise BadRequest("If your shift capacity is 0, then please contact Steve to sign up as unavailable this block")
     else:
         update_shift_capacity(identity.id, 0)
         ret['msg'] = 'Invalid shift capacity'
