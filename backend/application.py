@@ -815,7 +815,8 @@ def greedy(tutors, avail_tables, open_shifts):
                             break #skip on to the next tutor
                         discipline_dict = avail_copy[i]
                         #discipline = disciplines[i]
-                        if discipline_dict[shift_index] != []: #if someone is available to take the shift
+                        if discipline_dict[shift_index] != [] and \
+                            shift_index in open_shifts[i]: #if someone is available to take the shift and it's open
                             if tutor.id in discipline_dict[shift_index]: #the tutor is available for this shift
                                 assigned_bool = True
                                 master_schedule[i][shift_index] = tutor.id
