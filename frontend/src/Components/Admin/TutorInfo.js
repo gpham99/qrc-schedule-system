@@ -1,9 +1,6 @@
 import React, { useEffect, useState } from "react";
-import Unauthorized from "../../ErrorPages/Unauthorized";
 
 const TutorInfo = () => {
-  // grab the access token from the local storage
-  const accessToken = localStorage.getItem("access_token");
 
   const [tutorsInfo, setTutorsInfo] = useState({});
 
@@ -11,27 +8,17 @@ const TutorInfo = () => {
 
   const [edittedTutorsInfo, setEdittedTutorsInfo] = useState({});
 
-  // if access token is null, then this person is not authorized, show page 401 -> authorized state is false
-  // else if they have an access token, verify first
-  const [isAuthorized, setIsAuthorized] = useState(() => {
-    if (accessToken === null) {
-      return false;
-    } else {
-      return null;
-    }
-  });
+  const [clearAll, setClearAll] = useState(false);
 
   useEffect(() => {
-    if (isAuthorized !== false) {
       const requestOptions = {
         headers: {
           "Content-Type": "application/json",
-          Authorization: "JWT " + accessToken.replace(/["]+/g, ""),
         },
       };
 
       fetch(
-        "http://44.230.115.148:8080/api/get_tutors_information",
+        "http://44.230.115.148/api/get_tutors_information",
         requestOptions
       )
         .then((response) => {
@@ -41,34 +28,50 @@ const TutorInfo = () => {
         })
         .then((data) => {
           if ("error" in data) {
-            setIsAuthorized(false);
+            console.log("An error occurred while trying to fetch profile information");
           } else {
             console.log("data: ", data);
             setTutorsInfo(data);
             setEdittedTutorsInfo({ ...data });
-            setIsAuthorized(true);
           }
         });
     }
-  }, []);
+  , []);
 
   const toggleEditMode = () => {
     setEditMode(1 - editMode);
+    setClearAll(false);
   };
 
   const submitChange = () => {
+    if (clearAll) {
+      let edittedTutorsInfoCopy = {
+        ...edittedTutorsInfo,
+      };
+
+      for (const key in edittedTutorsInfoCopy) {
+        edittedTutorsInfoCopy[key]["this_block_unavailable"] = false;
+        edittedTutorsInfoCopy[key]["this_block_la"] = false;
+        edittedTutorsInfoCopy[key]["absence"] = false;
+      }
+
+      setEdittedTutorsInfo(edittedTutorsInfoCopy);
+    }
+
     console.log("this is the editted tutors info: ", edittedTutorsInfo);
 
     const requestOptions = {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: "JWT " + accessToken.replace(/["]+/g, ""),
       },
       body: JSON.stringify(edittedTutorsInfo),
     };
 
-    fetch("http://44.230.115.148:8080/api/set_tutors_information", requestOptions)
+    fetch(
+      "http://44.230.115.148/api/set_tutors_information",
+      requestOptions
+    )
       .then((response) => {
         let res = response.json();
         return res;
@@ -100,7 +103,16 @@ const TutorInfo = () => {
       </div>
 
       {/* pencil button */}
-      <div class="d-flex justify-content-end p-4">
+      <div class="d-flex justify-content-between p-4">
+          {/* submit change button */}
+      {editMode === 1 && (
+        <>
+          <button type="button" className="btn btn-info" onClick={submitChange}>
+            Save Changes
+          </button>
+          <button type="button" className="btn btn-warning" onClick={() => setClearAll(true)}>Clear All</button>
+        </>
+      )}
         {editMode === 0 ? (
           <button class="btn btn-info" onClick={toggleEditMode}>
             <span class="p-1"> Edit </span>
@@ -134,6 +146,7 @@ const TutorInfo = () => {
               <th class="col-sm-4">Tutor</th>
               <th class="col-sm-4">LA Status</th>
               <th class="col-sm-4">Unavailable</th>
+              <th class="col-sm-4">Unex Ab</th>
             </tr>
           </thead>
           <tbody>
@@ -146,7 +159,7 @@ const TutorInfo = () => {
                       class="form-check-input"
                       type="checkbox"
                       value=""
-                      checked={edittedTutorsInfo[key]["this_block_la"]}
+                      checked={clearAll ? false : edittedTutorsInfo[key]["this_block_la"]}
                       disabled={editMode === 0 ? true : false}
                       onChange={(e) => {
                         let edittedTutorsInfoCopy = {
@@ -166,7 +179,7 @@ const TutorInfo = () => {
                       class="form-check-input"
                       type="checkbox"
                       value=""
-                      checked={edittedTutorsInfo[key]["this_block_unavailable"]}
+                      checked={clearAll ? false : edittedTutorsInfo[key]["this_block_unavailable"]}
                       disabled={editMode === 0 ? true : false}
                       onChange={(e) => {
                         let edittedTutorsInfoCopy = {
@@ -179,20 +192,31 @@ const TutorInfo = () => {
                     />
                   }
                 </td>
+
+                <td>
+                  {
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      value=""
+                      checked={clearAll ? false : edittedTutorsInfo[key]["absence"]}
+                      disabled={editMode === 0 ? true : false}
+                      onChange={(e) => {
+                        let edittedTutorsInfoCopy = {
+                          ...edittedTutorsInfo,
+                        };
+                        edittedTutorsInfoCopy[key]["absence"] =
+                          !edittedTutorsInfoCopy[key]["absence"];
+                        setEdittedTutorsInfo(edittedTutorsInfoCopy);
+                      }}
+                    />
+                  }
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
-
-      {/* submit change button */}
-      {editMode === 1 && (
-        <div className="p-2">
-          <button type="button" className="btn btn-info" onClick={submitChange}>
-            Save Changes
-          </button>
-        </div>
-      )}
     </div>
   );
 };

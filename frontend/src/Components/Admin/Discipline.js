@@ -3,8 +3,6 @@ import { useEffect, useState } from "react";
 import Unauthorized from "../../ErrorPages/Unauthorized";
 
 const Discipline = () => {
-  // grab the access token from the local storage
-  const accessToken = localStorage.getItem("access_token");
 
   // disciplines contains both the full name and the abbreviation of every discipline
   const [sanitizeCheck, setSanitizeCheck] = useState(true);
@@ -13,45 +11,31 @@ const Discipline = () => {
   const [disciplineName, setDisciplineName] = useState("");
   const [disciplineAbv, setDisciplineAbv] = useState("");
 
-  // if access token is null, then this person is not authorized, show page 401 -> authorized state is false
-  // else if they have an access token, verify first
-  const [isAuthorized, setIsAuthorized] = useState(() => {
-    if (accessToken === null) {
-      return false;
-    } else {
-      return null;
-    }
-  });
-
   useEffect(() => {
-    if (isAuthorized !== false) {
       const requestOptions = {
         headers: {
           "Content-Type": "application/json",
-          Authorization: "JWT " + accessToken.replace(/["]+/g, ""),
         },
       };
 
-      fetch("http://44.230.115.148:8080/api/fetch_disciplines", requestOptions)
+      fetch("http://44.230.115.148/api/fetch_disciplines", requestOptions)
         .then((response) => {
           let res = response.json();
           return res;
         })
         .then((data) => {
           if ("error" in data) {
-            setIsAuthorized(false);
+            setDisciplines(null);
           } else {
-            setIsAuthorized(true);
             setDisciplines(data);
           }
         });
     }
-  }, [disciplines]);
+ , [disciplines]);
 
   const removeDiscipline = (dName) => {
-    fetch("http://44.230.115.148:8080/api/remove_discipline", {
+    fetch("http://44.230.115.148/api/remove_discipline", {
       method: "POST",
-      Authorization: "JWT " + accessToken.replace(/["]+/g, ""),
       headers: {
         "Content-Type": "application/json",
       },
@@ -102,9 +86,8 @@ const Discipline = () => {
     let isSanitized = sanitizeInput(disciplineName, disciplineAbv);
     setSanitizeCheck(isSanitized);
     if (isSanitized === true) {
-      fetch("http://44.230.115.148:8080/api/add_discipline", {
+      fetch("http://44.230.115.148/api/add_discipline", {
         method: "POST",
-        Authorization: "JWT " + accessToken.replace(/["]+/g, ""),
         headers: {
           "Content-Type": "application/json",
         },
@@ -138,7 +121,10 @@ const Discipline = () => {
       </div>
 
       <div class="row justify-content-center">
-        <p>Please don't remove one of the five offered disciplines.</p>
+        <p>NOTE: if you remove a discipline during a block, the change may
+          cause bugs or unexpected behavior. It is recommended that you only
+          remove disciplines outside the school year or during the time
+          window for availability selection.</p>
       </div>
 
       <div class="d-flex justify-content-end p-4">

@@ -9,31 +9,18 @@ const Profile = () => {
   );
   const [availabilityStatus, setAvailabilityStatus] = useState(null);
   const [laStatus, setLaStatus] = useState(null);
+  const [isUpdate, setIsUpdate] = useState(false);
+  const [updateMessage, setUpdateMessage] = useState("");
 
-  // grab the access token from the local storage
-  const accessToken = localStorage.getItem("access_token");
-
-  // if access token is null, then this person is not authorized, show page 401 -> authorized state is false
-  // else if they have an access token, verify first
-  const [isAuthorized, setIsAuthorized] = useState(() => {
-    if (accessToken === null) {
-      return false;
-    } else {
-      return null;
-    }
-  });
-
-  // call /api/tutor/get_info and pass the access token as authorization header
+  // call /api/tutor/get_info
   useEffect(() => {
-    if (isAuthorized !== false) {
       const requestOptions = {
         headers: {
           "Content-Type": "application/json",
-          Authorization: "JWT " + accessToken.replace(/["]+/g, ""),
         },
       };
 
-      fetch("http://44.230.115.148:8080/api/tutor/get_info", requestOptions)
+      fetch("http://44.230.115.148/api/tutor/get_info", requestOptions)
         .then((response) => {
           let res = response.json();
           return res;
@@ -47,32 +34,34 @@ const Profile = () => {
           setLaStatus(data["this_block_la"]);
         });
     }
-  }, []);
+  , []);
 
   // the function to handle the update button
-  const handleUpdate = (e) => {
-    e.preventDefault();
-    const requestOptions = {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "JWT " + accessToken.replace(/["]+/g, ""),
-      },
-      body: JSON.stringify({
-        shift_capacity: maximumShiftCapacity,
-        disciplines: edittedPersonalDisciplines,
-      }),
+  const handleUpdate = async () => {
+    try {
+      setIsUpdate(true);
+      const requestOptions = {
+        method: "POST",
+        body: JSON.stringify({
+          shift_capacity: maximumShiftCapacity,
+          disciplines: edittedPersonalDisciplines,
+        }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      };
+      const res = await fetch("http://44.230.115.148/apq/tutor/update_info", requestOptions);
+      const data = await res.json();
+      setUpdateMessage(data["msg"])
+    }
+    catch (e) {
+      console.log("There exists an error...")
+      console.log(e)
+    }
+    finally {
+      setIsUpdate(false);
+    }
     };
-
-    fetch("http://44.230.115.148:8080/api/tutor/update_info", requestOptions)
-      .then((response) => {
-        let res = response.json();
-        return res;
-      })
-      .then((data) => {
-        console.log(data);
-      });
-  };
 
   return (
     <div class="bg-light p-4 d-flex flex-column align-items-center justify-content-center">
@@ -82,7 +71,7 @@ const Profile = () => {
           <h4>Your Personal Information</h4>
           <p class="text-left font-weight-light font-italic">
             This information is uneditable on your end. If you wish to edit any
-            of the fields, please contact the QRC administrators.
+            of the fields, please contact a QRC administrator.
           </p>
         </div>
         <div class="p-4 w-50">
@@ -105,7 +94,6 @@ const Profile = () => {
                 <td>
                   <input
                     type="checkbox"
-                    data-toggle="toggle"
                     data-size="lg"
                     checked={availabilityStatus}
                     disabled
@@ -117,7 +105,6 @@ const Profile = () => {
                 <td>
                   <input
                     type="checkbox"
-                    data-toggle="toggle"
                     data-size="lg"
                     checked={laStatus}
                     disabled
@@ -129,11 +116,11 @@ const Profile = () => {
         </div>
       </div>
 
-      <div class="d-flex flex-column justify-content-center align-items-center p-4 w-75 border border-primary mt-3 mb-3">
+      <div className={!isUpdate ? "d-flex flex-column justify-content-center align-items-center p-4 w-75 border border-primary mt-3 mb-3" : "d-flex flex-column justify-content-center align-items-center p-4 w-75 border border-success mt-3 mb-3"}>
         <div class="pl-3 pr-3 w-75">
           <h4>Your Editable Information</h4>
           <p class="text-left font-weight-light font-italic">
-            When the information is submitted successfully, the box's border
+            When the information is submitted successfully, this box's border
             turns green.
           </p>
         </div>
@@ -155,11 +142,13 @@ const Profile = () => {
                           let edittedPersonalDisciplinesCopy = {
                             ...edittedPersonalDisciplines,
                           };
+                          console.log("before", edittedPersonalDisciplines);
                           edittedPersonalDisciplinesCopy[index][1] =
                             !edittedPersonalDisciplinesCopy[index][1];
                           setEditedPersonalDisciplines(
                             edittedPersonalDisciplinesCopy
                           );
+                          console.log("after", edittedPersonalDisciplines);
                         }}
                       />
                       <label class="form-check-label">{discipline[0]}</label>

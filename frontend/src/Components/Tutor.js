@@ -10,13 +10,26 @@ const Tutor = () => {
   const [name, setName] = useState(() => {
     return searchParams.get("username") || null;
   });
-  const [isAuthorized, setIsAuthorized] = useState(() => {
-    if (localStorage.getItem("access_token") == null) {
-      return null;
-    } else {
-      return true;
-    }
-  });
+
+  const [blockNum, setBlockNum] = useState(1);
+
+  useEffect(() => {
+    const requestOptions = {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+    };
+
+    fetch("http://44.230.115.148/api/get_block", requestOptions)
+      .then((response) => {
+        return response.json();
+      })
+      .then((data) => {
+        //console.log("get block return val: ", data);
+        if (data["block"]) {
+          setBlockNum(data["block"]);
+        }
+      });
+  }, []);
 
   useEffect(() => {
     const requestOptions = {
@@ -27,40 +40,21 @@ const Tutor = () => {
         password: "pass",
       }),
     };
-    if (isAuthorized === null) {
-      fetch("http://44.230.115.148:8080/auth", requestOptions)
-        .then(function (response) {
-          let res = response.json();
-          return res;
-        })
-        .then(function (data) {
-          let isAuthorized = "access_token" in data;
-          setIsAuthorized(isAuthorized);
-          if (isAuthorized) {
-            localStorage.setItem(
-              "access_token",
-              JSON.stringify(data["access_token"])
-            );
-          }
-        });
-      navigate("/tutor", { replace: true });
-    }
   }, []);
 
   return (
-    <>
-      {isAuthorized === false ? (
-        <Unauthorized></Unauthorized>
-      ) : (
         <div>
           <div class="bg-info">
             <div class="pt-3">
-              <h4 class="text-white text-bold"> Welcome to Block 4!</h4>
+              <h4 class="text-white text-bold">
+                {" "}
+                Welcome to Block {blockNum}!
+              </h4>
             </div>
 
             <div class="d-flex flex-row justify-content-end pr-4">
               <a
-                href="http://44.230.115.148:8080/logout"
+                href="http://44.230.115.148/logout"
                 onClick={() => {
                   localStorage.clear();
                 }}
@@ -70,7 +64,7 @@ const Tutor = () => {
               </a>
 
               <a
-                href="http://44.230.115.148:8080/cas_logout"
+                href="http://44.230.115.148/api/cas_logout"
                 onClick={() => {
                   localStorage.clear();
                 }}
@@ -102,15 +96,11 @@ const Tutor = () => {
 
           <div class="p-5">
             <Routes>
-              <Route path=""></Route>
+              <Route path="*" element={<Profile></Profile>}></Route>
               <Route path="schedule" element={<Schedule></Schedule>}></Route>
               <Route path="profile" element={<Profile></Profile>}></Route>
             </Routes>
           </div>
         </div>
       )}
-    </>
-  );
-};
-
 export default Tutor;

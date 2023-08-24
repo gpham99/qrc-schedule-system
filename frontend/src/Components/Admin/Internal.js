@@ -3,8 +3,6 @@ import { useState, useEffect } from "react";
 import Unauthorized from "../../ErrorPages/Unauthorized";
 
 const Internal = () => {
-  // grab the access token from the local storage
-  const accessToken = localStorage.getItem("access_token");
 
   const [admins, setAdmins] = useState({});
   const [adminName, setAdminName] = useState("");
@@ -12,40 +10,27 @@ const Internal = () => {
   var isEmailSanitized = null;
   var isNameSanitized = null;
 
-  // if access token is null, then this person is not authorized, show page 401 -> authorized state is false
-  // else if they have an access token, verify first
-  const [isAuthorized, setIsAuthorized] = useState(() => {
-    if (accessToken === null) {
-      return false;
-    } else {
-      return null;
-    }
-  });
-
   useEffect(() => {
-    if (isAuthorized !== false) {
       const requestOptions = {
         headers: {
           "Content-Type": "application/json",
-          Authorization: "JWT " + accessToken.replace(/["]+/g, ""),
         },
       };
 
-      fetch("http://44.230.115.148:8080/api/get_admins", requestOptions)
+      fetch("http://44.230.115.148/api/get_admins", requestOptions)
         .then((response) => {
           let res = response.json();
           return res;
         })
         .then((data) => {
           if ("error" in data) {
-            setIsAuthorized(false);
+            setAdmins(null);
           } else {
-            setIsAuthorized(true);
             setAdmins(data);
           }
         });
     }
-  }, [admins]);
+, [admins]);
 
   const handleCancel = (e) => {
     setAdminName("");
@@ -107,24 +92,21 @@ const Internal = () => {
   const removeAdmin = (cellAdminEmail) => {
     const requestOptions = {
       method: "POST",
+      body: JSON.stringify({
+        email: cellAdminEmail,
+      }),
       headers: {
         "Content-Type": "application/json",
-        Authorization: "JWT " + accessToken.replace(/["]+/g, ""),
-        body: JSON.stringify({
-          email: cellAdminEmail,
-        }),
       },
     };
 
-    fetch("http://44.230.115.148:8080/api/remove_admin", requestOptions)
+    fetch("http://44.230.115.148/api/remove_admin", requestOptions)
       .then((response) => {
         let res = response.json();
+        console.log(res);
         return res;
       })
       .then((data) => {
-        if ("error" in data) {
-          setIsAuthorized(false);
-        }
         console.log(data);
       });
   };
@@ -139,12 +121,11 @@ const Internal = () => {
     // console.log("isNameSanitized: ", isNameSanitized);
 
     if (isEmailSanitized && isNameSanitized) {
-      fetch("http://44.230.115.148:8080/api/add_admin", {
+      fetch("http://44.230.115.148/api/add_admin", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        Authorization: "JWT " + accessToken.replace(/["]+/g, ""),
         body: JSON.stringify({
           name: adminName,
           email: adminEmail,
@@ -195,7 +176,7 @@ const Internal = () => {
             <div class="modal-content">
               <div class="modal-header">
                 <p5 class="align-self-center w-100">
-                  Please fill out the form to add an administrator
+                  Please fill out the form to add an administrator.
                 </p5>
                 <button
                   type="button"
@@ -266,7 +247,7 @@ const Internal = () => {
                   <button
                     class="btn btn-link"
                     onClick={(e) => {
-                      let cellAdminEmail = val[1];
+                      const cellAdminEmail = val[1];
                       removeAdmin(cellAdminEmail);
                     }}
                   >

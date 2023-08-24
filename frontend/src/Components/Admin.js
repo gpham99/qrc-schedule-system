@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate, Route, Routes, useSearchParams } from "react-router-dom";
+import { useLocation, Route, Routes, useAsyncValue} from "react-router-dom";
 import TutorInfo from "./Admin/TutorInfo";
 import Schedule from "./Admin/Schedule";
 import Roster from "./Admin/Roster";
@@ -7,66 +7,60 @@ import TimeWindow from "./Admin/TimeWindow";
 import Internal from "./Admin/Internal";
 import ScheduleSkeleton from "./Admin/ScheduleSkeleton";
 import Discipline from "./Admin/Discipline";
-import Unauthorized from "../ErrorPages/Unauthorized";
 
 const Admin = () => {
-  const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
-  const [name, setName] = useState(() => {
-    return searchParams.get("username") || null;
-  });
-  const [isAuthorized, setIsAuthorized] = useState(() => {
-    if (localStorage.getItem("access_token") == null) {
-      return null;
-    } else {
-      return true;
-    }
-  });
+  const location = useLocation();
+  const isUploadRosterActive = location.pathname.includes("excel");
+  const isTutorStatusActive = location.pathname.includes("tutor-info");
+  const isMasterScheduleActive = location.pathname.includes("schedule");
+  const isNewScheduleActive = location.pathname.includes("time-window");
+  const isRemoveAddAdminActive = location.pathname.includes("internal");
+  const isRemoveAddDisciplineActive = location.pathname.includes("discipline");
+  const isCreateScheduleActive = location.pathname.includes("create");
+  const [block, setBlock] = useState(null);
+  const [loadingBlock, setLoadingBlock] = useState(false);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const requestOptions = {
-      method: "POST",
+      method: "GET",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        username: name,
-        password: "pass",
-      }),
     };
-    if (isAuthorized === null) {
-      fetch("http://44.230.115.148:8080/auth", requestOptions)
-        .then(function (response) {
-          return response.json();
-        })
-        .then(function (data) {
-          if (data["access_token"] === undefined) {
-            setIsAuthorized(false);
-          } else {
-            setIsAuthorized(true);
-            localStorage.setItem(
-              "access_token",
-              JSON.stringify(data["access_token"])
-            );
-          }
-        });
 
-      navigate("/admin", { replace: true });
+    async function fetchBlock() {
+      try {
+        setLoadingBlock(true);
+        const res = await fetch("http://44.230.115.148/api/get_block", requestOptions);
+        const data = await res.json();
+        setBlock(data["block"]);
+      }
+      catch (e) {
+        setError(`Failed to load the block number. Contact for assistance.`)
+      }
+      finally {
+        setLoadingBlock(false);
+      }
     }
+
+    fetchBlock();
   }, []);
 
   return (
-    <>
-      {isAuthorized === false ? (
-        <Unauthorized></Unauthorized>
-      ) : (
         <div>
           <div class="bg-info">
             <div class="pt-3">
-              <h4 class="text-white text-bold"> Welcome to Block 4!</h4>
+              {
+                loadingBlock ?  
+                <div class="spinner-border text-light" role="status"></div>
+                : 
+                <h4 class="text-white text-bold">
+                  {error ? error : `Welcome to Block ${block}!`}
+                </h4>
+              }
             </div>
-
             <div class="d-flex flex-row justify-content-end pr-4">
               <a
-                href="http://44.230.115.148:8080/logout"
+                href="http://44.230.115.148/logout"
                 onClick={() => {
                   localStorage.clear();
                 }}
@@ -76,7 +70,7 @@ const Admin = () => {
               </a>
 
               <a
-                href="http://44.230.115.148:8080/cas_logout"
+                href="http://44.230.115.148/api/cas_logout"
                 onClick={() => {
                   localStorage.clear();
                 }}
@@ -94,50 +88,53 @@ const Admin = () => {
           <div>
             <ul class="nav justify-content-center">
               <li class="nav-item">
-                <a class="nav-link active" href="/admin/excel">
-                  Roster
+                <a class={isUploadRosterActive ? "nav-link bg-info text-white rounded" : "nav-link"} href="/admin/excel">
+                  Upload Roster
                 </a>
               </li>
+
               <li class="nav-item">
-                <a class="nav-link" href="/admin/tutor-info">
-                  Tutors' Information
+                <a class={isTutorStatusActive ? "nav-link bg-info text-white rounded" : "nav-link"} href="/admin/tutor-info">
+                  Tutor Status
                 </a>
               </li>
 
               <li class="nav-item dropdown">
                 <a
-                  class="nav-link dropdown-toggle"
+                  class={isMasterScheduleActive ? "nav-link dropdown-toggle bg-info text-white rounded" : "nav-link dropdown-toggle"}
                   href="#"
                   id="navbarDropdown"
                   role="button"
-                  data-toggle="dropdown"
+                  data-bs-toggle="dropdown"
                   aria-haspopup="true"
                   aria-expanded="false"
                 >
-                  Master Schedule
+                   Master Schedule
                 </a>
                 <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                  <a class="dropdown-item" href="/admin/schedule">
+                  <a class={(isMasterScheduleActive && !isCreateScheduleActive) ? "dropdown-item bg-dark text-white" : "dropdown-item"} href="/admin/schedule">
                     View/edit schedule
                   </a>
-                  <a class="dropdown-item" href="/admin/schedule/create">
+                  <a class={isCreateScheduleActive ? "dropdown-item bg-dark text-white" : "dropdown-item"}  href="/admin/schedule/create">
                     Create schedule skeleton
                   </a>
                 </div>
               </li>
-
+        
               <li class="nav-item">
-                <a class="nav-link" href="/admin/time-window">
-                  Time Window
+                <a class={isNewScheduleActive ? "nav-link bg-info text-white rounded" : "nav-link"} href="/admin/time-window">
+                  New Schedule
                 </a>
               </li>
+
               <li class="nav-item">
-                <a class="nav-link" href="/admin/internal">
+                <a class={isRemoveAddAdminActive ? "nav-link bg-info text-white rounded" : "nav-link"} href="/admin/internal">
                   Remove/Add Admin
                 </a>
               </li>
+
               <li class="nav-item">
-                <a class="nav-link" href="/admin/discipline">
+                <a class={isRemoveAddDisciplineActive ? "nav-link bg-info text-white rounded" : "nav-link"} href="/admin/discipline">
                   Remove/Add Discipline
                 </a>
               </li>
@@ -146,7 +143,7 @@ const Admin = () => {
 
           <div class="p-5">
             <Routes>
-              <Route path=""></Route>
+              <Route path="*" element={<Schedule></Schedule>}></Route>
               <Route path="excel" element={<Roster></Roster>}></Route>
               <Route
                 path="tutor-info"
@@ -170,8 +167,5 @@ const Admin = () => {
           </div>
         </div>
       )}
-    </>
-  );
-};
 
 export default Admin;

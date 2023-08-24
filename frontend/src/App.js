@@ -1,5 +1,3 @@
-import logo from "./logo.svg";
-import { useState, useEffect } from "react";
 import "./App.css";
 import { Route, Routes } from "react-router-dom";
 import Home from "./Components/Home";
@@ -15,6 +13,7 @@ function App() {
         <Routes>
           <Route path="/admin/*" element={<Admin />}></Route>
           <Route path="/tutor/*" element={<Tutor></Tutor>}></Route>
+          <Route path="/unauthorized" element={<Unauthorized></Unauthorized>}></Route>
           <Route path="/" element={<Home></Home>}></Route>
           <Route path="*" element={<FileNotFound></FileNotFound>}></Route>
         </Routes>

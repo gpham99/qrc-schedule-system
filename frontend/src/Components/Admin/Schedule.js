@@ -3,8 +3,6 @@ import { exportComponentAsJPEG } from "react-component-export-image";
 import Unauthorized from "../../ErrorPages/Unauthorized";
 
 const Schedule = () => {
-  // grab the access token from the local storage
-  const accessToken = localStorage.getItem("access_token");
 
   const [submitMessage, setSubmitMessage] = useState(null);
   const [unChangedMasterSchedule, setUnchangedMasterSchedule] = useState({});
@@ -14,40 +12,48 @@ const Schedule = () => {
   const [editMode, setEditMode] = useState(0);
   const componentRef = useRef();
 
-  // if access token is null, then this person is not authorized, show page 401 -> authorized state is false
-  // else if they have an access token, verify first
-  const [isAuthorized, setIsAuthorized] = useState(() => {
-    if (accessToken === null) {
-      return false;
-    } else {
-      return null;
-    }
-  });
+
+  const [blockNum, setBlockNum] = useState(1);
 
   useEffect(() => {
-    if (isAuthorized !== false) {
+    const requestOptions = {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+    };
+
+    fetch("http://44.230.115.148/api/get_block", requestOptions)
+      .then((response) => {
+        return response.json();
+      })
+      .then((data) => {
+        console.log("get block return val: ", data);
+        if (data["block"]) {
+          setBlockNum(data["block"]);
+        }
+      });
+  }, []);
+
+  useEffect(() => {
       const requestOptions = {
         headers: {
           "Content-Type": "application/json",
-          Authorization: "JWT " + accessToken.replace(/["]+/g, ""),
         },
       };
 
-      fetch("http://44.230.115.148:8080/api/master_schedule", requestOptions)
+      fetch("http://44.230.115.148/api/master_schedule", requestOptions)
         .then((res) => res.json())
         .then((data) => {
           if ("error" in data) {
-            setIsAuthorized(false);
+            console.log("An error occurred while trying to fetch the master schedule");
           } else {
-            setIsAuthorized(true);
             // this set master schedule sets the data of the master schedule after fetching it
             setMasterSchedule(data);
-            // we set the unchanged master schedule to a deep clone of the current master schedule
+            // we set the unchanged master xsschedule to a deep clone of the current master schedule
             setUnchangedMasterSchedule(structuredClone(data));
           }
         });
     }
-  }, []);
+  , []);
 
   // This method shifts between the editable and non editable view of the schedule
   const toggleEditMode = (event) => {
@@ -64,11 +70,10 @@ const Schedule = () => {
     event.preventDefault();
     // console.log(editedSchedule);
 
-    fetch("http://44.230.115.148:8080/api/update_master_schedule", {
+    fetch("http://44.230.115.148/api/update_master_schedule", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: "JWT " + accessToken.replace(/["]+/g, ""),
       },
       body: JSON.stringify(editedSchedule),
     })
@@ -106,14 +111,34 @@ const Schedule = () => {
                   This is the editable view of the master schedule.
                 </p>
                 <p className="text-left">
-                  Please communicate with the respective tutor before making
+                  Please communicate with the relevant tutor before making
                   changes.
                 </p>
               </section>
             )}
           </div>
           {/* pencil button */}
-          <div className="d-flex justify-content-end pl-4 pr-4">
+          <div className="d-flex justify-content-between pl-4 pr-4">
+            {/* This is to make the export as JPEG button download it as a JPEG */}
+            {editMode === 0 ? (
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={() => {
+                  exportComponentAsJPEG(componentRef);
+                }}
+              >
+                Export schedule
+              </button>
+            ) : (
+              <button
+                type="button"
+                className="btn btn-info"
+                onClick={submitChange}
+              >
+                Save
+              </button>
+            )}
             {editMode === 0 ? (
               <button className="btn btn-info" onClick={toggleEditMode}>
                 <span className="p-1"> Edit </span>
@@ -187,7 +212,7 @@ const Schedule = () => {
           {/* uneditable skeleton of master schedule */}
           <div className="pr-4 pl-4 table-responsive" ref={componentRef}>
             <div class="p-3">
-              <h5>Block 4 Drop-In Schedule</h5>
+              <h5>Block {blockNum} Drop-In Schedule</h5>
             </div>
             <table className="table table-bordered table-sm">
               <thead className="table-dark">
@@ -216,7 +241,7 @@ const Schedule = () => {
                                       {shift_tutor["discipline"]}
                                     </span>
                                     /{shift_tutor["other_disciplines"]}:
-                                    {shift_tutor["tutor"].split(" ")[0]}
+                                    {shift_tutor["firstname"]}
                                   </div>
                                 )}
                               </>
@@ -230,9 +255,7 @@ const Schedule = () => {
                                     class="form-control form-control-sm"
                                     type="text"
                                     value={
-                                      masterSchedule[num][index][
-                                        "email"
-                                      ]?.split("@")[0]
+                                      masterSchedule[num][index]["firstname"]
                                     }
                                     style={{
                                       borderColor: isChanged[num + "," + index]
@@ -247,9 +270,14 @@ const Schedule = () => {
                                       let master_schedule_copy = {
                                         ...masterSchedule,
                                       };
+
                                       master_schedule_copy[num][index][
                                         "email"
                                       ] = new_email;
+                                      master_schedule_copy[num][index][
+                                        "firstname"
+                                      ] = new_email;
+
                                       setMasterSchedule(master_schedule_copy);
 
                                       let isChanged_copy = { ...isChanged };
@@ -262,7 +290,7 @@ const Schedule = () => {
                                           ] === "") ||
                                         masterSchedule[num][index]["email"] ===
                                           unChangedMasterSchedule[num][index][
-                                            "email"
+                                            "firstname"
                                           ]?.split("@")[0];
                                       isChanged_copy[num + "," + index] =
                                         !isSame;
@@ -319,9 +347,7 @@ const Schedule = () => {
                                     class="form-control form-control-sm"
                                     type="text"
                                     value={
-                                      masterSchedule[num][index][
-                                        "email"
-                                      ]?.split("@")[0]
+                                      masterSchedule[num][index]["firstname"]
                                     }
                                     style={{
                                       borderColor: isChanged[num + "," + index]
@@ -336,9 +362,14 @@ const Schedule = () => {
                                       let master_schedule_copy = {
                                         ...masterSchedule,
                                       };
+
                                       master_schedule_copy[num][index][
                                         "email"
                                       ] = new_email;
+                                      master_schedule_copy[num][index][
+                                        "firstname"
+                                      ] = new_email;
+
                                       setMasterSchedule(master_schedule_copy);
 
                                       let isChanged_copy = { ...isChanged };
@@ -407,9 +438,7 @@ const Schedule = () => {
                                     class="form-control form-control-sm"
                                     type="text"
                                     value={
-                                      masterSchedule[num][index][
-                                        "email"
-                                      ]?.split("@")[0]
+                                      masterSchedule[num][index]["firstname"]
                                     }
                                     style={{
                                       borderColor: isChanged[num + "," + index]
@@ -424,9 +453,14 @@ const Schedule = () => {
                                       let master_schedule_copy = {
                                         ...masterSchedule,
                                       };
+
                                       master_schedule_copy[num][index][
                                         "email"
                                       ] = new_email;
+                                      master_schedule_copy[num][index][
+                                        "firstname"
+                                      ] = new_email;
+
                                       setMasterSchedule(master_schedule_copy);
 
                                       let isChanged_copy = { ...isChanged };
@@ -495,9 +529,7 @@ const Schedule = () => {
                                     class="form-control form-control-sm"
                                     type="text"
                                     value={
-                                      masterSchedule[num][index][
-                                        "email"
-                                      ]?.split("@")[0]
+                                      masterSchedule[num][index]["firstname"]
                                     }
                                     style={{
                                       borderColor: isChanged[num + "," + index]
@@ -515,6 +547,10 @@ const Schedule = () => {
                                       master_schedule_copy[num][index][
                                         "email"
                                       ] = new_email;
+                                      master_schedule_copy[num][index][
+                                        "firstname"
+                                      ] = new_email;
+
                                       setMasterSchedule(master_schedule_copy);
 
                                       let isChanged_copy = { ...isChanged };
@@ -556,28 +592,6 @@ const Schedule = () => {
                 </tr>
               </tbody>
             </table>
-          </div>
-          {/* This is to make the export as JPEG button download it as a JPEG */}
-          <div className="p-2">
-            {editMode === 0 ? (
-              <button
-                type="button"
-                className="btn btn-secondary"
-                onClick={() => {
-                  exportComponentAsJPEG(componentRef);
-                }}
-              >
-                Export schedule
-              </button>
-            ) : (
-              <button
-                type="button"
-                className="btn btn-info"
-                onClick={submitChange}
-              >
-                Save
-              </button>
-            )}
           </div>
         </>
       )}
