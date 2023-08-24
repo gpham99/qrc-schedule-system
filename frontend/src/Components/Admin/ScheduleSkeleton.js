@@ -72,8 +72,8 @@ const ScheduleSkeleton = () => {
               in each cell.
             </p>
             <p className="text-left font-weight-light font-italic">
-              Reminder: Creating a new schedule skeleton clears every tutor's
-              current schedule and the master schedule.
+              Creating a new schedule skeleton may remove shifts from the existing
+              master schedule.
             </p>
           </section>
         </div>

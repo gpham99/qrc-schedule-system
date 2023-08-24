@@ -10,6 +10,7 @@ const Profile = () => {
   const [availabilityStatus, setAvailabilityStatus] = useState(null);
   const [laStatus, setLaStatus] = useState(null);
   const [isUpdate, setIsUpdate] = useState(false);
+  const [updateMessage, setUpdateMessage] = useState("");
 
   // call /api/tutor/get_info
   useEffect(() => {
@@ -36,29 +37,31 @@ const Profile = () => {
   , []);
 
   // the function to handle the update button
-  const handleUpdate = (e) => {
-    e.preventDefault();
-    setIsUpdate(true);
-    const requestOptions = {
-      method: "POST",
-      body: JSON.stringify({
-        shift_capacity: maximumShiftCapacity,
-        disciplines: edittedPersonalDisciplines,
-      }),
-      headers: {
-        "Content-Type": "application/json",
-      },
+  const handleUpdate = async () => {
+    try {
+      setIsUpdate(true);
+      const requestOptions = {
+        method: "POST",
+        body: JSON.stringify({
+          shift_capacity: maximumShiftCapacity,
+          disciplines: edittedPersonalDisciplines,
+        }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      };
+      const res = await fetch("http://44.230.115.148/apq/tutor/update_info", requestOptions);
+      const data = await res.json();
+      setUpdateMessage(data["msg"])
+    }
+    catch (e) {
+      console.log("There exists an error...")
+      console.log(e)
+    }
+    finally {
+      setIsUpdate(false);
+    }
     };
-
-    fetch("http://44.230.115.148/api/tutor/update_info", requestOptions)
-      .then((response) => {
-        let res = response.json();
-        return res;
-      })
-      .then((data) => {
-        console.log(data["msg"]);
-      });
-  };
 
   return (
     <div class="bg-light p-4 d-flex flex-column align-items-center justify-content-center">
