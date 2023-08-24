@@ -15,7 +15,7 @@ for i in range(2, 19):
     add_to_master_schedule(i, ["Computer_Science", "Mathematics", "Physics", "Economics", "Chemistry$Molecular_Biology"], ["j_hannebert@coloradocollege.edu", "g_pham@coloradocollege.edu", None])
 
 add_to_master_schedule(19, ["Computer_Science", "Mathematics", "Physics", "Economics", "Chemistry$Molecular_Biology"], ["j_hannebert@coloradocollege.edu", None, "g_pham@coloradocollege.edu"])
-add_admin("Steve_Getty", "sgetty@coloradocollege.edu")
+add_admin("Steve Getty", "sgetty@coloradocollege.edu")
 add_admin("Karen Chui", "kchui@coloradocollege.edu")
 add_admin("Jessica Hannebert", "j_hannebert@coloradocollege.edu")
 add_admin("Giang Pham", "g_pham@coloradocollege.edu")
