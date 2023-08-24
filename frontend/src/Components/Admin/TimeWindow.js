@@ -31,7 +31,7 @@ const TimeWindow = () => {
   }, []);
 
   const generateMasterSchedule = () => {
-    fetch("http://44.230.115.148/api/generate_master_schedule", {
+    fetch("http://44.230.115.148/api/regenerate_schedule", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
