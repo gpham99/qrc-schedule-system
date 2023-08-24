@@ -12,6 +12,7 @@ npm i --save-dev eslint-plugin-jest
 wait
 cd backend
 find . -exec sed -i "s/44.230.115.148/$1/g" {} \;
+python3 database_init.py
 cd ..
 cd frontend/src/Components
 find . -exec sed -i "s/44.230.115.148/$1/g" {} \;
