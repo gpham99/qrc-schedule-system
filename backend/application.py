@@ -357,7 +357,7 @@ def update_tutors_in_master_schedule():
             user = find_first_name(new_tutor_firstname)
             if user != None:
                 #create a User object
-                user = _authenticate(user[0]+EMAIL_SUFFIX)
+                user = _authenticate(user[0])
             if user != None:
                 discipline_to_change = disciplines[abbreviations.index(discipline_abbreviation)]
                 if discipline_to_change in user.disciplines: #if the tutor is eligible to tutor this discipline
