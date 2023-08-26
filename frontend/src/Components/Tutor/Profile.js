@@ -50,7 +50,7 @@ const Profile = () => {
           "Content-Type": "application/json",
         },
       };
-      const res = await fetch("http://44.230.115.148/apq/tutor/update_info", requestOptions);
+      const res = await fetch("http://44.230.115.148/api/tutor/update_info", requestOptions);
       const data = await res.json();
       setUpdateMessage(data["msg"])
     }
