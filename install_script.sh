@@ -22,9 +22,9 @@ secret_key=`python3 -c 'import secrets; print(secrets.token_hex())'`
 sed -i "s/;sufhiagr3yugfjcnkdlmsx0-w9u4fhbuewiejfigehbjrs/$secret_key/" backend/application.py
 python3 -m venv qss-env
 source qss-env/bin/activate
-pip install -U Flask flask_cors python-cas pandas xlrd openpyxl
+pip install -U Flask flask_cors python-cas pandas xlrd openpyxl waitress
 wait
-sudo cp qrc-shedule-system.nginx /etc/nginx/sites-enabled/
+sudo cp qrc-schedule-system.nginx /etc/nginx/sites-enabled/
 sudo cp nginx.conf /etc/nginx/
 sudo rm /etc/nginx/sites-enabled/default
 sudo chmod o+x ..
