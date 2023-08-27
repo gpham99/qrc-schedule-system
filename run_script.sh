@@ -8,4 +8,4 @@ sudo service nginx restart
 wait
 cd ..
 cd backend
-bash script.sh
+bash waitress.sh

@@ -1,6 +1,6 @@
 server {
 	listen 80;
-	root /home/ubuntu/qrc-shedule-system/frontend/build;
+	root /home/ubuntu/qrc-schedule-system/frontend/build;
 	index index.html;
 	location / {
 		try_files $uri /index.html;
