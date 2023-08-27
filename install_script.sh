@@ -7,8 +7,9 @@ sudo apt update
 wait
 sudo apt install nodejs npm python3-pip python3-venv nginx
 wait
-npm install react react-scripts react-dom react-router-dom web-vitals react-bootstrap react-component-export-image react-datepicker bootstrap
-npm i --save-dev eslint-plugin-jest
+#npm install react react-scripts react-dom react-router-dom web-vitals react-bootstrap react-component-export-image react-datepicker bootstrap
+#npm i --save-dev eslint-plugin-jest
+npm ci
 wait
 cd backend
 find . -exec sed -i "s/44.230.115.148/$1/g" {} \;
