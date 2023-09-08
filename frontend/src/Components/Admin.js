@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useLocation, Route, Routes, useAsyncValue} from "react-router-dom";
+import { useLocation, Route, Routes} from "react-router-dom";
 import TutorInfo from "./Admin/TutorInfo";
 import Schedule from "./Admin/Schedule";
 import Roster from "./Admin/Roster";
@@ -102,7 +102,6 @@ const Admin = () => {
               <li class="nav-item dropdown">
                 <a
                   class={isMasterScheduleActive ? "nav-link dropdown-toggle bg-info text-white rounded" : "nav-link dropdown-toggle"}
-                  href="#"
                   id="navbarDropdown"
                   role="button"
                   data-bs-toggle="dropdown"
