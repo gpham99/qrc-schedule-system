@@ -1,15 +1,9 @@
 import React, { useEffect, useState } from "react";
 import Schedule from "./Tutor/Schedule";
 import Profile from "./Tutor/Profile";
-import { Route, Routes, useSearchParams, useNavigate } from "react-router-dom";
-import Unauthorized from "../ErrorPages/Unauthorized";
+import { Route, Routes, useSearchParams } from "react-router-dom";
 
 const Tutor = () => {
-  const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
-  const [name, setName] = useState(() => {
-    return searchParams.get("username") || null;
-  });
 
   const [blockNum, setBlockNum] = useState(1);
 
@@ -29,17 +23,6 @@ const Tutor = () => {
           setBlockNum(data["block"]);
         }
       });
-  }, []);
-
-  useEffect(() => {
-    const requestOptions = {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        username: name,
-        password: "pass",
-      }),
-    };
   }, []);
 
   return (

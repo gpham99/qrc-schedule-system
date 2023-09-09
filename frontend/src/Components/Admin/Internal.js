@@ -1,6 +1,5 @@
 import React from "react";
 import { useState, useEffect } from "react";
-import Unauthorized from "../../ErrorPages/Unauthorized";
 
 const Internal = () => {
 
@@ -131,7 +130,6 @@ const Internal = () => {
           email: adminEmail,
         }),
       }).then((response) => {
-        let res = response.json();
       });
     } else if (isEmailSanitized) {
       alert("the name is not sanitized");

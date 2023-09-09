@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import Unauthorized from "../../ErrorPages/Unauthorized";
 
 const Roster = () => {
   const [lastUploaded, setLastUploaded] = useState([]);
@@ -19,10 +18,6 @@ const Roster = () => {
         setLastUploaded(data);
       });
   }, [lastUploaded]);
-
-  // last uploaded's header and data
-  const tableHeaders = lastUploaded?.slice(0, 1);
-  const tableData = lastUploaded?.slice(1);
 
   const [file, setFile] = useState();
 

@@ -1,6 +1,5 @@
 import React from "react";
 import { useEffect, useState } from "react";
-import Unauthorized from "../../ErrorPages/Unauthorized";
 
 const Discipline = () => {
 

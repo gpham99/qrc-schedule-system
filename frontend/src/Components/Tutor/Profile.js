@@ -10,7 +10,7 @@ const Profile = () => {
   const [availabilityStatus, setAvailabilityStatus] = useState(null);
   const [laStatus, setLaStatus] = useState(null);
   const [isUpdate, setIsUpdate] = useState(false);
-  const [updateMessage, setUpdateMessage] = useState("");
+  //const [updateMessage, setUpdateMessage] = useState("");
 
   // call /api/tutor/get_info
   useEffect(() => {
@@ -52,7 +52,7 @@ const Profile = () => {
       };
       const res = await fetch("http://44.230.115.148/api/tutor/update_info", requestOptions);
       const data = await res.json();
-      setUpdateMessage(data["msg"])
+      //setUpdateMessage(data["msg"])
     }
     catch (e) {
       console.log("There exists an error...")

@@ -10,6 +10,7 @@ const Unauthorized = () => {
           <img
             class="img-fluid bg-info"
             src={require("../Images/ErrorDog.gif")}
+            alt="Frustrated dog"
           />
         </div>
         <h2 class="text-white m-4">Uh Oh</h2>

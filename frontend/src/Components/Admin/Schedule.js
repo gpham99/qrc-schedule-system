@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
 import { exportComponentAsJPEG } from "react-component-export-image";
-import Unauthorized from "../../ErrorPages/Unauthorized";
 
 const Schedule = () => {
 

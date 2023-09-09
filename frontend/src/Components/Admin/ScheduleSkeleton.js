@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import Unauthorized from "../../ErrorPages/Unauthorized";
 
 const ScheduleSkeleton = () => {
 
@@ -152,10 +151,10 @@ const ScheduleSkeleton = () => {
                                 )[1] === "True"
                               ) {
                                 edittedScheduleSkeletonCopy[num][index] =
-                                  discipline.split(",")[0] + "," + "False";
+                                  discipline.split(",")[0] + ",False";
                               } else {
                                 edittedScheduleSkeletonCopy[num][index] =
-                                  discipline.split(",")[0] + "," + "True";
+                                  discipline.split(",")[0] + ",True";
                               }
                               setEdittedScheduleSkeleton(
                                 edittedScheduleSkeletonCopy
@@ -200,10 +199,10 @@ const ScheduleSkeleton = () => {
                                 )[1] === "True"
                               ) {
                                 edittedScheduleSkeletonCopy[num][index] =
-                                  discipline.split(",")[0] + "," + "False";
+                                  discipline.split(",")[0] + ",False";
                               } else {
                                 edittedScheduleSkeletonCopy[num][index] =
-                                  discipline.split(",")[0] + "," + "True";
+                                  discipline.split(",")[0] + ",True";
                               }
                               setEdittedScheduleSkeleton(
                                 edittedScheduleSkeletonCopy
@@ -248,10 +247,10 @@ const ScheduleSkeleton = () => {
                                 )[1] === "True"
                               ) {
                                 edittedScheduleSkeletonCopy[num][index] =
-                                  discipline.split(",")[0] + "," + "False";
+                                  discipline.split(",")[0] + ",False";
                               } else {
                                 edittedScheduleSkeletonCopy[num][index] =
-                                  discipline.split(",")[0] + "," + "True";
+                                  discipline.split(",")[0] + ",True";
                               }
                               setEdittedScheduleSkeleton(
                                 edittedScheduleSkeletonCopy
@@ -296,10 +295,10 @@ const ScheduleSkeleton = () => {
                                 )[1] === "True"
                               ) {
                                 edittedScheduleSkeletonCopy[num][index] =
-                                  discipline.split(",")[0] + "," + "False";
+                                  discipline.split(",")[0] + ",False";
                               } else {
                                 edittedScheduleSkeletonCopy[num][index] =
-                                  discipline.split(",")[0] + "," + "True";
+                                  discipline.split(",")[0] + ",True";
                               }
                               setEdittedScheduleSkeleton(
                                 edittedScheduleSkeletonCopy
