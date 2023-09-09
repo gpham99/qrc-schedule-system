@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Schedule from "./Tutor/Schedule";
 import Profile from "./Tutor/Profile";
-import { Route, Routes, useSearchParams } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 
 const Tutor = () => {
 

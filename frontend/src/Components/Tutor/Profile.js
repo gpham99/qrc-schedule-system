@@ -51,7 +51,7 @@ const Profile = () => {
         },
       };
       const res = await fetch("http://44.230.115.148/api/tutor/update_info", requestOptions);
-      const data = await res.json();
+      //const data = await res.json();
       //setUpdateMessage(data["msg"])
     }
     catch (e) {
