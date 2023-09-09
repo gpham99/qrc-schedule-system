@@ -102,6 +102,7 @@ const Admin = () => {
               <li class="nav-item dropdown">
                 <a
                   class={isMasterScheduleActive ? "nav-link dropdown-toggle bg-info text-white rounded" : "nav-link dropdown-toggle"}
+	  	  href="#top"
                   id="navbarDropdown"
                   role="button"
                   data-bs-toggle="dropdown"
