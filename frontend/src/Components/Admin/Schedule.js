@@ -512,8 +512,8 @@ const Schedule = () => {
                                   <div class="m-1 text-left">
                                     <span class="text-success">
                                       {shift_tutor["discipline"]}
-                                    </span>
-                                    /{shift_tutor["other_disciplines"]}:{" "}
+                                    </span> {shift_tutor["other_disciplines"] == "" ? "" : "/"}
+                                    {shift_tutor["other_disciplines"]}:{" "}
                                     {shift_tutor["tutor"].split(" ")[0]}
                                   </div>
                                 )}
