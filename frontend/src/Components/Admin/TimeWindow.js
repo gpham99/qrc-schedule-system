@@ -9,6 +9,8 @@ const TimeWindow = () => {
     setBlock(e.target.value);
   };
 
+  const [submitMessage, setSubmitMessage] = useState("");
+
   const toggleChangeHandler = (e) => {
     setIsOpen(1 - isOpen);
     console.log("toggled!", isOpen)
@@ -44,6 +46,7 @@ const TimeWindow = () => {
       .then((response) => response.json())
       .then((data) => {
         console.log(data);
+        setSubmitMessage(data["msg"]);
       });
   };
 
@@ -56,18 +59,31 @@ const TimeWindow = () => {
           </p>
         </section>
       </div>
-
+      {submitMessage.length > 0 && (
+        <div
+          class="alert alert-primary m-4 alert-dismissible fade show"
+          role="alert"
+        >
+          {submitMessage}
+          <button
+            type="button"
+            class="close"
+            data-dismiss="alert"
+            aria-label="Close"
+          >
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+      )}
       <div className="pb-4 d-flex justify-content-center align-items-start">
         <div className="pr-3 d-flex flex-row align-items-start">
           <div className="pr-4">Shift registration: </div>
-          <div className="pr-3">Off</div>
+          <div className="pr-3">Off </div>
           <div className="form-switch form-check">
             <input role="switch" className="form-check-input" type="checkbox" onChange={toggleChangeHandler} checked={isOpen === 1}/>
           </div>
           <div className="pl-3"> On</div>
-        </div>
-
-        <div className="pl-3">
+        </div>  <div className="pl-3">
           <label className="pr-2" htmlFor="block">
             Current block:
           </label>
@@ -102,13 +118,12 @@ const TimeWindow = () => {
               .then((response) => response.json())
               .then((data) => {
                 console.log(data);
+                setSubmitMessage(data["msg"]);
               });
           }}
         >
           Save
-        </button>
-
-        <button
+        </button>  <button
           type="button"
           className="btn btn-info"
           onClick={generateMasterSchedule}
