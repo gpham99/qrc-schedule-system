@@ -82,7 +82,7 @@ const TimeWindow = () => {
           <div className="form-switch form-check">
             <input role="switch" className="form-check-input" type="checkbox" onChange={toggleChangeHandler} checked={isOpen === 1}/>
           </div> 
-          <div className="pl-3"> Open</div>{"   "}<div className="pl-3"> </div>
+          <div className="pl-3"> Open</div>{'   '}<div className="pl-3"> </div>
           <label className="pr-2" htmlFor="block">
             Current block: {" "} </label>
           <select id="block" name="block" value={block} onChange={dropdownChangeHandler}>
