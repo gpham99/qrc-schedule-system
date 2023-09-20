@@ -77,15 +77,10 @@ const TimeWindow = () => {
       )}
       <div className="pb-4 d-flex justify-content-center align-items-start">
         <div className="pr-3 d-flex flex-row align-items-start">
-          <div className="pr-4">Shift registration: </div> {" "}
-          <div className="pr-3">Closed</div> {" "}
-          <div className="form-switch form-check">
+          <div className="pr-4">Shift registration: </div> <div className="pr-3">Closed</div> <div className="form-switch form-check">
             <input role="switch" className="form-check-input" type="checkbox" onChange={toggleChangeHandler} checked={isOpen === 1}/>
-          </div> 
-          <div className="pl-3"> Open</div>{'   '}<div className="pl-3"> </div>
-          <label className="pr-2" htmlFor="block">
-            Current block: {" "} </label>
-          <select id="block" name="block" value={block} onChange={dropdownChangeHandler}>
+          </div> <div className="pl-3"> Open</div>   <div className="pl-3"> </div> <label className="pr-2" htmlFor="block">
+            Current block: </label>  <select id="block" name="block" value={block} onChange={dropdownChangeHandler}>
             <option value="1">1</option>
             <option value="2">2</option>
             <option value="3">3</option>
