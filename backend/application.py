@@ -460,7 +460,7 @@ def set_time_window():
         write_to_file("is_open", is_open)
     if not is_open: #shift registration has been closed, generate the schedule!
         write_master_schedule()
-    return {"msg": "block changed to " + str(block) + ", is_open changed to " + str(is_open)}
+    return {"msg": "Shift registration is now " + "open!" if is_open else "closed! Master schedule has been generated."}
 
 #re-generate the schedule
 @application.route('/regenerate_schedule', methods=['POST'])
@@ -472,7 +472,7 @@ def regenerate_schedule():
         #return Response(response="Unauthorized", status=401)
     #regenerate
     write_master_schedule()
-    return {"msg": "Schedule regenerated"}
+    return {"msg": "Schedule regenerated!"}
     
 #get the list of disciplines (without abbreviations)
 @application.route('/get_disciplines')
