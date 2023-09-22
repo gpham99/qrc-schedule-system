@@ -16,12 +16,6 @@ const TutorInfo = () => {
   If you need to view the previous status of the table, you can simply reload the page.
   `
 
-  const handleChange = (key, typeOfChange) => {
-    const tutorsCopy = {...tutors};
-    tutorsCopy[key][typeOfChange] = !tutorsCopy[key][typeOfChange];
-    setTutors(tutorsCopy);
-  }
-
   useEffect(() => {
       const requestOptions = {
         headers: {
@@ -31,9 +25,8 @@ const TutorInfo = () => {
       async function fetchTutors() {
         try {
           setLoading(true);
-          const res = await fetch("http://44.228.177.192/api/get_tutors_information", requestOptions);
+          const res = await fetch("http://44.230.115.148/api/get_tutors_information", requestOptions);
           const data = await res.json();
-          console.log("this the tutors:", data);
           setTutors(data);
         }
         catch (e) {
@@ -46,6 +39,12 @@ const TutorInfo = () => {
       fetchTutors();
     }
   , []);
+
+  const handleChange = (key, typeOfChange) => {
+    const tutorsCopy = {...tutors};
+    tutorsCopy[key][typeOfChange] = !tutorsCopy[key][typeOfChange];
+    setTutors(tutorsCopy);
+  }
 
   const submitChange = async () => {
     const requestOptions = {
@@ -172,7 +171,7 @@ const TutorInfo = () => {
           </thead>
           <tbody>
             {Object.keys(tutors).map((key) => (
-              <tr>
+              <tr key={key}>
                 <td>{tutors[key]["name"]}</td>
                 <td>
                   {
