@@ -124,6 +124,11 @@ const TutorInfo = () => {
 
   return (
     <div className="container bg-light p-4">
+      <div className="d-flex flex-column align-items-start">Notice:
+      <p>- Remember, changes won't be saved until you click 'Save Changes'.</p>
+      <p>- If you don't like your changes and haven't saved them, refresh the page to start over. Your unsaved edits will be discarded.</p>
+      </div>
+
       <div className="d-flex justify-content-between p-4">
           <button type="button" className="btn btn-info" onClick={() => {
             submitChange();
@@ -154,9 +159,9 @@ const TutorInfo = () => {
         <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
       </div>}
 
-      <div className="p-4 table-responsive">
-        <table className="table table-bordered table-fixed">
-          <thead className="table-dark">
+      <div style={{overflowY: "auto", height: "600px"}}>
+        <table className="table table-bordered">
+          <thead className="table-dark" style={{position: "sticky", top: -2}}>
             <tr>
               <th className="col-sm-3">Tutor</th>
               <th className="col-sm-3">LA Status</th>
