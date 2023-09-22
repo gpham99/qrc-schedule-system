@@ -33,6 +33,7 @@ const TutorInfo = () => {
           setLoading(true);
           const res = await fetch("http://44.228.177.192/api/get_tutors_information", requestOptions);
           const data = await res.json();
+          console.log("this the tutors:", data);
           setTutors(data);
         }
         catch (e) {
@@ -171,7 +172,7 @@ const TutorInfo = () => {
           </thead>
           <tbody>
             {Object.keys(tutors).map((key) => (
-              <tr key={key}>
+              <tr>
                 <td>{tutors[key]["name"]}</td>
                 <td>
                   {
