@@ -673,14 +673,14 @@ def set_tutors_information():
         return redirect(URL+'unauthorized')
         #return Response(response="Unauthorized", status=401)
     data = request.get_json()
+    print(data)
     roster = get_roster()
     for tutor in roster:
         email = tutor[0]
-        this_block_la = True if tutor[5] == 1 else False
-        this_block_unavailable = True if tutor[2] == 1 else False
+        this_block_la = tutor[5]
+        this_block_unavailable = tutor[2]
+        absence = tutor[9]
         tutor_dict = data[email]
-        absence = True if tutor[9] == 1 else False
-        #all these values are just booleans, so we can toggle them if their state has changed
         if tutor_dict['this_block_la'] != this_block_la:
             update_this_block_la(email)
         if tutor_dict['this_block_unavailable'] != this_block_unavailable:

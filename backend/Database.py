@@ -919,7 +919,7 @@ def update_this_block_la(email):
             cur.execute(sql_select_query, (email,))
             data = cur.fetchone()
             # if the la status is active turn it off
-            if data[4] == 1:
+            if data[5] == 1:
                 # do stuff to update la status to 0
                 update_query = 'UPDATE tutors SET this_block_la = 0 WHERE email = ?'
             # else turn it on
@@ -943,7 +943,7 @@ def update_next_block_la(email):
             cur.execute(sql_select_query, (email,))
             data = cur.fetchone()
             # if the status is active turn it off
-            if data[5] == 1:
+            if data[4] == 1:
                 # do stuff to update status to 0
                 update_query = 'UPDATE tutors SET next_block_la = 0 WHERE email = ?'
             # else turn it on
