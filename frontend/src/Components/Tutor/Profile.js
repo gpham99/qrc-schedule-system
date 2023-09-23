@@ -10,7 +10,7 @@ const Profile = () => {
   const [availabilityStatus, setAvailabilityStatus] = useState(null);
   const [laStatus, setLaStatus] = useState(null);
   const [isUpdate, setIsUpdate] = useState(false);
-  //const [updateMessage, setUpdateMessage] = useState("");
+  const [updateMessage, setUpdateMessage] = useState("");
 
   // call /api/tutor/get_info
   useEffect(() => {
@@ -51,8 +51,8 @@ const Profile = () => {
         },
       };
       await fetch("https://44.228.177.192/api/tutor/update_info", requestOptions);
-      //const data = await res.json();
-      //setUpdateMessage(data["msg"])
+      const data = await res.json();
+      setUpdateMessage(data["msg"])
     }
     catch (e) {
       console.log("There exists an error...")
@@ -116,12 +116,26 @@ const Profile = () => {
         </div>
       </div>
 
-      <div className={!isUpdate ? "d-flex flex-column justify-content-center align-items-center p-4 w-75 border border-primary mt-3 mb-3" : "d-flex flex-column justify-content-center align-items-center p-4 w-75 border border-success mt-3 mb-3"}>
+      <div className="d-flex flex-column justify-content-center align-items-center p-4 w-75 border border-success mt-3 mb-3">
         <div class="pl-3 pr-3 w-75">
           <h4>Your Editable Information</h4>
           <p class="text-left font-weight-light font-italic">
-            When the information is submitted successfully, this box's border
-            turns green.
+            {updateMessage.length > 0 && (
+              <div
+                class="alert alert-primary m-4 alert-dismissible fade show"
+                role="alert"
+              >
+              {updateMessage}
+              <button
+                type="button"
+                class="close"
+                data-dismiss="alert"
+                aria-label="Close"
+              >
+                <span aria-hidden="true">&times;</span>
+              </button>
+              </div>
+            )}
           </p>
         </div>
 
