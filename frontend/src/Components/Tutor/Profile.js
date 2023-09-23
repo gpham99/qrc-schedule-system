@@ -37,7 +37,7 @@ const Profile = () => {
   , []);
 
   // the function to handle the update button
-  const handleUpdate = async () => {
+  const handleUpdate = () => {
     try {
       setIsUpdate(true);
       const requestOptions = {
@@ -50,9 +50,12 @@ const Profile = () => {
           "Content-Type": "application/json",
         },
       };
-      await fetch("https://44.228.177.192/api/tutor/update_info", requestOptions);
-      const data = await res.json();
-      setUpdateMessage(data["msg"])
+      fetch("https://44.228.177.192/api/tutor/update_info", requestOptions)
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(data);
+          setUpdateMessage(data["msg"]);
+        });
     }
     catch (e) {
       console.log("There exists an error...")
