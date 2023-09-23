@@ -17,7 +17,7 @@ const TimeWindow = () => {
   };
 
   useEffect(() => {
-    fetch("https://44.230.115.148/api/get_block")
+    fetch("https://44.228.177.192/api/get_block")
       .then((response) => response.json())
       .then((data) => {
         setBlock(data["block"]);
@@ -25,7 +25,7 @@ const TimeWindow = () => {
   }, []);
 
   useEffect(() => {
-    fetch("https://44.230.115.148/api/is_open")
+    fetch("https://44.228.177.192/api/is_open")
       .then((response) => response.json())
       .then((data) => {
         setIsOpen(data["msg"] === "True" ? 1 : 0);
@@ -33,7 +33,7 @@ const TimeWindow = () => {
   }, []);
 
   const generateMasterSchedule = () => {
-    fetch("https://44.230.115.148/api/regenerate_schedule", {
+    fetch("https://44.228.177.192/api/regenerate_schedule", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -98,7 +98,7 @@ const TimeWindow = () => {
           type="button"
           className="btn btn-info"
           onClick={() => {
-            fetch("https://44.230.115.148/api/open_schedule", {
+            fetch("https://44.228.177.192/api/open_schedule", {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",

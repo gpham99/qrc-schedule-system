@@ -13,7 +13,7 @@ const Tutor = () => {
       headers: { "Content-Type": "application/json" },
     };
 
-    fetch("https://44.230.115.148/api/get_block", requestOptions)
+    fetch("https://44.228.177.192/api/get_block", requestOptions)
       .then((response) => {
         return response.json();
       })
@@ -37,7 +37,7 @@ const Tutor = () => {
 
             <div class="d-flex flex-row justify-content-end pr-4">
               <a
-                href="https://44.230.115.148/logout"
+                href="https://44.228.177.192/logout"
                 onClick={() => {
                   localStorage.clear();
                 }}
@@ -47,7 +47,7 @@ const Tutor = () => {
               </a>
 
               <a
-                href="https://44.230.115.148/api/cas_logout"
+                href="https://44.228.177.192/api/cas_logout"
                 onClick={() => {
                   localStorage.clear();
                 }}
