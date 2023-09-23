@@ -147,17 +147,21 @@ const TutorInfo = () => {
           <button type="button" className="btn btn-link" onClick={clearAbsence}>Clear Unexcused Absence</button>
       </div>
 
-      {submitError && 
-      <div className="alert alert-danger alert-dismissible" role="alert">
-        {submitError}
-        <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-      </div>}
+      <div>
+        {submitError && 
+        <div className="alert alert-danger alert-dismissible" role="alert">
+          {submitError}
+          <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>}
+      </div>
 
-      {success && 
-      <div className="alert alert-success alert-dismissible" role="alert">
-        {success}
-        <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-      </div>}
+      <div>
+        {success && 
+        <div className="alert alert-success alert-dismissible" role="alert">
+          {success}
+          <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>}
+      </div>
 
       <div style={{overflowY: "auto", height: "600px"}}>
         <table className="table table-bordered">
