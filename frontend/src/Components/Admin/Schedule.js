@@ -20,7 +20,7 @@ const Schedule = () => {
       headers: { "Content-Type": "application/json" },
     };
 
-    fetch("http://44.230.115.148/api/get_block", requestOptions)
+    fetch("https://44.230.115.148/api/get_block", requestOptions)
       .then((response) => {
         return response.json();
       })
@@ -39,7 +39,7 @@ const Schedule = () => {
         },
       };
 
-      fetch("http://44.230.115.148/api/master_schedule", requestOptions)
+      fetch("https://44.230.115.148/api/master_schedule", requestOptions)
         .then((res) => res.json())
         .then((data) => {
           if ("error" in data) {
@@ -69,7 +69,7 @@ const Schedule = () => {
     event.preventDefault();
     // console.log(editedSchedule);
 
-    fetch("http://44.230.115.148/api/update_master_schedule", {
+    fetch("https://44.230.115.148/api/update_master_schedule", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -142,7 +142,7 @@ const Schedule = () => {
               <button className="btn btn-info" onClick={toggleEditMode}>
                 <span className="p-1"> Edit </span>
                 <svg
-                  xmlns="http://www.w3.org/2000/svg"
+                  xmlns="https://www.w3.org/2000/svg"
                   width="16"
                   height="16"
                   fill="currentColor"

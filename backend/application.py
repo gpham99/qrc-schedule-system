@@ -35,7 +35,7 @@ SHIFT_SLOTS = 20
 #everyone in the system has a CC email
 EMAIL_SUFFIX = '@coloradocollege.edu'
 #URL for the project
-URL = 'http://44.230.115.148/'
+URL = 'https://44.230.115.148/'
 
 #set up Flask app
 application = Flask(__name__)

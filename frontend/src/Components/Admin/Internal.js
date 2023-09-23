@@ -16,7 +16,7 @@ const Internal = () => {
         },
       };
 
-      fetch("http://44.230.115.148/api/get_admins", requestOptions)
+      fetch("https://44.230.115.148/api/get_admins", requestOptions)
         .then((response) => {
           let res = response.json();
           return res;
@@ -99,7 +99,7 @@ const Internal = () => {
       },
     };
 
-    fetch("http://44.230.115.148/api/remove_admin", requestOptions)
+    fetch("https://44.230.115.148/api/remove_admin", requestOptions)
       .then((response) => {
         let res = response.json();
         console.log(res);
@@ -120,7 +120,7 @@ const Internal = () => {
     // console.log("isNameSanitized: ", isNameSanitized);
 
     if (isEmailSanitized && isNameSanitized) {
-      fetch("http://44.230.115.148/api/add_admin", {
+      fetch("https://44.230.115.148/api/add_admin", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

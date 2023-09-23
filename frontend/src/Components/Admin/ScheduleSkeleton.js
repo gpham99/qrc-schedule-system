@@ -15,7 +15,7 @@ const ScheduleSkeleton = () => {
       };
 
       fetch(
-        "http://44.230.115.148/api/get_schedule_skeleton",
+        "https://44.230.115.148/api/get_schedule_skeleton",
         requestOptions
       )
         .then((response) => {
@@ -45,7 +45,7 @@ const ScheduleSkeleton = () => {
     };
 
     fetch(
-      "http://44.230.115.148/api/set_schedule_skeleton",
+      "https://44.230.115.148/api/set_schedule_skeleton",
       requestOptions
     )
       .then((response) => {
