@@ -38,8 +38,6 @@ const Profile = () => {
 
   // the function to handle the update button
   const handleUpdate = () => {
-    try {
-      setIsUpdate(true);
       const requestOptions = {
         method: "POST",
         body: JSON.stringify({
@@ -51,19 +49,14 @@ const Profile = () => {
         },
       };
       fetch("https://44.228.177.192/api/tutor/update_info", requestOptions)
-      .then((response) => response.json())
+      .then((response) => {
+        let res = response.json();
+        return res;
+      })
       .then((data) => {
-        console.log(data);
+          console.log(data);
           setUpdateMessage(data["msg"]);
         });
-    }
-    catch (e) {
-      console.log("There exists an error...")
-      console.log(e)
-    }
-    finally {
-      setIsUpdate(false);
-    }
     };
 
   return (
@@ -122,7 +115,6 @@ const Profile = () => {
       <div className="d-flex flex-column justify-content-center align-items-center p-4 w-75 border border-success mt-3 mb-3">
         <div class="pl-3 pr-3 w-75">
           <h4>Your Editable Information</h4>
-          <p class="text-left font-weight-light font-italic">
             {updateMessage.length > 0 && (
               <div
                 class="alert alert-primary m-4 alert-dismissible fade show"
@@ -139,7 +131,6 @@ const Profile = () => {
               </button>
               </div>
             )}
-          </p>
         </div>
 
         <div class="p-4 w-75">
