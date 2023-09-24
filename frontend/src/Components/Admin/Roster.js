@@ -49,8 +49,8 @@ const Roster = () => {
 
       {submitMessage.length > 0 && (
         <div className="alert alert-primary alert-dismissible" role="alert">
-        {submitMessage}
-        <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          {submitMessage}
+          <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
       )}
 
