@@ -138,10 +138,10 @@ const TutorInfo = () => {
           <button type="button" className="btn btn-warning" disabled={submitting} onClick={clearAll}>Clear All</button>
       </div>
 
-      <div className="d-flex flex-row justify-content-end">
-          <button type="button" className="btn btn-link" onClick={clearLAStatus}>Clear LA Status</button>
-          <button type="button" className="btn btn-link" onClick={clearUnavailable}>Clear Unavailable</button>
-          <button type="button" className="btn btn-link" onClick={clearAbsence}>Clear Unexcused Absence</button>
+      <div className="d-flex flex-row justify-content-end p-3">
+          <button type="button" className="btn btn-secondary me-2" onClick={clearLAStatus}>Clear LA Status</button>
+          <button type="button" className="btn btn-secondary me-2" onClick={clearUnavailable}>Clear Unavailable</button>
+          <button type="button" className="btn btn-secondary" onClick={clearAbsence}>Clear Unexcused Absence</button>
       </div>
 
       {submitError && 
