@@ -132,10 +132,7 @@ const TutorInfo = () => {
       </div>
 
       <div className="d-flex justify-content-between p-4">
-          <button type="button" className="btn btn-info" onClick={() => {
-            submitChange();
-            setError("");
-          }} disabled={submitting}>
+          <button type="button" className="btn btn-info" onClick={submitChange} disabled={submitting}>
             {submitting ? "Saving..." : "Save Changes"}
           </button>
           <button type="button" className="btn btn-warning" disabled={submitting} onClick={clearAll}>Clear All</button>
