@@ -59,6 +59,20 @@ const ScheduleSkeleton = () => {
 
   };
 
+  const clearAll = () => {
+    let edittedScheduleSkeletonCopy = {
+      ...edittedScheduleSkeleton,
+    };
+    for (const num in edittedScheduleSkeletonCopy) {
+      for (const index in edittedScheduleSkeletonCopy[num]) {
+        edittedScheduleSkeletonCopy[num][index] = edittedScheduleSkeletonCopy[num][index].split(",")[0] + ",False";
+      }
+    }
+    setEdittedScheduleSkeleton(
+      edittedScheduleSkeletonCopy
+    );
+  };
+
   return (
     <div className="container align-items-center bg-light">
         <div className="d-flex justify-content-center p-4">
@@ -70,6 +84,9 @@ const ScheduleSkeleton = () => {
               Please select all of the disciplines you would like to be listed
               in each cell.
             </p>
+            <p className="text-left">
+              You must press "Save" to save any changes, even when pressing "Clear All".
+            </p>
             <p className="text-left font-weight-light font-italic">
               Creating a new schedule skeleton may remove shifts from the existing
               master schedule.
@@ -77,15 +94,11 @@ const ScheduleSkeleton = () => {
           </section>
         </div>
 
-      {/* the save button */}
-      <div className="d-flex justify-content-end pl-4 pr-4">
-        <button
-            type="button"
-            className="btn btn-info"
-            onClick={submitSkeleton}
-          >
+      <div className="d-flex justify-content-between p-4">
+          <button type="button" className="btn btn-info" onClick={submitSkeleton}>
             Save
           </button>
+          <button type="button" className="btn btn-warning" onClick={clearAll}>Clear All</button>
       </div>
 
       {submitMessage !== null && submitMessage.length > 0 && (
