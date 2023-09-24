@@ -132,11 +132,11 @@ const Internal = () => {
       }).then((response) => {
       });
     } else if (isEmailSanitized) {
-      alert("the name is not sanitized");
+      alert("The name is not sanitized");
     } else if (isNameSanitized) {
-      alert("the email is not sanitized");
+      alert("The email is not sanitized");
     } else {
-      alert("both the name and email are not sanitized");
+      alert("Both the name and email are not sanitized");
     }
 
     setAdminName("");
@@ -144,54 +144,41 @@ const Internal = () => {
   };
 
   return (
-    <div class="container align-items-center bg-light">
-      <div class="row p-4 justify-content-center">
+    <div className="container align-items-center bg-light">
+      <div className="row p-4 justify-content-center">
         <p>
           You can add a new administrator or remove an existing adminstrator
           here.
         </p>
       </div>
 
-      {/* add an admin buton */}
-      <div class="d-flex justify-content-end p-4">
-        <button
-          type="button"
-          class="btn btn-info"
-          data-toggle="modal"
-          data-target="#exampleModal"
-        >
-          <span class="p-1">Add an administrator</span>
-        </button>
+      <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#addAdmin">
+        Add an administrator
+      </button>
+
         <div
-          class="modal fade"
-          id="exampleModal"
-          tabindex="-1"
+          className="modal fade"
+          id="addAdmin"
+          tabIndex="-1"
           role="dialog"
-          aria-labelledby="exampleModalLabel"
+          aria-labelledby="addAdminLabel"
           aria-hidden="true"
         >
-          <div class="modal-dialog" role="document">
-            <div class="modal-content">
-              <div class="modal-header">
-                <p5 class="align-self-center w-100">
+          <div className="modal-dialog">
+            <div className="modal-content">
+              <div className="modal-header">
+                <p className="modal-title align-self-center w-100" id="exampleModalLabel">
                   Please fill out the form to add an administrator.
-                </p5>
-                <button
-                  type="button"
-                  class="close"
-                  data-dismiss="modal"
-                  aria-label="Close"
-                  onClick={handleCancel}
-                >
-                  <span aria-hidden="true">&times;</span>
-                </button>
+                </p>
+                <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close" onClick={handleCancel}></button>
               </div>
-              <div class="modal-body">
+
+              <div className="modal-body">
                 <form>
-                  <div class="form-group">
+                  <div className="form-group">
                     <label>Administrator Name</label>
                     <input
-                      class="form-control"
+                      className="form-control"
                       placeholder="Ex: Steve Getty"
                       value={adminName}
                       onChange={(e) => {
@@ -199,10 +186,10 @@ const Internal = () => {
                       }}
                     />
                   </div>
-                  <div class="form-group">
+                  <div className="form-group">
                     <label>Administrator's Email</label>
                     <input
-                      class="form-control"
+                      className="form-control"
                       placeholder="Ex: sgetty@coloradocollege.edu"
                       value={adminEmail}
                       onChange={(e) => {
@@ -210,9 +197,9 @@ const Internal = () => {
                       }}
                     />
                   </div>
-                  <div class="form-check"></div>
+                  <div className="form-check"></div>
                   <button
-                    class="btn btn-info"
+                    className="btn btn-info"
                     data-dismiss="modal"
                     onClick={handleClick}
                   >
@@ -223,27 +210,24 @@ const Internal = () => {
             </div>
           </div>
         </div>
-      </div>
 
-      {/* a table to show all the current qrc admins */}
-      {/* table */}
-      <div class="p-4 table-responsive">
-        <table class="table table-bordered table-fixed">
-          <thead class="table-dark">
+      <div className="p-4 table-responsive">
+        <table className="table table-bordered table-fixed">
+          <thead className="table-dark">
             <tr>
-              <th class="col-sm-4">Name</th>
-              <th class="col-sm-4">Email</th>
-              <th class="col-sm-4">Action</th>
+              <th className="col-sm-4">Name</th>
+              <th className="col-sm-4">Email</th>
+              <th className="col-sm-4">Action</th>
             </tr>
           </thead>
           <tbody>
             {Object.values(admins).map((val) => (
-              <tr>
+              <tr key={val[0]}>
                 <td>{val[0]}</td>
                 <td>{val[1]}</td>
                 <td>
                   <button
-                    class="btn btn-link"
+                    className="btn btn-link"
                     onClick={(e) => {
                       const cellAdminEmail = val[1];
                       removeAdmin(cellAdminEmail);

@@ -2,34 +2,44 @@ import React, { useState, useEffect, useRef } from "react";
 import { exportComponentAsJPEG } from "react-component-export-image";
 
 const Schedule = () => {
-
   const [submitMessage, setSubmitMessage] = useState(null);
   const [unChangedMasterSchedule, setUnchangedMasterSchedule] = useState({});
   const [isChanged, setIsChanged] = useState({});
   const [masterSchedule, setMasterSchedule] = useState({});
   const [editedSchedule, setEdittedSchedule] = useState({});
   const [editMode, setEditMode] = useState(0);
+
   const componentRef = useRef();
-
-
-  const [blockNum, setBlockNum] = useState(1);
+  const [block, setBlock] = useState(null);
+  const [loadingBlock, setLoadingBlock] = useState(false);
+  const [errorBlock, setErrorBlock] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
+  const [generateMessage, setGenerateMessage] = useState(null);
+  const [generateLoading, setGenerateLoading] = useState(false);
 
   useEffect(() => {
     const requestOptions = {
       method: "GET",
       headers: { "Content-Type": "application/json" },
     };
-
-    fetch("https://44.228.177.192/api/get_block", requestOptions)
-      .then((response) => {
-        return response.json();
-      })
-      .then((data) => {
-        console.log("get block return val: ", data);
-        if (data["block"]) {
-          setBlockNum(data["block"]);
-        }
-      });
+    async function fetchBlock() {
+      try {
+        setLoadingBlock(true);
+        const res = await fetch("https://44.228.177.192/api/get_block", requestOptions);
+        const data = await res.json();
+        setBlock(data["block"]);
+      }
+      catch (e) {
+        setErrorBlock(`Failed to load the block number. Contact for assistance.`)
+      }
+      finally {
+        setLoadingBlock(false);
+      }
+    }
+    fetchBlock();
   }, []);
 
   useEffect(() => {
@@ -38,55 +48,78 @@ const Schedule = () => {
           "Content-Type": "application/json",
         },
       };
-
-      fetch("https://44.228.177.192/api/master_schedule", requestOptions)
-        .then((res) => res.json())
-        .then((data) => {
-          if ("error" in data) {
-            console.log("An error occurred while trying to fetch the master schedule");
-          } else {
-            // this set master schedule sets the data of the master schedule after fetching it
-            setMasterSchedule(data);
-            // we set the unchanged master xsschedule to a deep clone of the current master schedule
-            setUnchangedMasterSchedule(structuredClone(data));
-          }
-        });
+      async function fetchSchedule() {
+        try {
+          setLoading(true);
+          const res = await fetch("https://44.228.177.192/api/master_schedule", requestOptions);
+          const data = await res.json();
+          setMasterSchedule(data);
+          setUnchangedMasterSchedule(structuredClone(data));
+        }
+        catch (e) {
+          setError(`There was a problem loading the master schedule. Please contact support for assistance.`)
+        }
+        finally {
+          setLoading(false);
+        }
+      }
+      fetchSchedule();
     }
   , []);
 
-  // This method shifts between the editable and non editable view of the schedule
-  const toggleEditMode = (event) => {
-    event.preventDefault();
-    // edit mode is either 0 or 1
+  const toggleEditMode = () => {
     setEditMode(1 - editMode);
-
     setIsChanged({});
     setMasterSchedule(structuredClone(unChangedMasterSchedule));
     setEdittedSchedule({});
   };
 
-  const submitChange = (event) => {
-    event.preventDefault();
-    // console.log(editedSchedule);
+  const submitChange = async () => {
+    try {
+      setSubmitting(true);
+      const res = await  fetch("https://44.228.177.192/api/update_master_schedule", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(editedSchedule),
+      })
+      const data = await res.json();
+      setSubmitMessage(data);
+      setEditMode(1 - editMode);
+    }
+    catch (e) {
+      setSubmitError("There was an ferror submitting the changes to the master schedule. Please retry or contact for assistance.")
+    }
+    finally {
+      setSubmitting(false);
+    }
+  };
 
-    fetch("https://44.228.177.192/api/update_master_schedule", {
+  const generateMasterSchedule = async () => {
+    const requestOptions = {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(editedSchedule),
-    })
-      .then(function (response) {
-        return response.json();
-      })
-      .then(function (data) {
-        // console.log("the data coming out of save action: ", data);
-        setSubmitMessage(data);
-      });
-
-    setEditMode(1 - editMode);
-    window.scrollTo(0, 0);
+        "Content-Type": "application/json"
+      }
+    }
+    try {
+      setGenerateLoading(true);
+      const res = await fetch("https://44.228.177.192/api/regenerate_schedule", requestOptions);
+      const data = await res.json();
+      setGenerateMessage([data.msg, "success"]);
+    }
+    catch (e) {
+      setGenerateMessage(['There was an error generating a new schedule based on the input. Please try again or contact for assistance.', "danger"]);
+    }
+    finally {
+      setGenerateLoading(false);
+    }
   };
+
+  if (loading) return <div className="d-flex flex-column justify-content-center align-items-center bg-light p-4">
+    <div className="spinner-border text-info mb-4" role="status"></div>
+    <span>Loading Master Schedule table, please wait...</span>
+  </div>
+  if (error) return <div className="container align-items-center bg-light p-4">{error}</div>
 
   return (
     <div className="container align-items-center bg-light p-4">
@@ -96,27 +129,23 @@ const Schedule = () => {
         </div>
       ) : (
         <>
-          <div className="d-flex justify-content-center p-4">
             {editMode === 0 ? (
-              <section>
-                <p className="text-left">
-                  This is the aggregated view of the master schedule.
-                </p>
-                <p className="text-left">To make changes, go to Edit.</p>
-              </section>
+              <div className="d-flex flex-column align-items-start p-4">
+                <p> This is the aggregated view of the master schedule. To make changes, go to Edit.</p>
+                <div className="d-flex flex-row">
+                  <p>If your schedule is ready, but you want to view a new randomized version based on your input, click here 👉</p>
+                  <button type="button" class="btn btn-link" onClick={generateMasterSchedule} disabled={generateLoading}>
+                    {generateLoading ? "Generating..." : "Generate another master schedule"}
+                  </button>
+                </div>
+              </div>
             ) : (
-              <section>
-                <p className="text-left">
-                  This is the editable view of the master schedule.
-                </p>
-                <p className="text-left">
-                  Please communicate with the relevant tutor before making
-                  changes.
-                </p>
-              </section>
+              <div className="d-flex flex-column align-items-start p-4">
+                <p>This is the editable view of the master schedule.</p>
+                <p>Please communicate with the relevant tutor before making changes.</p>
+              </div>
             )}
-          </div>
-          {/* pencil button */}
+          
           <div className="d-flex justify-content-between p-4">
             {/* This is to make the export as JPEG button download it as a JPEG */}
             {editMode === 0 ? (
@@ -126,6 +155,7 @@ const Schedule = () => {
                 onClick={() => {
                   exportComponentAsJPEG(componentRef);
                 }}
+                disabled={generateLoading}
               >
                 Export schedule
               </button>
@@ -134,38 +164,21 @@ const Schedule = () => {
                 type="button"
                 className="btn btn-info"
                 onClick={submitChange}
+                disabled={submitting}
               >
-                Save
+                {submitting ? "Saving..." : "Save"}
               </button>
             )}
             {editMode === 0 ? (
-              <button className="btn btn-info" onClick={toggleEditMode}>
-                <span className="p-1"> Edit </span>
-                <svg
-                  xmlns="https://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  fill="currentColor"
-                  className="bi bi-pencil-square"
-                  viewBox="0 0 16 16"
-                >
-                  <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
-                  <path
-                    fill-rule="evenodd"
-                    d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"
-                  />
-                </svg>
-              </button>
+              <button className="btn btn-info" onClick={toggleEditMode} disabled={generateLoading}>Edit</button>
             ) : (
-              <button className="btn btn-info" onClick={toggleEditMode}>
-                Cancel
-              </button>
+              <button className="btn btn-info" onClick={toggleEditMode} disabled={submitting}>Cancel</button>
             )}
           </div>
 
           {/* This is where the submit message is set and alert is shown */}
           {submitMessage !== null && submitMessage.length === 0 && (
-            <div className="alert alert-danger alert-dismissible fade show" role="alert">
+            <div className="alert alert-success alert-dismissible fade show" role="alert">
               <div className="m-3 text-left">
                 Please reload the page to see the changes you've made.
               </div>
@@ -174,7 +187,7 @@ const Schedule = () => {
           )}
 
           {submitMessage !== null && submitMessage.length > 0 && (
-            <div className="alert alert-danger alert-dismissible fade show" role="alert">
+            <div className="alert alert-primary alert-dismissible fade show" role="alert">
               <div className="m-3 text-left">
                 {submitMessage.map((msg) => (
                   <p>{msg}</p>
@@ -188,11 +201,31 @@ const Schedule = () => {
             </div>
           )}
 
-          {/* uneditable skeleton of master schedule */}
+          {submitError && <div className="alert alert-danger alert-dismissible fade show" role="alert">
+              <div className="m-3 text-left">{submitError}</div>
+              <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close" onClick={() => setSubmitError("")}></button>
+            </div>
+          }
+
+          {generateMessage && <div className={`alert alert-${generateMessage[1]} alert-dismissible fade show`} role="alert">
+              <div>{generateMessage[0]}</div>
+              <div>{generateMessage[1] === "success" && "Please reload the page to see the newly generated schedule."}</div>
+              <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close" onClick={() => setGenerateMessage("")}></button>
+            </div>
+          }
+
           <div className="pr-4 pl-4 table-responsive" ref={componentRef}>
             <div class="p-3">
-              <h5>Block {blockNum} Drop-In Schedule</h5>
+              {loadingBlock ? <div className="d-flex flex-column justify-content-center align-items-center p-4"> 
+                <div className="spinner-border text-info mb-4" role="status"></div>
+                <span>Loading block number...</span>
+              </div> : <div>
+                {errorBlock ? <p style={{color: "red"}}>{errorBlock}</p> : <h5>Block {block}</h5>}
+                </div>}
+              <h5>Drop-In Schedule</h5>
             </div>
+
+
             <table className="table table-bordered table-sm">
               <thead className="table-dark">
                 <tr>

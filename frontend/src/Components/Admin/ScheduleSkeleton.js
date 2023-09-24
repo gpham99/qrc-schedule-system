@@ -1,41 +1,39 @@
 import React, { useState, useEffect } from "react";
 
 const ScheduleSkeleton = () => {
-
   const [submitMessage, setSubmitMessage] = useState(null);
   const [scheduleSkeleton, setScheduleSkeleton] = useState([]);
   const [edittedScheduleSkeleton, setEdittedScheduleSkeleton] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
-  // Retrieving last picked/updated skeleton
   useEffect(() => {
-      const requestOptions = {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      };
-
-      fetch(
-        "https://44.228.177.192/api/get_schedule_skeleton",
-        requestOptions
-      )
-        .then((response) => {
-          let res = response.json();
-          return res;
-        })
-        .then((data) => {
-          if ("error" in data) {
-            console.log("An error was encountered while trying to fetch schedule skeleton");
-          } else {
-            // console.log("data: ", data);
-            setScheduleSkeleton(data);
-            setEdittedScheduleSkeleton({ ...data });
-          }
-        });
+    const requestOptions = {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    };
+    async function fetchScheduleSkeleton() {
+      try {
+        setLoading(true);
+        const res =  await fetch("https://44.228.177.192/api/get_schedule_skeleton", requestOptions);
+        const data = await res.json();
+        setScheduleSkeleton(data);
+        setEdittedScheduleSkeleton({ ...data });
+      }
+      catch (e) {
+        setError("There was a problem loading the schedule skeleton. Please try again or contact for assistance.")
+      }
+      finally {
+        setLoading(false);
+      }
     }
+    fetchScheduleSkeleton();
+  }
   , []);
 
-  const submitSkeleton = () => {
-    console.log("edited sched: ", edittedScheduleSkeleton);
+  const submitSkeleton = async () => {
     const requestOptions = {
       method: "POST",
       headers: {
@@ -44,19 +42,18 @@ const ScheduleSkeleton = () => {
       body: JSON.stringify(edittedScheduleSkeleton),
     };
 
-    fetch(
-      "https://44.228.177.192/api/set_schedule_skeleton",
-      requestOptions
-    )
-      .then((response) => {
-        let res = response.json();
-        return res;
-      })
-      .then((data) => {
-        console.log("finish submit data: ", data);
-        setSubmitMessage(data.msg);
-      });
-
+    try {
+      setSubmitting(true);
+      const res = await fetch("https://44.228.177.192/api/set_schedule_skeleton", requestOptions);
+      const data = await res.json();
+      setSubmitMessage([data.msg, "success"]);
+    }
+    catch (e) {
+      setSubmitMessage(["There was a problem submitting your changes to the schedule skeleton. Please retry or contact for assistance.", "danger"])
+    }
+    finally {
+      setSubmitting(false);
+    }
   };
 
   const clearAll = () => {
@@ -73,56 +70,33 @@ const ScheduleSkeleton = () => {
     );
   };
 
+  if (loading) return <div className="d-flex flex-column justify-content-center align-items-center bg-light p-4">
+      <div className="spinner-border text-info mb-4" role="status"></div>
+      <span>Loading Schedule Skeleton table, please wait...</span>
+    </div>
+  if (error) return <div className="container align-items-center bg-light p-4">{error}</div>
+
   return (
     <div className="container align-items-center bg-light">
-        <div className="d-flex justify-content-center p-4">
-          <section>
-            <p className="text-left">
-              You can edit the skeleton of the master schedule here.
-            </p>
-            <p className="text-left">
-              Please select all of the disciplines you would like to be listed
-              in each cell.
-            </p>
-            <p className="text-left">
-              You must press "Save" to save any changes, even when pressing "Clear All".
-            </p>
-            <p className="text-left font-weight-light font-italic">
-              Creating a new schedule skeleton may remove shifts from the existing
-              master schedule.
-            </p>
-          </section>
-        </div>
-
-      <div className="d-flex justify-content-between p-4">
-          <button type="button" className="btn btn-info" onClick={submitSkeleton}>
-            Save
-          </button>
-          <button type="button" className="btn btn-warning" onClick={clearAll}>Clear All</button>
+      <div className="d-flex flex-column align-items-start p-4">Notice:
+        <p>- You must press "Save" to record any changes, even when pressing "Clear All".</p>
+        <p>- Creating a new schedule skeleton may remove shifts from the existing master schedule.</p>
       </div>
 
-      {submitMessage !== null && submitMessage.length > 0 && (
-            <div
-              class="alert alert-success m-4 alert-dismissible fade show"
-              role="alert"
-            >
-              <div className="m-3 text-left">
-                  <p>{submitMessage}</p>
-                  
-              </div>
-              <button
-                type="button"
-                class="close"
-                data-dismiss="alert"
-                aria-label="Close"
-              >
-                <span aria-hidden="true">&times;</span>
-              </button>
-            </div>
-          )}
+      <div className="d-flex justify-content-between p-4">
+          <button type="button" className="btn btn-info" onClick={submitSkeleton} disabled={submitting}>
+            Save
+          </button>
+          <button type="button" className="btn btn-warning" onClick={clearAll} disabled={submitting}>Clear All</button>
+      </div>
 
+      {submitMessage && (
+        <div className={`alert alert-${submitMessage[1]} alert-dismissible fade show`} role="alert">
+          <p>{submitMessage[0]}</p>
+          <p>{submitMessage[1] === "success" && "Please reload the page to see the latest changes."}</p>
+          <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close" onClick={() => setSubmitMessage(null)}></button>
+        </div>)}
 
-      {/* uneditable skeleton of master schedule */}
       <div className="pt-4 pl-4 pr-4 pb-2 table-responsive">
         <table className="table table-bordered">
           <thead className="table-dark">

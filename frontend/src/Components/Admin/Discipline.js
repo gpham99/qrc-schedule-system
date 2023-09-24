@@ -115,48 +115,30 @@ const Discipline = () => {
 
   return (
     <div class="container align-items-center bg-light">
-      <div class="row p-4 justify-content-center">
-        <p>You can add a new discipline or remove an existing one here.</p>
-      </div>
-
-      <div class="row justify-content-center">
-        <p>NOTE: if you remove a discipline during a block, the change may
-          cause bugs or unexpected behavior. It is recommended that you only
-          remove disciplines outside the school year or during the time
-          window for availability selection.</p>
+      <div class="d-flex flex-column p-4 align-items-start">
+        <p>- You can add a new discipline or remove an existing one here.</p>
+        <p>- If you remove a discipline during a block, the change may cause bugs or unexpected behavior.</p>
+        <p>- It is recommended that you only remove disciplines outside the school year or during the time window for availability selection.</p>
       </div>
 
       <div class="d-flex justify-content-end p-4">
-        <button
-          type="button"
-          class="btn btn-info"
-          data-toggle="modal"
-          data-target="#exampleModal"
-        >
-          <span class="p-1">Add a new discipline</span>
-        </button>
+        <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#addDiscipline">Add a new discipline</button>
+
         <div
           class="modal fade"
-          id="exampleModal"
+          id="addDiscipline"
           tabindex="-1"
           role="dialog"
-          aria-labelledby="exampleModalLabel"
+          aria-labelledby="addDisciplineLabel"
           aria-hidden="true"
         >
-          <div class="modal-dialog" role="document">
+          <div class="modal-dialog">
             <div class="modal-content">
               <div class="modal-header">
-                <p5 class="align-self-center w-100">Add a discipline</p5>
-                <button
-                  type="button"
-                  class="close"
-                  data-dismiss="modal"
-                  aria-label="Close"
-                  onClick={handleCancel}
-                >
-                  <span aria-hidden="true">&times;</span>
-                </button>
+                <p className="modal-title align-self-center w-100" id="exampleModalLabel">Add a discipline</p>
+                <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close" onClick={handleCancel}></button>
               </div>
+
               <div class="modal-body">
                 <form>
                   <div class="form-group">
@@ -182,7 +164,7 @@ const Discipline = () => {
                     />
                   </div>
                   <button
-                    class="btn btn-info"
+                    class="btn btn-info mt-2"
                     data-dismiss="modal"
                     onClick={handleClick}
                   >
