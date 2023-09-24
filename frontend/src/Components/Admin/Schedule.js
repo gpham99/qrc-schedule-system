@@ -134,7 +134,7 @@ const Schedule = () => {
                 <p> This is the aggregated view of the master schedule. To make changes, go to Edit.</p>
                 <div className="d-flex flex-row">
                   <p>If your schedule is ready, but you want to view a new randomized version based on your input, click here 👉</p>
-                  <button type="button" class="btn btn-link" onClick={generateMasterSchedule} disabled={generateLoading}>
+                  <button type="button" class="ms-2 btn btn-warning" onClick={generateMasterSchedule} disabled={generateLoading}>
                     {generateLoading ? "Generating..." : "Generate another master schedule"}
                   </button>
                 </div>
@@ -237,6 +237,7 @@ const Schedule = () => {
                   <th scope="col">Thursday</th>
                 </tr>
               </thead>
+
               <tbody>
                 <tr>
                   <td>2-4 PM</td>
@@ -421,6 +422,7 @@ const Schedule = () => {
                     </td>
                   ))}
                 </tr>
+
                 <tr>
                   <td>6-8 PM</td>
                   {[10, 11, 12, 13, 14]?.map((num) => (
@@ -512,6 +514,7 @@ const Schedule = () => {
                     </td>
                   ))}
                 </tr>
+
                 <tr>
                   <td>8-10 PM</td>
                   {[15, 16, 17, 18, 19]?.map((num) => (
