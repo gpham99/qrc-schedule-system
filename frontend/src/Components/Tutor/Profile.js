@@ -116,19 +116,9 @@ const Profile = () => {
         <div class="pl-3 pr-3 w-75">
           <h4>Your Editable Information</h4>
             {updateMessage.length > 0 && (
-              <div
-                class="alert alert-primary m-4 alert-dismissible fade show"
-                role="alert"
-              >
+              <div className="alert alert-primary alert-dismissible" role="alert">
               {updateMessage}
-              <button
-                type="button"
-                class="close"
-                data-dismiss="alert"
-                aria-label="Close"
-              >
-                <span aria-hidden="true">&times;</span>
-              </button>
+              <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
               </div>
             )}
         </div>
