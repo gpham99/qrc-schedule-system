@@ -117,7 +117,7 @@ const Schedule = () => {
             )}
           </div>
           {/* pencil button */}
-          <div className="d-flex justify-content-between pl-4 pr-4">
+          <div className="d-flex justify-content-between p-4">
             {/* This is to make the export as JPEG button download it as a JPEG */}
             {editMode === 0 ? (
               <button
@@ -165,29 +165,16 @@ const Schedule = () => {
 
           {/* This is where the submit message is set and alert is shown */}
           {submitMessage !== null && submitMessage.length === 0 && (
-            <div
-              class="alert alert-success m-4 alert-dismissible fade show"
-              role="alert"
-            >
+            <div className="alert alert-danger alert-dismissible fade show" role="alert">
               <div className="m-3 text-left">
                 Please reload the page to see the changes you've made.
               </div>
-              <button
-                type="button"
-                class="close"
-                data-dismiss="alert"
-                aria-label="Close"
-              >
-                <span aria-hidden="true">&times;</span>
-              </button>
+              <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close" onClick={() => setSubmitMessage(null)}></button>
             </div>
           )}
 
           {submitMessage !== null && submitMessage.length > 0 && (
-            <div
-              class="alert alert-danger m-4 alert-dismissible fade show"
-              role="alert"
-            >
+            <div className="alert alert-danger alert-dismissible fade show" role="alert">
               <div className="m-3 text-left">
                 {submitMessage.map((msg) => (
                   <p>{msg}</p>
@@ -197,14 +184,7 @@ const Schedule = () => {
                   message above, please reload the page to see them.
                 </p>
               </div>
-              <button
-                type="button"
-                class="close"
-                data-dismiss="alert"
-                aria-label="Close"
-              >
-                <span aria-hidden="true">&times;</span>
-              </button>
+              <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close" onClick={() => setSubmitMessage(null)}></button>
             </div>
           )}
 
