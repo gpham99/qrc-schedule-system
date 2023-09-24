@@ -47,6 +47,7 @@ const TutorInfo = () => {
   }
 
   const submitChange = async () => {
+    console.log("tutors:", tutors)
     const requestOptions = {
       method: "POST",
       headers: {
@@ -133,9 +134,7 @@ const TutorInfo = () => {
       <div className="d-flex justify-content-between p-4">
           <button type="button" className="btn btn-info" onClick={() => {
             submitChange();
-            setSubmitError("");
             setError("");
-            setSuccess("");
           }} disabled={submitting}>
             {submitting ? "Saving..." : "Save Changes"}
           </button>
@@ -149,15 +148,15 @@ const TutorInfo = () => {
       </div>
 
       {submitError && 
-      <div className="alert alert-danger alert-dismissible" role="alert">
+      <div className="alert alert-danger alert-dismissible fade show" role="alert">
         {submitError}
-        <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close" onClick={() => setSubmitError("")}></button>
       </div>}
 
       {success && 
-      <div className="alert alert-success alert-dismissible" role="alert">
+      <div className="alert alert-success alert-dismissible fade show" role="alert">
         {success}
-        <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close" onClick={() => setSuccess("")}></button>
       </div>}
 
       <div style={{overflowY: "auto", height: "600px"}}>
@@ -172,7 +171,7 @@ const TutorInfo = () => {
           </thead>
           <tbody>
             {Object.keys(tutors).map((key) => (
-              <tr key={key}>
+              <tr>
                 <td>{tutors[key]["name"]}</td>
                 <td>
                   {
