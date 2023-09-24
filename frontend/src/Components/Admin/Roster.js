@@ -32,7 +32,7 @@ const Roster = () => {
 
     try {
       setSubmitting(true);
-      const res = await fetch("https://44.228.177.192/api/upload_roster", requestOptions);
+      const res = await fetch("http://44.228.177.192/api/upload_roster", requestOptions);
       const data = await res.json();
       if (res.status === 200) {
         if (data.msg.includes("Error")) {

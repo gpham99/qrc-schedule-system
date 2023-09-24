@@ -1,12 +1,5 @@
 server {
-	listen 443 ssl;
-	listen [::]:443 ssl;
-	server_name 44.228.177.192;
-	ssl_certificate /etc/ssl/cert.crt;
-	ssl_certificate_key /etc/ssl/cert.key;
-	ssl_protocols TLSv1.2 TLSv1.3;
-
-	#listen 80;
+	listen 80;
 	root /home/ubuntu/qrc-schedule-system/frontend/build;
 	index index.html;
 	location / {
@@ -22,14 +15,4 @@ server {
 #	location /cas_proxy {
 #		  proxy_pass https://cas.coloradocollege.edu/cas/;
 #	}
-}
-server {
-        if ($host = 44.228.177.192) {
-                return 301 https://$host$request_uri;
-        } # managed by Certbot
-
-        listen 80;
-        listen [::]:80;
-
-        return 404; # managed by Certbot
 }

@@ -20,7 +20,7 @@ const Profile = () => {
         },
       };
 
-      fetch("https://44.228.177.192/api/tutor/get_info", requestOptions)
+      fetch("http://44.228.177.192/api/tutor/get_info", requestOptions)
         .then((response) => {
           let res = response.json();
           return res;
@@ -48,7 +48,7 @@ const Profile = () => {
           "Content-Type": "application/json",
         },
       };
-      fetch("https://44.228.177.192/api/tutor/update_info", requestOptions)
+      fetch("http://44.228.177.192/api/tutor/update_info", requestOptions)
       .then((response) => {
         let res = response.json();
         return res;

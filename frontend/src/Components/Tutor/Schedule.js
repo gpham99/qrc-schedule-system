@@ -30,7 +30,7 @@ const Schedule = () => {
         },
       };
 
-      fetch("https://44.228.177.192/api/tutor/get_schedule", requestOptions)
+      fetch("http://44.228.177.192/api/tutor/get_schedule", requestOptions)
         .then((response) => {
           let res = response.json();
           return res;
@@ -42,7 +42,7 @@ const Schedule = () => {
   , []);
 
   function checkTimeWindow () {
-    fetch("https://44.228.177.192/api/is_open").then((response) => {
+    fetch("http://44.228.177.192/api/is_open").then((response) => {
       let res = response.json();
       return res;
     })
@@ -67,7 +67,7 @@ const Schedule = () => {
       };
 
       fetch(
-        "https://44.228.177.192/api/tutor/get_availability",
+        "http://44.228.177.192/api/tutor/get_availability",
         requestOptions
       )
         .then((response) => {
@@ -94,7 +94,7 @@ const Schedule = () => {
     };
 
     fetch(
-      "https://44.228.177.192/api/tutor/set_availability",
+      "http://44.228.177.192/api/tutor/set_availability",
       requestOptions
     )
       .then((response) => {

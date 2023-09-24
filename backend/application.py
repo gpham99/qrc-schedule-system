@@ -34,7 +34,7 @@ SHIFT_SLOTS = 20
 #everyone in the system has a CC email
 EMAIL_SUFFIX = '@coloradocollege.edu'
 #URL for the project
-URL = 'https://44.228.177.192/'
+URL = 'http://44.228.177.192/'
 
 #set up Flask app
 application = Flask(__name__)
@@ -46,7 +46,7 @@ application.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 cas_client = CASClient(
     version=3,    
     service_url=URL[:-1]+":8080/",
-    server_url='https://cas.coloradocollege.edu/cas/'
+    server_url='http://cas.coloradocollege.edu/cas/'
 )
 
 #helper function: check if an uploaded roster is in the correct format
@@ -134,7 +134,7 @@ def logout():
 @application.route('/logout')
 def logout_callback():
     session.clear()
-    return redirect("https://www.coloradocollege.edu/")
+    return redirect("http://www.coloradocollege.edu/")
 
 #return master schedule in an easily displayable format
 @application.route('/master_schedule')
