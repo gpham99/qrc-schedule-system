@@ -85,7 +85,7 @@ const ScheduleSkeleton = () => {
               in each cell.
             </p>
             <p className="text-left">
-              You must press "Save Changes" to save any changes, even when pressing "Clear All".
+              You must press "Save" to save any changes, even when pressing "Clear All".
             </p>
             <p className="text-left font-weight-light font-italic">
               Creating a new schedule skeleton may remove shifts from the existing
