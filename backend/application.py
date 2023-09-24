@@ -57,7 +57,6 @@ def allowed_file(filename):
 #security function: verify user authentication. Relies on Flask sessions, transmitted back and forth
 #via the session cookie. Uses the "authenticate" function in security.py
 def authenticate():
-    session['username'] = 'g_pham'
     if 'username' in session:
         username = session['username'] + EMAIL_SUFFIX
         user = _authenticate(username)
@@ -292,13 +291,13 @@ def upload_roster():
         #return Response(response="Unauthorized", status=401)
     # check if the post request has the file part
     if 'file' not in request.files:
-        return {"msg": "No file part"}
+        return {"msg": "No file part"}, 403
         #return redirect(request.url)
     file = request.files['file']
     # If the user does not select a file, the browser submits an
     # empty file without a filename.
     if file.filename == '':
-        return {"msg": "No selected file"}
+        return {"msg": "No selected file"}, 403
     if file and allowed_file(file.filename):
         result, data = read_roster(file)
         if type(data) == pd.DataFrame:
@@ -306,8 +305,8 @@ def upload_roster():
                 if existing_file.startswith('roster'):
                     os.remove(existing_file)
             data.to_csv(os.path.join(application.config['UPLOAD_FOLDER'], ROSTER_PATH), index = False)
-        return {"msg": result}
-    return {"msg": "File format not accepted"}
+        return {"msg": result}, 200
+    return {"msg": "File format not accepted"}, 403
 
 #Get the list of all disciplines with abbreviations
 @application.route('/fetch_disciplines')

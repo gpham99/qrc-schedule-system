@@ -4,7 +4,7 @@ create_tables(["Computer_Science", "Mathematics", "Physics", "Economics", "Chemi
 add_tutor("Jessica Hannebert", "j_hannebert@coloradocollege.edu")
 add_tutor("Giang Pham", "g_pham@coloradocollege.edu")
 update_tutoring_disciplines("g_pham@coloradocollege.edu", ["Economics", "Chemistry$Molecular_Biology"])
-update_tutoring_disciplines("j_hannebert@coloradocollege.edu", ["Economics", "Physics"])
+update_tutoring_disciplines("j_hannebert@coloradocollege.edu", ["Economics", "Physics", "Computer_Science", "Mathematics", "Chemistry$Molecular_Biology"])
 add_discipline("Computer_Science", "CS", [1, 3, 5, 7, 9, 11, 13, 15, 17, 19])
 add_discipline("Mathematics", "M", [0, 1, 2, 4, 6, 8, 10, 12, 14, 16, 17, 18, 19])
 add_discipline("Physics", "P", [3, 5, 7, 9, 11, 13, 15, 17, 19])
