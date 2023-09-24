@@ -123,6 +123,7 @@ const TutorInfo = () => {
     </div>
 
   return (
+    <div>
     <div className="container bg-light p-4">
       <div className="d-flex flex-column align-items-start">Notice:
       <p>- Remember, changes won't be saved until you click 'Save Changes'.</p>
@@ -211,6 +212,7 @@ const TutorInfo = () => {
           </tbody>
         </table>
       </div>
+    </div>
     </div>
   );
 };
