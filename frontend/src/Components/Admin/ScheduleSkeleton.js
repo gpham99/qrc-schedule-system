@@ -65,7 +65,7 @@ const ScheduleSkeleton = () => {
     };
     for (const num in edittedScheduleSkeletonCopy) {
       for (const index in edittedScheduleSkeletonCopy[num]) {
-        edittedScheduleSkeletonCopy[num][index] = false;
+        edittedScheduleSkeletonCopy[num][index] = edittedScheduleSkeletonCopy[num][index].split(",")[0] + ",False";
       }
     }
     setEdittedScheduleSkeleton(
