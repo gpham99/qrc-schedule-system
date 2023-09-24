@@ -1,29 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 
 const Roster = () => {
-  const [lastUploaded, setLastUploaded] = useState([]);
-
-  useEffect(() => {
-    fetch("https://44.228.177.192/api/last_excel_file", {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    })
-      .then((response) => {
-        let res = response.json();
-        //setFile(res);
-        return res;
-      })
-      .then((data) => {
-        setLastUploaded(data);
-      });
-  }, [lastUploaded]);
-
   const [file, setFile] = useState();
-
   const [submitMessage, setSubmitMessage] = useState("");
 
   const handleChange = (e) => {
+    console.log("this is the file:", e.target.files[0])
     setFile(e.target.files[0]);
   };
 
@@ -39,7 +21,9 @@ const Roster = () => {
       },
       body: formData,
     };
-    fetch("https://44.228.177.192/api/upload_roster", requestOptions)
+
+    try {
+      fetch("https://44.228.177.192/api/upload_roster", requestOptions)
       .then((response) => {
         let res = response.json();
         return res;
@@ -48,6 +32,10 @@ const Roster = () => {
         console.log("data: ", data);
         setSubmitMessage(data["msg"]);
       });
+    }
+    catch (e) {
+      console.log("file too large");
+    }
   };
 
   return (
@@ -60,19 +48,9 @@ const Roster = () => {
       </div>
 
       {submitMessage.length > 0 && (
-        <div
-          class="alert alert-primary m-4 alert-dismissible fade show"
-          role="alert"
-        >
-          {submitMessage}
-          <button
-            type="button"
-            class="close"
-            data-dismiss="alert"
-            aria-label="Close"
-          >
-            <span aria-hidden="true">&times;</span>
-          </button>
+        <div className="alert alert-primary alert-dismissible" role="alert">
+        {submitMessage}
+        <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
       )}
 
