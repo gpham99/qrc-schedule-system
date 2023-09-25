@@ -174,6 +174,12 @@ def get_master_schedule():
                                 discipline_list.remove(disciplines[index]) #ensure there is no redundant information
                             except:
                                 application.logger.debug("ERROR: Discipline " + disciplines[index] + " not in tutorable disciplines for tutor " + email)
+                            #remove now-deleted disciplines from the list
+                            discipline_list_cpy = []
+                            for disc in discipline_list:
+                                if disc in disciplines:
+                                    discipline_list_cpy.append(disc)
+                            discipline_list = discipline_list_cpy
                             #get abbreviations for each discipline
                             for i in range(len(discipline_list)):
                                 discipline_list[i] = abbreviations[disciplines.index(discipline_list[i])]
