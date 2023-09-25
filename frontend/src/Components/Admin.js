@@ -30,7 +30,7 @@ const Admin = () => {
     async function fetchBlock() {
       try {
         setLoadingBlock(true);
-        const res = await fetch("http://44.228.177.192/api/get_block", requestOptions);
+        const res = await fetch("http://44.230.115.148/api/get_block", requestOptions);
         const data = await res.json();
         setBlock(data["block"]);
       }
@@ -60,7 +60,7 @@ const Admin = () => {
             </div>
             <div class="d-flex flex-row justify-content-end pr-4">
               <a
-                href="http://44.228.177.192/logout"
+                href="http://44.230.115.148/logout"
                 onClick={() => {
                   localStorage.clear();
                 }}
@@ -70,7 +70,7 @@ const Admin = () => {
               </a>
 
               <a
-                href="http://44.228.177.192/api/cas_logout"
+                href="http://44.230.115.148/api/cas_logout"
                 onClick={() => {
                   localStorage.clear();
                 }}

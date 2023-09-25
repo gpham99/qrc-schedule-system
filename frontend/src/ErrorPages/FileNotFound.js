@@ -18,11 +18,11 @@ const FileNotFound = () => {
           The page you are looking for is not available!
         </h5>
         <a href="https://www.coloradocollege.edu/">
-          <a href="http://44.228.177.192/">
+          <a href="http://44.230.115.148/">
             <button class="btn btn-light m-3">Go Home</button>
           </a>
           <a
-            href="http://44.228.177.192:8080/cas_logout"
+            href="http://44.230.115.148:8080/cas_logout"
             onClick={() => {
               localStorage.clear();
             }}

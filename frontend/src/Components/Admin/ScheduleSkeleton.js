@@ -17,7 +17,7 @@ const ScheduleSkeleton = () => {
     async function fetchScheduleSkeleton() {
       try {
         setLoading(true);
-        const res =  await fetch("http://44.228.177.192/api/get_schedule_skeleton", requestOptions);
+        const res =  await fetch("http://44.230.115.148/api/get_schedule_skeleton", requestOptions);
         const data = await res.json();
         setScheduleSkeleton(data);
         setEdittedScheduleSkeleton({ ...data });
@@ -44,7 +44,7 @@ const ScheduleSkeleton = () => {
 
     try {
       setSubmitting(true);
-      const res = await fetch("http://44.228.177.192/api/set_schedule_skeleton", requestOptions);
+      const res = await fetch("http://44.230.115.148/api/set_schedule_skeleton", requestOptions);
       const data = await res.json();
       setSubmitMessage([data.msg, "success"]);
     }

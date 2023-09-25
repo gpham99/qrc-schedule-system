@@ -22,7 +22,7 @@ const TimeWindow = () => {
     async function fetchBlock() {
       try {
         setBlockLoading(true);
-        const res = await fetch("http://44.228.177.192/api/get_block");
+        const res = await fetch("http://44.230.115.148/api/get_block");
         const data = await res.json();
         setBlock(data.block);
       }
@@ -40,7 +40,7 @@ const TimeWindow = () => {
     async function fetchIsOpen() {
       try {
         setIsOpenLoading(true);
-        const res = await fetch("http://44.228.177.192/api/is_open");
+        const res = await fetch("http://44.230.115.148/api/is_open");
         const data = await res.json();
         setIsOpen(data.msg === "True" ? true : false);
       }
@@ -57,7 +57,7 @@ const TimeWindow = () => {
   const update = async () => {
     try {
       setSubmitting(true);
-      const res = await fetch("http://44.228.177.192/api/open_schedule", {
+      const res = await fetch("http://44.230.115.148/api/open_schedule", {
       method: "POST",
       headers: {"Content-Type": "application/json"},
       body: JSON.stringify({block: block, is_open: isOpen})

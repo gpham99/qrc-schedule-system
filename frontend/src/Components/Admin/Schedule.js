@@ -28,7 +28,7 @@ const Schedule = () => {
     async function fetchBlock() {
       try {
         setLoadingBlock(true);
-        const res = await fetch("http://44.228.177.192/api/get_block", requestOptions);
+        const res = await fetch("http://44.230.115.148/api/get_block", requestOptions);
         const data = await res.json();
         setBlock(data["block"]);
       }
@@ -51,7 +51,7 @@ const Schedule = () => {
       async function fetchSchedule() {
         try {
           setLoading(true);
-          const res = await fetch("http://44.228.177.192/api/master_schedule", requestOptions);
+          const res = await fetch("http://44.230.115.148/api/master_schedule", requestOptions);
           const data = await res.json();
           setMasterSchedule(data);
           setUnchangedMasterSchedule(structuredClone(data));
@@ -77,7 +77,7 @@ const Schedule = () => {
   const submitChange = async () => {
     try {
       setSubmitting(true);
-      const res = await  fetch("http://44.228.177.192/api/update_master_schedule", {
+      const res = await  fetch("http://44.230.115.148/api/update_master_schedule", {
         method: "POST",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify(editedSchedule),
@@ -103,7 +103,7 @@ const Schedule = () => {
     }
     try {
       setGenerateLoading(true);
-      const res = await fetch("http://44.228.177.192/api/regenerate_schedule", requestOptions);
+      const res = await fetch("http://44.230.115.148/api/regenerate_schedule", requestOptions);
       const data = await res.json();
       setGenerateMessage([data.msg, "success"]);
     }

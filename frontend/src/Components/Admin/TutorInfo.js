@@ -25,7 +25,7 @@ const TutorInfo = () => {
       async function fetchTutors() {
         try {
           setLoading(true);
-          const res = await fetch("http://44.228.177.192/api/get_tutors_information", requestOptions);
+          const res = await fetch("http://44.230.115.148/api/get_tutors_information", requestOptions);
           const data = await res.json();
           setTutors(data);
         }
@@ -58,7 +58,7 @@ const TutorInfo = () => {
 
     try {
       setSubmitting(true);
-      const res = await fetch("http://44.228.177.192/api/set_tutors_information", requestOptions);
+      const res = await fetch("http://44.230.115.148/api/set_tutors_information", requestOptions);
       if (res.status === 200) {
         setSuccess("Changes were saved to the database successfully!");
       }
