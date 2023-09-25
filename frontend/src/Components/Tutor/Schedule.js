@@ -36,6 +36,7 @@ const Schedule = () => {
           return res;
         })
         .then((data) => {
+          console.log("this is your schedule:", data);
           setSchedule(data);
         });
     }
@@ -47,6 +48,7 @@ const Schedule = () => {
       return res;
     })
     .then((data) => {
+      console.log(data.msg);
       setIsActiveTW(data.msg)
     })
   }
@@ -75,7 +77,7 @@ const Schedule = () => {
           return res;
         })
         .then((data) => {
-          console.log(data);
+          // console.log(data);
           setAvailabilities(data);
           setEdittedAvailabilities(structuredClone(data));
         });
@@ -84,7 +86,7 @@ const Schedule = () => {
 
   // a function to send the submission
   const sendSubmission = () => {
-    console.log("to send", edittedAvailabilities);
+    // console.log("to send", edittedAvailabilities);
     const requestOptions = {
       method: "POST",
       headers: {
@@ -102,7 +104,7 @@ const Schedule = () => {
         return res;
       })
       .then((data) => {
-        console.log("data: ", data);
+        // console.log("data: ", data);
         setSubmitMessage(data["msg"]);
       });
   };
@@ -176,7 +178,7 @@ const Schedule = () => {
               {[0, 1, 2, 3, 4].map((num) => (
                 <td key={num}>
                   {isActiveTW === "False" ? (
-                    <span class="badge badge-success p-1">{schedule[num]}</span>
+                    <div>{schedule[num]}</div>
                   ) : (
                     <>
                       {availabilities[num]["all_possible_disciplines"]
@@ -265,7 +267,7 @@ const Schedule = () => {
               {[5, 6, 7, 8, 9].map((num) => (
                 <td key={num}>
                   {isActiveTW === "False"  ? (
-                    <span class="badge badge-success p-1">{schedule[num]}</span>
+                    <div>{schedule[num]}</div>
                   ) : (
                     <>
                       {availabilities[num]["all_possible_disciplines"]
@@ -354,7 +356,7 @@ const Schedule = () => {
               {[10, 11, 12, 13, 14].map((num) => (
                 <td key={num}>
                   {isActiveTW === "False"  ? (
-                    <span class="badge badge-success p-1">{schedule[num]}</span>
+                    <div>{schedule[num]}</div>
                   ) : (
                     <>
                       {availabilities[num]["all_possible_disciplines"]
@@ -442,7 +444,7 @@ const Schedule = () => {
               {[15, 16, 17, 18, 19].map((num) => (
                 <td key={num}>
                   {isActiveTW === "False"  ? (
-                    <span class="badge badge-success p-1">{schedule[num]}</span>
+                    <div>{schedule[num]}</div>
                   ) : (
                     <>
                       {availabilities[num]["all_possible_disciplines"]
