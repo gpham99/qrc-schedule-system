@@ -96,11 +96,11 @@ const TimeWindow = () => {
             isOpenLoading ? <p>Loading shift registration status...</p> :
             <div className="d-flex flex-row">
               <label className="pe-4">Shift registration:</label>
-              <label className="pe-3">Off</label>
+              <label className="pe-3">Closed</label>
               <div className="form-switch form-check">
                 <input role="switch" className="form-check-input" type="checkbox" onChange={toggleIsOpen} checked={isOpen}/>
               </div>
-              <label className="ps-3">On</label>
+              <label className="ps-3">Open</label>
             </div>
           }
 

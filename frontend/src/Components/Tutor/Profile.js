@@ -112,13 +112,13 @@ const Profile = () => {
         </div>
       </div>
 
-      <div className="d-flex flex-column justify-content-center align-items-center p-4 w-75 border border-success mt-3 mb-3">
+      <div className="d-flex flex-column justify-content-center align-items-center p-4 w-75 border border-secondary mt-3 mb-3">
         <div class="pl-3 pr-3 w-75">
           <h4>Your Editable Information</h4>
-            {updateMessage.length > 0 && (
-              <div className="alert alert-primary alert-dismissible" role="alert">
+            {updateMessage && (
+              <div className="alert alert-success alert-dismissible fade show" role="alert">
               {updateMessage}
-              <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close" onClick={() => setUpdateMessage("")}></button>
               </div>
             )}
         </div>

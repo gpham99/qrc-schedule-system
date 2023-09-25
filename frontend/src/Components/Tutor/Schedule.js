@@ -5,7 +5,7 @@ import ButtonGroup from "react-bootstrap/ButtonGroup";
 
 const Schedule = () => {
 
-  const [submitMessage, setSubmitMessage] = useState(null);
+  const [submitMessage, setSubmitMessage] = useState("");
 
   // tutor's shift schedule
   const [schedule, setSchedule] = useState({});
@@ -36,7 +36,6 @@ const Schedule = () => {
           return res;
         })
         .then((data) => {
-          console.log("this is your schedule:", data);
           setSchedule(data);
         });
     }
@@ -48,7 +47,7 @@ const Schedule = () => {
       return res;
     })
     .then((data) => {
-      console.log(data.msg);
+      // console.log(data.msg);
       setIsActiveTW(data.msg)
     })
   }
@@ -127,20 +126,10 @@ const Schedule = () => {
         </section>
       </div>
 
-      {(submitMessage !== null && isActiveTW === "True") && (
-        <div
-          class="alert alert-success m-4 alert-dismissible fade show"
-          role="alert"
-        >
+      {(submitMessage !== null && isActiveTW === "True") && (        
+        <div className="alert alert-success alert-dismissible fade show" role="alert">
           {submitMessage}
-          <button
-            type="button"
-            class="close"
-            data-dismiss="alert"
-            aria-label="Close"
-          >
-            <span aria-hidden="true">&times;</span>
-          </button>
+          <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close" onClick={() => setSubmitMessage("")}></button>
         </div>
       )}
 
@@ -187,6 +176,7 @@ const Schedule = () => {
                         <div class="flex justify-content-center align-items-center pl-2">
                           <ButtonGroup>
                             <DropdownButton
+                              style={{marginRight: 5}}
                               title={edittedAvailabilities[num]["favorited"]}
                               onSelect={(e) => {
                                 let edittedAvailabilitiesCopy = {
@@ -273,10 +263,11 @@ const Schedule = () => {
                       {availabilities[num]["all_possible_disciplines"]
                         .length !== 0 && (
                         //DROPDOWN
-                        <div class="d-flex flex-row justify-content-center align-items-center pl-2">
+                        <div class="d-flex flex-row justify-content-center align-items-center">
                           {/*priorities*/}
                           <ButtonGroup>
                             <DropdownButton
+                              style={{marginRight: 5}}
                               defaultValue={"Low"}
                               title={edittedAvailabilities[num]["favorited"]}
                               onSelect={(e) => {
@@ -365,6 +356,7 @@ const Schedule = () => {
                         <div class="d-flex flex-row justify-content-center align-items-center  pl-2">
                           <ButtonGroup>
                             <DropdownButton
+                              style={{marginRight: 5}}
                               defaultValue={"Low"}
                               title={edittedAvailabilities[num]["favorited"]}
                               onSelect={(e) => {
@@ -454,6 +446,7 @@ const Schedule = () => {
                           {/*priorities*/}
                           <ButtonGroup>
                             <DropdownButton
+                              style={{marginRight: 5}}
                               defaultValue={"Low"}
                               title={
                                 edittedAvailabilities[num]["favorited"] === ""
